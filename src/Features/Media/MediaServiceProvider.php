@@ -59,7 +59,6 @@ class MediaServiceProvider extends ServiceProvider
 	 */
 	public function boot(): void
 	{
-		// Load routes for media, media categories, and media tags
-		//$this->loadRoutesFrom( __DIR__ . '/../../../routes/media.php' );
+		// Routes are now handled by MediaLibraryServiceProvider
 	}
 }

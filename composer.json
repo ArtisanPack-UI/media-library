@@ -5,7 +5,8 @@
   "license": "GPL-3.0-or-later",
   "autoload": {
     "psr-4": {
-      "ArtisanPackUI\\MediaLibrary\\": "src/"
+      "ArtisanPackUI\\MediaLibrary\\": "src/",
+      "ArtisanPackUI\\MediaLibrary\\Database\\Factories\\": "src/Database/Factories/"
     },
     "files": [
       "src/helpers.php"
@@ -30,7 +31,9 @@
   },
   "require-dev": {
     "pestphp/pest": "^3.8",
-    "pestphp/pest-plugin-laravel": "^3.1"
+    "pestphp/pest-plugin-laravel": "^3.1",
+    "mockery/mockery": "^1.6",
+    "orchestra/testbench": "^10.0"
   },
   "config": {
     "allow-plugins": {

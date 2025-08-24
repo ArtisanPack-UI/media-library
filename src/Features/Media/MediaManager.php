@@ -58,7 +58,7 @@ class MediaManager
      */
     public function __construct( LoggerInterface $logger )
     {
-        $this->disk   = config( 'cms.media.disk', 'public' );
+        $this->disk   = config( 'media-library.disk', 'public' );
         $this->logger = $logger;
     }
 
@@ -92,7 +92,7 @@ class MediaManager
 
             $year            = date( 'Y' );
             $month           = date( 'm' );
-            $baseDirectory   = config( 'cms.media.directory', 'media' );
+            $baseDirectory   = config( 'media-library.directory', 'media' );
             $uploadDirectory = "{$baseDirectory}/{$year}/{$month}";
 
             $originalFilename = $security->sanitizeFilename( $file->getClientOriginalName() );
