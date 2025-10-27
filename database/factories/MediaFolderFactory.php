@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ArtisanPackUI\MediaLibrary\Database\Factories;
 
-use App\Models\User;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
@@ -35,13 +35,14 @@ class MediaFolderFactory extends Factory
     public function definition(): array
     {
         $name = fake()->words(2, true);
+        $userModel = config('artisanpack.media.user_model');
 
         return [
             'name' => $name,
             'slug' => Str::slug($name),
             'description' => fake()->sentence(),
             'parent_id' => null,
-            'created_by' => User::factory(),
+            'created_by' => $userModel::factory(),
         ];
     }
 
@@ -64,13 +65,13 @@ class MediaFolderFactory extends Factory
     /**
      * Indicate that the folder was created by a specific user.
      *
-     * @param  int|User  $user  The user ID or instance.
+     * @param  int|Model  $user  The user ID or user model instance.
      *
      * @since 1.0.0
      */
-    public function createdBy(int|User $user): static
+    public function createdBy(int|Model $user): static
     {
-        $userId = $user instanceof User ? $user->id : $user;
+        $userId = $user instanceof Model ? $user->id : $user;
 
         return $this->state(fn (array $attributes) => [
             'created_by' => $userId,

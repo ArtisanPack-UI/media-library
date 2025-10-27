@@ -18,6 +18,17 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
+    | User Model
+    |--------------------------------------------------------------------------
+    |
+    | The user model to use for relationships (uploaded_by, created_by, etc.).
+    | Defaults to the cms-framework user model if available, otherwise App\Models\User.
+    |
+    */
+    'user_model' => config('artisanpack.cms-framework.user_model', 'App\Models\User'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Storage Disk
     |--------------------------------------------------------------------------
     |

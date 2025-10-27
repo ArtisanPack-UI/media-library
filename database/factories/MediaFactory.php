@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace ArtisanPackUI\MediaLibrary\Database\Factories;
 
-use App\Models\User;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Factory for Media model.
@@ -34,6 +34,8 @@ class MediaFactory extends Factory
      */
     public function definition(): array
     {
+        $userModel = config('artisanpack.media.user_model');
+
         return [
             'title' => fake()->sentence(3),
             'file_name' => fake()->word().'.jpg',
@@ -48,7 +50,7 @@ class MediaFactory extends Factory
             'height' => fake()->numberBetween(100, 4000),
             'duration' => null,
             'folder_id' => null,
-            'uploaded_by' => User::factory(),
+            'uploaded_by' => $userModel::factory(),
             'metadata' => [],
         ];
     }
@@ -140,13 +142,13 @@ class MediaFactory extends Factory
     /**
      * Indicate that the media is uploaded by a specific user.
      *
-     * @param  int|User  $user  The user ID or instance.
+     * @param  int|Model  $user  The user ID or user model instance.
      *
      * @since 1.0.0
      */
-    public function uploadedBy(int|User $user): static
+    public function uploadedBy(int|Model $user): static
     {
-        $userId = $user instanceof User ? $user->id : $user;
+        $userId = $user instanceof Model ? $user->id : $user;
 
         return $this->state(fn (array $attributes) => [
             'uploaded_by' => $userId,
