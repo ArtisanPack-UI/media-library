@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary;
 
@@ -14,9 +14,9 @@ use Illuminate\Support\ServiceProvider;
  * the main artisanpack.php config file following the ArtisanPack UI
  * package conventions.
  *
+ * @since   1.0.0
  * @package ArtisanPackUI\MediaLibrary
  *
- * @since 1.0.0
  */
 class MediaLibraryServiceProvider extends ServiceProvider
 {
@@ -31,7 +31,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/media.php',
+            __DIR__ . '/../config/media.php',
             'artisanpack-media-temp'
         );
 
@@ -54,7 +54,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->mergeConfiguration();
         $this->publishConfiguration();
         $this->registerViews();
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
         $this->registerRoutes();
     }
 
@@ -68,10 +68,10 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function mergeConfiguration(): void
     {
-        $packageDefaults = config('artisanpack-media-temp', []);
-        $userConfig = config('artisanpack.media', []);
-        $mergedConfig = array_replace_recursive($packageDefaults, $userConfig);
-        config(['artisanpack.media' => $mergedConfig]);
+        $packageDefaults = config( 'artisanpack-media-temp', [] );
+        $userConfig      = config( 'artisanpack.media', [] );
+        $mergedConfig    = array_replace_recursive( $packageDefaults, $userConfig );
+        config( [ 'artisanpack.media' => $mergedConfig ] );
     }
 
     /**
@@ -84,10 +84,10 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function publishConfiguration(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../config/media.php' => config_path('artisanpack/media.php'),
-            ], 'artisanpack-package-config');
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                                  __DIR__ . '/../config/media.php' => config_path( 'artisanpack/media.php' ),
+                              ], 'artisanpack-package-config' );
         }
     }
 
@@ -101,11 +101,11 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerViews(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'media');
+        $this->loadViewsFrom( __DIR__ . '/../resources/views', 'media' );
 
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/media'),
-        ], 'media-views');
+        $this->publishes( [
+                              __DIR__ . '/../resources/views' => resource_path( 'views/vendor/media' ),
+                          ], 'media-views' );
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
@@ -39,18 +39,18 @@ class MediaTag extends Model
     }
 
     /**
-     * Get all media items with this tag.
-     */
-    public function media(): BelongsToMany
-    {
-        return $this->belongsToMany(Media::class, 'media_taggables');
-    }
-
-    /**
      * Get count of media items with this tag.
      */
     public function mediaCount(): int
     {
         return $this->media()->count();
+    }
+
+    /**
+     * Get all media items with this tag.
+     */
+    public function media(): BelongsToMany
+    {
+        return $this->belongsToMany( Media::class, 'media_taggables' );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
@@ -49,7 +49,7 @@ class MediaFolder extends Model
      */
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(MediaFolder::class, 'parent_id');
+        return $this->belongsTo( MediaFolder::class, 'parent_id' );
     }
 
     /**
@@ -57,7 +57,7 @@ class MediaFolder extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(MediaFolder::class, 'parent_id');
+        return $this->hasMany( MediaFolder::class, 'parent_id' );
     }
 
     /**
@@ -65,7 +65,7 @@ class MediaFolder extends Model
      */
     public function media(): HasMany
     {
-        return $this->hasMany(Media::class, 'folder_id');
+        return $this->hasMany( Media::class, 'folder_id' );
     }
 
     /**
@@ -73,7 +73,7 @@ class MediaFolder extends Model
      */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo( User::class, 'created_by' );
     }
 
     /**
@@ -82,9 +82,9 @@ class MediaFolder extends Model
     public function fullPath(): string
     {
         $ancestors = $this->ancestors();
-        $ancestors->push($this);
+        $ancestors->push( $this );
 
-        return $ancestors->pluck('name')->implode('/');
+        return $ancestors->pluck( 'name' )->implode( '/' );
     }
 
     /**
@@ -93,14 +93,38 @@ class MediaFolder extends Model
     public function ancestors(): Collection
     {
         $ancestors = collect();
-        $parent = $this->parent;
+        $parent    = $this->parent;
 
-        while ($parent) {
-            $ancestors->prepend($parent);
+        while ( $parent ) {
+            $ancestors->prepend( $parent );
             $parent = $parent->parent;
         }
 
         return $ancestors;
+    }
+
+    /**
+     * Move folder to a new parent.
+     */
+    public function moveTo( ?int $parentId ): bool
+    {
+        // Prevent circular references
+        if ( null !== $parentId ) {
+            $newParent = static::find( $parentId );
+
+            if ( ! $newParent ) {
+                return false;
+            }
+
+            // Check if the new parent is a descendant of this folder
+            if ( $this->id === $newParent->id || $this->descendants()->contains( 'id', $parentId ) ) {
+                return false;
+            }
+        }
+
+        $this->parent_id = $parentId;
+
+        return $this->save();
     }
 
     /**
@@ -110,35 +134,11 @@ class MediaFolder extends Model
     {
         $descendants = collect();
 
-        foreach ($this->children as $child) {
-            $descendants->push($child);
-            $descendants = $descendants->merge($child->descendants());
+        foreach ( $this->children as $child ) {
+            $descendants->push( $child );
+            $descendants = $descendants->merge( $child->descendants() );
         }
 
         return $descendants;
-    }
-
-    /**
-     * Move folder to a new parent.
-     */
-    public function moveTo(?int $parentId): bool
-    {
-        // Prevent circular references
-        if (null !== $parentId) {
-            $newParent = static::find($parentId);
-
-            if (! $newParent) {
-                return false;
-            }
-
-            // Check if the new parent is a descendant of this folder
-            if ($this->id === $newParent->id || $this->descendants()->contains('id', $parentId)) {
-                return false;
-            }
-        }
-
-        $this->parent_id = $parentId;
-
-        return $this->save();
     }
 }
