@@ -1,11 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use App\Models\User;
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,11 +57,11 @@ class Media extends Model
     protected function casts(): array
     {
         return [
-            'metadata' => 'array',
+            'metadata'  => 'array',
             'file_size' => 'integer',
-            'width' => 'integer',
-            'height' => 'integer',
-            'duration' => 'integer',
+            'width'     => 'integer',
+            'height'    => 'integer',
+            'duration'  => 'integer',
         ];
     }
 
@@ -113,13 +114,13 @@ class Media extends Model
             return null;
         }
 
-        if ($size === 'full') {
+        if ('full' === $size) {
             return $this->url();
         }
 
         // Generate path for the sized image
         $pathInfo = pathinfo($this->file_path);
-        $sizedPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'-'.$size.'.'.$pathInfo['extension'];
+        $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $size . '.' . $pathInfo['extension'];
 
         if (Storage::disk($this->disk)->exists($sizedPath)) {
             return Storage::disk($this->disk)->url($sizedPath);
@@ -143,10 +144,10 @@ class Media extends Model
 
         $attrString = '';
         foreach ($attributes as $key => $value) {
-            $attrString .= ' '.escAttr($key).'="'.escAttr($value).'"';
+            $attrString .= ' ' . escAttr($key) . '="' . escAttr($value) . '"';
         }
 
-        return '<img src="'.$url.'" alt="'.$alt.'"'.$attrString.' />';
+        return '<img src="' . $url . '" alt="' . $alt . '"' . $attrString . ' />';
     }
 
     /**
@@ -172,7 +173,7 @@ class Media extends Model
     {
         return str_starts_with($this->mime_type, 'audio/');
     }
-
+	
     /**
      * Check if media is a document.
      */
@@ -189,11 +190,11 @@ class Media extends Model
         $bytes = $this->file_size;
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+        for ($i = 0; 1024 < $bytes && (count($units) - 1) > $i; $i++) {
             $bytes /= 1024;
         }
 
-        return round($bytes, 2).' '.$units[$i];
+        return round($bytes, 2) . ' ' . $units[$i];
     }
 
     /**
@@ -210,7 +211,7 @@ class Media extends Model
         $imageSizes = config('artisanpack.media.image_sizes', []);
 
         foreach ($imageSizes as $sizeName => $config) {
-            $sizedPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'-'.$sizeName.'.'.$pathInfo['extension'];
+            $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
 
             if (Storage::disk($this->disk)->exists($sizedPath)) {
                 $sizes[$sizeName] = Storage::disk($this->disk)->url($sizedPath);
@@ -239,7 +240,7 @@ class Media extends Model
             $imageSizes = config('artisanpack.media.image_sizes', []);
 
             foreach ($imageSizes as $sizeName => $config) {
-                $sizedPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'-'.$sizeName.'.'.$pathInfo['extension'];
+                $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
 
                 if ($storage->exists($sizedPath)) {
                     $deleted = $storage->delete($sizedPath) && $deleted;
@@ -249,7 +250,7 @@ class Media extends Model
             // Delete modern format versions (WebP/AVIF)
             $modernFormats = ['webp', 'avif'];
             foreach ($modernFormats as $format) {
-                $modernPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'.'.$format;
+                $modernPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.' . $format;
 
                 if ($storage->exists($modernPath)) {
                     $deleted = $storage->delete($modernPath) && $deleted;
@@ -257,7 +258,7 @@ class Media extends Model
 
                 // Delete sized modern formats
                 foreach ($imageSizes as $sizeName => $config) {
-                    $sizedModernPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'-'.$sizeName.'.'.$format;
+                    $sizedModernPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $format;
 
                     if ($storage->exists($sizedModernPath)) {
                         $deleted = $storage->delete($sizedModernPath) && $deleted;
@@ -271,48 +272,62 @@ class Media extends Model
 
     /**
      * Scope a query to only include images.
+     *
+     * @param  Builder  $query  The query builder instance.
      */
-    public function scopeImages($query)
+    public function scopeImages(Builder $query): Builder
     {
         return $query->where('mime_type', 'like', 'image/%');
     }
 
     /**
      * Scope a query to only include videos.
+     *
+     * @param  Builder  $query  The query builder instance.
      */
-    public function scopeVideos($query)
+    public function scopeVideos(Builder $query): Builder
     {
         return $query->where('mime_type', 'like', 'video/%');
     }
 
     /**
      * Scope a query to only include audio files.
+     *
+     * @param  Builder  $query  The query builder instance.
      */
-    public function scopeAudios($query)
+    public function scopeAudios(Builder $query): Builder
     {
         return $query->where('mime_type', 'like', 'audio/%');
     }
 
     /**
      * Scope a query to only include documents.
+     *
+     * @param  Builder  $query  The query builder instance.
      */
-    public function scopeDocuments($query)
+    public function scopeDocuments(Builder $query): Builder
     {
         return $query->where('mime_type', 'like', 'application/%');
     }
 
     /**
      * Scope a query to only include media in a specific folder.
+     *
+     * @param  Builder  $query  The query builder instance.
+     * @param  int  $folderId  The folder ID to filter by.
      */
-    public function scopeInFolder($query, int $folderId)
+    public function scopeInFolder(Builder $query, int $folderId): Builder
     {
         return $query->where('folder_id', $folderId);
     }
 
     /**
      * Scope a query to only include media with a specific tag.
+     *
+     * @param  Builder  $query  The query builder instance.
+     * @param  string  $tagSlug  The tag slug to filter by.
      */
-    public function scopeWithTag($query, string $tagSlug)
+    public function scopeWithTag(Builder $query, string $tagSlug): Builder
     {
         return $query->whereHas('tags', function ($q) use ($tagSlug) {
             $q->where('slug', $tagSlug);
@@ -321,8 +336,11 @@ class Media extends Model
 
     /**
      * Scope a query to only include media of a specific MIME type.
+     *
+     * @param  Builder  $query  The query builder instance.
+     * @param  string  $mimeType  The MIME type to filter by.
      */
-    public function scopeByType($query, string $mimeType)
+    public function scopeByType(Builder $query, string $mimeType): Builder
     {
         return $query->where('mime_type', $mimeType);
     }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
@@ -124,7 +124,7 @@ class MediaFolder extends Model
     public function moveTo(?int $parentId): bool
     {
         // Prevent circular references
-        if ($parentId !== null) {
+        if (null !== $parentId) {
             $newParent = static::find($parentId);
 
             if (! $newParent) {
@@ -132,7 +132,7 @@ class MediaFolder extends Model
             }
 
             // Check if the new parent is a descendant of this folder
-            if ($newParent->id === $this->id || $this->descendants()->contains('id', $parentId)) {
+            if ($this->id === $newParent->id || $this->descendants()->contains('id', $parentId)) {
                 return false;
             }
         }

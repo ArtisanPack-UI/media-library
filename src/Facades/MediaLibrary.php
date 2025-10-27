@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace ArtisanPackUI\MediaLibrary\Facades;
 
 use Illuminate\Support\Facades\Facade;
@@ -14,7 +16,7 @@ class MediaLibrary extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'media-library';
     }
