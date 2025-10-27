@@ -2,6 +2,9 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Services\MediaStorageService;
+use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
+use ArtisanPackUI\MediaLibrary\Services\VideoProcessingService;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -33,10 +36,10 @@ class MediaLibraryServiceProvider extends ServiceProvider
 			'artisanpack-media-temp'
 		);
 
-		// Service registrations will be added in Phase 2+
-		// $this->app->singleton(MediaManager::class);
-		// $this->app->singleton(MediaUploadService::class);
-		// etc.
+		// Register services as singletons
+		$this->app->singleton( MediaStorageService::class );
+		$this->app->singleton( VideoProcessingService::class );
+		$this->app->singleton( MediaUploadService::class );
 	}
 
 	/**

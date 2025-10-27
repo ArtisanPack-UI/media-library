@@ -64,6 +64,10 @@ abstract class TestCase extends BaseTestCase
      */
     protected function defineDatabaseMigrations(): void
     {
+        // Load testing migrations (users table - only for tests)
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/testing');
+
+        // Load main package migrations (media tables - will run in consuming apps)
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 }
