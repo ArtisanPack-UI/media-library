@@ -1,0 +1,402 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
+
+use ArtisanPackUI\MediaLibrary\Models\Media;
+use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
+use ArtisanPackUI\MediaLibrary\Models\MediaTag;
+use ArtisanPack\LivewireUiComponents\Traits\Toast;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+/**
+ * Media Library Component
+ *
+ * Component for browsing, searching, and managing media files.
+ * Supports search, filtering, sorting, and bulk actions.
+ *
+ * @since   1.0.0
+ * @package ArtisanPackUI\MediaLibrary\Livewire\Components
+ */
+class MediaLibrary extends Component
+{
+	use Toast;
+	use WithPagination;
+
+	/**
+	 * Search query.
+	 */
+	#[Url( as: 'q' )]
+	public string $search = '';
+
+	/**
+	 * Current folder ID for filtering.
+	 */
+	#[Url( as: 'folder' )]
+	public ?int $folderId = null;
+
+	/**
+	 * Media type filter (image, video, audio, document).
+	 */
+	#[Url]
+	public string $type = '';
+
+	/**
+	 * Tag slug for filtering.
+	 */
+	#[Url]
+	public string $tag = '';
+
+	/**
+	 * Sort column.
+	 */
+	#[Url]
+	public string $sortBy = 'created_at';
+
+	/**
+	 * Sort direction (asc, desc).
+	 */
+	#[Url]
+	public string $sortOrder = 'desc';
+
+	/**
+	 * View mode (grid, list).
+	 */
+	public string $viewMode = 'grid';
+
+	/**
+	 * Selected media IDs for bulk actions.
+	 *
+	 * @var array<int>
+	 */
+	public array $selectedMedia = [];
+
+	/**
+	 * Whether bulk select mode is active.
+	 */
+	public bool $bulkSelectMode = false;
+
+	/**
+	 * Number of items per page.
+	 */
+	public int $perPage = 24;
+
+	/**
+	 * Mount the component.
+	 *
+	 * @since 1.0.0
+	 */
+	public function mount(): void
+	{
+		// Load view mode from session
+		$this->viewMode = session( 'media.viewMode', 'grid' );
+	}
+
+	/**
+	 * Get media items with filters applied.
+	 *
+	 * @since 1.0.0
+	 */
+	#[Computed]
+	public function media()
+	{
+		$query = Media::query()->with( [ 'folder', 'uploadedBy', 'tags' ] );
+
+		// Apply folder filter
+		if ( null !== $this->folderId ) {
+			$query->where( 'folder_id', $this->folderId );
+		}
+
+		// Apply type filter
+		if ( '' !== $this->type ) {
+			if ( 'image' === $this->type ) {
+				$query->images();
+			} elseif ( 'video' === $this->type ) {
+				$query->videos();
+			} elseif ( 'audio' === $this->type ) {
+				$query->audios();
+			} elseif ( 'document' === $this->type ) {
+				$query->documents();
+			} else {
+				$query->byType( $this->type );
+			}
+		}
+
+		// Apply tag filter
+		if ( '' !== $this->tag ) {
+			$query->withTag( $this->tag );
+		}
+
+		// Apply search
+		if ( '' !== $this->search ) {
+			$query->where( function ( $q ) {
+				$q->where( 'title', 'like', '%' . $this->search . '%' )
+					->orWhere( 'file_name', 'like', '%' . $this->search . '%' );
+			} );
+		}
+
+		// Apply sorting
+		$query->orderBy( $this->sortBy, $this->sortOrder );
+
+		return $query->paginate( $this->perPage );
+	}
+
+	/**
+	 * Get all folders for navigation.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return Collection<MediaFolder>
+	 */
+	#[Computed]
+	public function folders(): Collection
+	{
+		return MediaFolder::query()
+			->whereNull( 'parent_id' )
+			->with( 'children' )
+			->orderBy( 'name' )
+			->get();
+	}
+
+	/**
+	 * Get all tags for filtering.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return Collection<MediaTag>
+	 */
+	#[Computed]
+	public function tags(): Collection
+	{
+		return MediaTag::query()->orderBy( 'name' )->get();
+	}
+
+	/**
+	 * Get current folder.
+	 *
+	 * @since 1.0.0
+	 */
+	#[Computed]
+	public function currentFolder(): ?MediaFolder
+	{
+		if ( null === $this->folderId ) {
+			return null;
+		}
+
+		return MediaFolder::find( $this->folderId );
+	}
+
+	/**
+	 * Clear all filters.
+	 *
+	 * @since 1.0.0
+	 */
+	public function clearFilters(): void
+	{
+		$this->search   = '';
+		$this->folderId = null;
+		$this->type     = '';
+		$this->tag      = '';
+		$this->resetPage();
+	}
+
+	/**
+	 * Set the folder filter.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  int|null  $folderId  The folder ID to filter by.
+	 */
+	public function setFolder( ?int $folderId ): void
+	{
+		$this->folderId = $folderId;
+		$this->resetPage();
+	}
+
+	/**
+	 * Set the type filter.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string  $type  The media type to filter by.
+	 */
+	public function setType( string $type ): void
+	{
+		$this->type = $type;
+		$this->resetPage();
+	}
+
+	/**
+	 * Set the tag filter.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string  $tag  The tag slug to filter by.
+	 */
+	public function setTag( string $tag ): void
+	{
+		$this->tag = $tag;
+		$this->resetPage();
+	}
+
+	/**
+	 * Set the sort column and direction.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string  $column  The column to sort by.
+	 */
+	public function setSortBy( string $column ): void
+	{
+		if ( $this->sortBy === $column ) {
+			// Toggle sort direction if already sorting by this column
+			$this->sortOrder = 'asc' === $this->sortOrder ? 'desc' : 'asc';
+		} else {
+			$this->sortBy    = $column;
+			$this->sortOrder = 'desc';
+		}
+
+		$this->resetPage();
+	}
+
+	/**
+	 * Toggle view mode between grid and list.
+	 *
+	 * @since 1.0.0
+	 */
+	public function toggleViewMode(): void
+	{
+		$this->viewMode = 'grid' === $this->viewMode ? 'list' : 'grid';
+		session( [ 'media.viewMode' => $this->viewMode ] );
+	}
+
+	/**
+	 * Toggle bulk select mode.
+	 *
+	 * @since 1.0.0
+	 */
+	public function toggleBulkSelect(): void
+	{
+		$this->bulkSelectMode = ! $this->bulkSelectMode;
+		if ( ! $this->bulkSelectMode ) {
+			$this->selectedMedia = [];
+		}
+	}
+
+	/**
+	 * Select all media on current page.
+	 *
+	 * @since 1.0.0
+	 */
+	public function selectAll(): void
+	{
+		$this->selectedMedia = $this->media->pluck( 'id' )->toArray();
+	}
+
+	/**
+	 * Deselect all media.
+	 *
+	 * @since 1.0.0
+	 */
+	public function deselectAll(): void
+	{
+		$this->selectedMedia = [];
+	}
+
+	/**
+	 * Delete selected media items.
+	 *
+	 * @since 1.0.0
+	 */
+	public function bulkDelete(): void
+	{
+		if ( empty( $this->selectedMedia ) ) {
+			$this->warning( __( 'No media selected' ) );
+			return;
+		}
+
+		$count = 0;
+		foreach ( $this->selectedMedia as $mediaId ) {
+			$media = Media::find( $mediaId );
+			if ( null !== $media && auth()->user()->can( 'delete', $media ) ) {
+				$media->delete();
+				$count++;
+			}
+		}
+
+		$this->selectedMedia = [];
+		$this->bulkSelectMode = false;
+
+		$this->success( __( ':count media items deleted', [ 'count' => $count ] ) );
+		$this->dispatch( 'media-updated' );
+	}
+
+	/**
+	 * Move selected media to a folder.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  int|null  $folderId  The folder ID to move to.
+	 */
+	public function bulkMove( ?int $folderId ): void
+	{
+		if ( empty( $this->selectedMedia ) ) {
+			$this->warning( __( 'No media selected' ) );
+			return;
+		}
+
+		$count = 0;
+		foreach ( $this->selectedMedia as $mediaId ) {
+			$media = Media::find( $mediaId );
+			if ( null !== $media && auth()->user()->can( 'update', $media ) ) {
+				$media->update( [ 'folder_id' => $folderId ] );
+				$count++;
+			}
+		}
+
+		$this->selectedMedia = [];
+		$this->bulkSelectMode = false;
+
+		$this->success( __( ':count media items moved', [ 'count' => $count ] ) );
+		$this->dispatch( 'media-updated' );
+	}
+
+	/**
+	 * Listen for media updates.
+	 *
+	 * @since 1.0.0
+	 */
+	#[On( 'media-updated' )]
+	public function refreshMedia(): void
+	{
+		// Refresh computed properties
+		unset( $this->media );
+	}
+
+	/**
+	 * Reset pagination when search changes.
+	 *
+	 * @since 1.0.0
+	 */
+	public function updatedSearch(): void
+	{
+		$this->resetPage();
+	}
+
+	/**
+	 * Render the component.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render(): View
+	{
+		return view( 'media::livewire.pages.media-library' );
+	}
+}

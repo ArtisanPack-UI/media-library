@@ -2,6 +2,10 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaItem;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Policies\MediaPolicy;
 use ArtisanPackUI\MediaLibrary\Services\ImageOptimizationService;
@@ -12,6 +16,7 @@ use ArtisanPackUI\MediaLibrary\Services\VideoProcessingService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 /**
  * Service provider for the Media Library package.
@@ -66,6 +71,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
 		$this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
 		$this->registerPolicies();
 		$this->registerRoutes();
+		$this->registerLivewireComponents();
 	}
 
 	/**
@@ -138,5 +144,26 @@ class MediaLibraryServiceProvider extends ServiceProvider
 		Route::middleware( 'api' )
 			->prefix( 'api' )
 			->group( __DIR__ . '/routes/api.php' );
+	}
+
+	/**
+	 * Register Livewire components.
+	 *
+	 * Only registers if Livewire is available (i.e., in a full Laravel application context).
+	 *
+	 * @since 1.0.0
+	 */
+	protected function registerLivewireComponents(): void
+	{
+		// Only register Livewire components if Livewire is bound in the container
+		if ( ! $this->app->bound( 'livewire' ) ) {
+			return;
+		}
+
+		// Register components
+		Livewire::component( 'media::media-library', MediaLibrary::class );
+		Livewire::component( 'media::media-upload', MediaUpload::class );
+		Livewire::component( 'media::media-grid', MediaGrid::class );
+		Livewire::component( 'media::media-item', MediaItem::class );
 	}
 }

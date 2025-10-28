@@ -30,10 +30,12 @@
     "illuminate/support": "^12.17.0",
     "artisanpack-ui/core": "^1.0",
     "artisanpack-ui/accessibility": "@dev",
+    "artisanpack-ui/livewire-ui-components": "@dev",
     "artisanpack-ui/security": "@dev",
     "artisanpack-ui/hooks": "^1.1",
     "intervention/image": "^3.0",
-    "php-ffmpeg/php-ffmpeg": "^1.0"
+    "php-ffmpeg/php-ffmpeg": "^1.0",
+    "livewire/livewire": "^3.6"
   },
   "require-dev": {
     "pestphp/pest": "^3.8",
@@ -68,5 +70,11 @@
     "test:feature": "vendor/bin/pest tests/Feature",
     "phpcs": "vendor/bin/phpcs",
     "phpcs:fix": "vendor/bin/phpcbf"
-  }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../livewire-ui-components"
+    }
+  ]
 }
