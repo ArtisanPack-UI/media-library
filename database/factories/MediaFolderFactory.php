@@ -35,14 +35,13 @@ class MediaFolderFactory extends Factory
     public function definition(): array
     {
         $name = fake()->words(2, true);
-        $userModel = config('artisanpack.media.user_model');
 
         return [
             'name' => $name,
             'slug' => Str::slug($name),
             'description' => fake()->sentence(),
             'parent_id' => null,
-            'created_by' => $userModel::factory(),
+            'created_by' => 1, // Default to user ID 1, override with createdBy() state
         ];
     }
 

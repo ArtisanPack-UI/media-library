@@ -2,11 +2,15 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Models\Media;
+use ArtisanPackUI\MediaLibrary\Policies\MediaPolicy;
 use ArtisanPackUI\MediaLibrary\Services\ImageOptimizationService;
 use ArtisanPackUI\MediaLibrary\Services\MediaProcessingService;
 use ArtisanPackUI\MediaLibrary\Services\MediaStorageService;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
 use ArtisanPackUI\MediaLibrary\Services\VideoProcessingService;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -60,6 +64,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
 		$this->publishConfiguration();
 		$this->registerViews();
 		$this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
+		$this->registerPolicies();
 		$this->registerRoutes();
 	}
 
@@ -114,17 +119,24 @@ class MediaLibraryServiceProvider extends ServiceProvider
 	}
 
 	/**
-	 * Register the Media Library API routes.
+	 * Register the Media Library policies.
 	 *
-	 * Routes will be registered in Phase 4 when the API controller is implemented.
+	 * @since 1.0.0
+	 */
+	protected function registerPolicies(): void
+	{
+		Gate::policy( Media::class, MediaPolicy::class );
+	}
+
+	/**
+	 * Register the Media Library API routes.
 	 *
 	 * @since 1.0.0
 	 */
 	protected function registerRoutes(): void
 	{
-		// Routes will be added in Phase 4
-		// Route::middleware('api')
-		//     ->prefix('api')
-		//     ->group(__DIR__ . '/../routes/api.php');
+		Route::middleware( 'api' )
+			->prefix( 'api' )
+			->group( __DIR__ . '/routes/api.php' );
 	}
 }

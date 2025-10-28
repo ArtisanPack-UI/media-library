@@ -5,6 +5,7 @@ namespace ArtisanPackUI\MediaLibrary\Models;
 use ArtisanPackUI\MediaLibrary\Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * User Model
@@ -19,6 +20,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
+	use HasApiTokens;
 	use HasFactory;
 
 	/**
