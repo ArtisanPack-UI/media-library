@@ -2,6 +2,8 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Services\ImageOptimizationService;
+use ArtisanPackUI\MediaLibrary\Services\MediaProcessingService;
 use ArtisanPackUI\MediaLibrary\Services\MediaStorageService;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
 use ArtisanPackUI\MediaLibrary\Services\VideoProcessingService;
@@ -39,6 +41,8 @@ class MediaLibraryServiceProvider extends ServiceProvider
 		// Register services as singletons
 		$this->app->singleton( MediaStorageService::class );
 		$this->app->singleton( VideoProcessingService::class );
+		$this->app->singleton( ImageOptimizationService::class );
+		$this->app->singleton( MediaProcessingService::class );
 		$this->app->singleton( MediaUploadService::class );
 	}
 

@@ -34,8 +34,6 @@ class MediaFactory extends Factory
      */
     public function definition(): array
     {
-        $userModel = config('artisanpack.media.user_model');
-
         return [
             'title' => fake()->sentence(3),
             'file_name' => fake()->word().'.jpg',
@@ -50,7 +48,7 @@ class MediaFactory extends Factory
             'height' => fake()->numberBetween(100, 4000),
             'duration' => null,
             'folder_id' => null,
-            'uploaded_by' => $userModel::factory(),
+            'uploaded_by' => 1, // Default to user ID 1, override with uploadedBy() state
             'metadata' => [],
         ];
     }
