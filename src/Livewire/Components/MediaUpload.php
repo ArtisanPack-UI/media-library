@@ -29,13 +29,24 @@ class MediaUpload extends Component
 	use WithFileUploads;
 
 	/**
-	 * Files to upload.
+	 * Files selected via wire:model (Choose Files button).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @var array<int, TemporaryUploadedFile>
 	 */
 	public array $files = [];
+
+	/**
+	 * Files uploaded via drag-and-drop.
+	 *
+	 * Livewire automatically hydrates these to TemporaryUploadedFile objects.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var array<int, TemporaryUploadedFile>
+	 */
+	public array $droppedFiles = [];
 
 	/**
 	 * Uploaded media items.
@@ -72,6 +83,18 @@ class MediaUpload extends Component
 	 * @var int
 	 */
 	public int $uploadProgress = 0;
+
+	/**
+	 * Get total count of all files (both selected and dropped).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
+	 */
+	public function getTotalFilesCountProperty(): int
+	{
+		return count( $this->files ) + count( $this->droppedFiles );
+	}
 
 	/**
 	 * Total number of files to upload.
@@ -128,12 +151,15 @@ class MediaUpload extends Component
 	}
 
 	/**
-	 * Handle files being updated (selected).
+	 * Handle files being updated (selected via Choose Files button).
 	 *
 	 * @since 1.0.0
 	 */
 	public function updatedFiles(): void
 	{
+		// Filter out any null entries
+		$this->files = array_values( array_filter( $this->files, fn( $file ) => null !== $file && $file instanceof TemporaryUploadedFile ) );
+
 		$this->validate( [
 			'files.*' => [
 				'file',
@@ -143,31 +169,75 @@ class MediaUpload extends Component
 	}
 
 	/**
-	 * Upload all selected files.
+	 * Process and upload all selected files to the media library.
 	 *
 	 * @since 1.0.0
 	 */
-	public function upload(): void
+	public function processUpload(): void
 	{
-		// Validate files
-		$this->validate( [
-			'files'   => 'required|array|min:1',
-			'files.*' => [
-				'file',
-				'max:' . config( 'artisanpack.media.max_file_size' ),
-			],
+		\Log::info( 'processUpload called', [
+			'files_count'        => count( $this->files ),
+			'droppedFiles_count' => count( $this->droppedFiles ),
+			'files'              => $this->files,
+			'droppedFiles'       => $this->droppedFiles,
 		] );
+
+		// Merge files from both sources (Choose Files button and drag-and-drop)
+		$processedFiles = [];
+
+		// Add files from wire:model (Choose Files button)
+		foreach ( $this->files as $file ) {
+			if ( $file instanceof TemporaryUploadedFile ) {
+				\Log::info( 'Added file from wire:model', [ 'filename' => $file->getClientOriginalName() ] );
+				$processedFiles[] = $file;
+			}
+		}
+
+		// Add files from drag-and-drop
+		foreach ( $this->droppedFiles as $fileReference ) {
+			\Log::info( 'Processing dropped file', [ 'reference' => $fileReference, 'type' => gettype( $fileReference ) ] );
+
+			// Livewire automatically hydrates TemporaryUploadedFile objects
+			if ( $fileReference instanceof TemporaryUploadedFile ) {
+				\Log::info( 'Added file from drag-and-drop (already an object)', [ 'filename' => $fileReference->getClientOriginalName() ] );
+				$processedFiles[] = $fileReference;
+			} elseif ( is_string( $fileReference ) && str_starts_with( $fileReference, 'livewire-file:' ) ) {
+				// Fallback for string references (shouldn't happen with uploadMultiple, but just in case)
+				$filename = str_replace( 'livewire-file:', '', $fileReference );
+				\Log::info( 'Unserializing file from string', [ 'filename' => $filename ] );
+				$tempFile = TemporaryUploadedFile::unserializeFromLivewireRequest( $filename );
+				if ( $tempFile ) {
+					\Log::info( 'Successfully unserialized file', [ 'filename' => $tempFile->getClientOriginalName() ] );
+					$processedFiles[] = $tempFile;
+				} else {
+					\Log::warning( 'Failed to unserialize file', [ 'filename' => $filename ] );
+				}
+			} else {
+				\Log::warning( 'Unknown file reference type', [ 'type' => gettype( $fileReference ), 'value' => $fileReference ] );
+			}
+		}
+
+		\Log::info( 'Total processed files', [ 'count' => count( $processedFiles ) ] );
+
+		$allFiles = $processedFiles;
+
+		// Check if we have any files to upload
+		if ( empty( $allFiles ) ) {
+			$this->addError( 'files', __( 'Please select at least one file to upload.' ) );
+
+			return;
+		}
 
 		$this->isUploading = true;
 		$this->uploadProgress = 0;
-		$this->totalFiles = count( $this->files );
+		$this->totalFiles = count( $allFiles );
 		$this->uploadedCount = 0;
 		$this->uploadedMedia = [];
 		$this->uploadErrors = [];
 
 		$uploadService = app( MediaUploadService::class );
 
-		foreach ( $this->files as $index => $file ) {
+		foreach ( $allFiles as $index => $file ) {
 			try {
 				$options = [
 					'folder_id' => $this->folderId,
@@ -205,6 +275,7 @@ class MediaUpload extends Component
 
 		// Clear files after upload
 		$this->files = [];
+		$this->droppedFiles = [];
 
 		// Reset metadata
 		$this->metadata = [
@@ -259,6 +330,7 @@ class MediaUpload extends Component
 	public function clearFiles(): void
 	{
 		$this->files = [];
+		$this->droppedFiles = [];
 		$this->uploadedMedia = [];
 		$this->uploadErrors = [];
 		$this->uploadProgress = 0;

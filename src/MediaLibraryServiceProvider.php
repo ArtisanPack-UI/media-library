@@ -2,9 +2,11 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaEdit;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaItem;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaModal;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Policies\MediaPolicy;
@@ -163,7 +165,9 @@ class MediaLibraryServiceProvider extends ServiceProvider
 		// Register components
 		Livewire::component( 'media::media-library', MediaLibrary::class );
 		Livewire::component( 'media::media-upload', MediaUpload::class );
+		Livewire::component( 'media::media-edit', MediaEdit::class );
 		Livewire::component( 'media::media-grid', MediaGrid::class );
 		Livewire::component( 'media::media-item', MediaItem::class );
+		Livewire::component( 'media::media-modal', MediaModal::class );
 	}
 }

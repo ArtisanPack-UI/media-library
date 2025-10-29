@@ -1,11 +1,20 @@
+@if($bulkSelectMode)
 <div
-	class="relative bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
+	class="relative group bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5"
 	:class="{ 'border-primary ring-2 ring-primary/30': {{ $selected ? 'true' : 'false' }} }"
 	wire:key="media-{{ $media->id }}"
 >
+@else
+<a
+	href="{{ route('admin.media.edit', $media->id) }}"
+	wire:navigate
+	class="relative group block bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+	wire:key="media-{{ $media->id }}"
+>
+@endif
 	{{-- Selection Checkbox (shown in bulk select mode) --}}
 	@if($bulkSelectMode)
-		<div class="absolute top-2 left-2 z-10">
+		<div class="absolute top-2 left-2 z-10" @click.stop>
 			<x-artisanpack-checkbox
 				wire:model="selected"
 				wire:change="toggleSelect"
@@ -34,7 +43,7 @@
 		{{-- Hover Actions --}}
 		<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-8 flex gap-2 justify-center opacity-0 hover:opacity-100 transition-opacity group-hover:opacity-100">
 			<x-artisanpack-button
-				wire:click="copyUrl"
+				wire:click.stop="copyUrl"
 				:title="__('Copy URL')"
 				variant="secondary"
 				size="sm"
@@ -44,7 +53,7 @@
 			</x-artisanpack-button>
 
 			<x-artisanpack-button
-				wire:click="download"
+				wire:click.stop="download"
 				:title="__('Download')"
 				variant="secondary"
 				size="sm"
@@ -59,13 +68,14 @@
 				variant="secondary"
 				size="sm"
 				class="bg-white/90 hover:bg-white"
+				@click.stop
 			>
 				<x-artisanpack-icon name="fas.edit" />
 			</x-artisanpack-button>
 
 			@can('delete', $media)
 				<x-artisanpack-button
-					wire:click="delete"
+					wire:click.stop="delete"
 					wire:confirm="{{ __('Are you sure you want to delete this media?') }}"
 					:title="__('Delete')"
 					variant="danger"
@@ -99,4 +109,8 @@
 			</x-artisanpack-badge>
 		@endif
 	</div>
+@if($bulkSelectMode)
 </div>
+@else
+</a>
+@endif

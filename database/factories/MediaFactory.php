@@ -34,10 +34,12 @@ class MediaFactory extends Factory
      */
     public function definition(): array
     {
+        $fileName = fake()->word() . '.jpg';
+
         return [
             'title' => fake()->sentence(3),
-            'file_name' => fake()->word().'.jpg',
-            'file_path' => fake()->filePath(),
+            'file_name' => $fileName,
+            'file_path' => date('Y') . '/' . date('m') . '/' . $fileName,
             'disk' => 'public',
             'mime_type' => 'image/jpeg',
             'file_size' => fake()->numberBetween(10000, 5000000),
@@ -60,13 +62,19 @@ class MediaFactory extends Factory
      */
     public function image(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'mime_type' => fake()->randomElement(['image/jpeg', 'image/png', 'image/gif', 'image/webp']),
-            'file_name' => fake()->word().'.'.fake()->randomElement(['jpg', 'png', 'gif', 'webp']),
-            'width' => fake()->numberBetween(100, 4000),
-            'height' => fake()->numberBetween(100, 4000),
-            'duration' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            $extension = fake()->randomElement(['jpg', 'png', 'gif', 'webp']);
+            $fileName = fake()->word() . '.' . $extension;
+
+            return [
+                'mime_type' => fake()->randomElement(['image/jpeg', 'image/png', 'image/gif', 'image/webp']),
+                'file_name' => $fileName,
+                'file_path' => date('Y') . '/' . date('m') . '/' . $fileName,
+                'width' => fake()->numberBetween(100, 4000),
+                'height' => fake()->numberBetween(100, 4000),
+                'duration' => null,
+            ];
+        });
     }
 
     /**
@@ -76,13 +84,19 @@ class MediaFactory extends Factory
      */
     public function video(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'mime_type' => fake()->randomElement(['video/mp4', 'video/webm', 'video/quicktime']),
-            'file_name' => fake()->word().'.'.fake()->randomElement(['mp4', 'webm', 'mov']),
-            'width' => fake()->numberBetween(640, 1920),
-            'height' => fake()->numberBetween(480, 1080),
-            'duration' => fake()->numberBetween(10, 3600),
-        ]);
+        return $this->state(function (array $attributes) {
+            $extension = fake()->randomElement(['mp4', 'webm', 'mov']);
+            $fileName = fake()->word() . '.' . $extension;
+
+            return [
+                'mime_type' => fake()->randomElement(['video/mp4', 'video/webm', 'video/quicktime']),
+                'file_name' => $fileName,
+                'file_path' => date('Y') . '/' . date('m') . '/' . $fileName,
+                'width' => fake()->numberBetween(640, 1920),
+                'height' => fake()->numberBetween(480, 1080),
+                'duration' => fake()->numberBetween(10, 3600),
+            ];
+        });
     }
 
     /**
@@ -92,13 +106,19 @@ class MediaFactory extends Factory
      */
     public function audio(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'mime_type' => fake()->randomElement(['audio/mpeg', 'audio/wav', 'audio/ogg']),
-            'file_name' => fake()->word().'.'.fake()->randomElement(['mp3', 'wav', 'ogg']),
-            'width' => null,
-            'height' => null,
-            'duration' => fake()->numberBetween(30, 600),
-        ]);
+        return $this->state(function (array $attributes) {
+            $extension = fake()->randomElement(['mp3', 'wav', 'ogg']);
+            $fileName = fake()->word() . '.' . $extension;
+
+            return [
+                'mime_type' => fake()->randomElement(['audio/mpeg', 'audio/wav', 'audio/ogg']),
+                'file_name' => $fileName,
+                'file_path' => date('Y') . '/' . date('m') . '/' . $fileName,
+                'width' => null,
+                'height' => null,
+                'duration' => fake()->numberBetween(30, 600),
+            ];
+        });
     }
 
     /**
@@ -108,17 +128,23 @@ class MediaFactory extends Factory
      */
     public function document(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'mime_type' => fake()->randomElement([
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            ]),
-            'file_name' => fake()->word().'.'.fake()->randomElement(['pdf', 'doc', 'docx']),
-            'width' => null,
-            'height' => null,
-            'duration' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            $extension = fake()->randomElement(['pdf', 'doc', 'docx']);
+            $fileName = fake()->word() . '.' . $extension;
+
+            return [
+                'mime_type' => fake()->randomElement([
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                ]),
+                'file_name' => $fileName,
+                'file_path' => date('Y') . '/' . date('m') . '/' . $fileName,
+                'width' => null,
+                'height' => null,
+                'duration' => null,
+            ];
+        });
     }
 
     /**
