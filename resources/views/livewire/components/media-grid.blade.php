@@ -1,4 +1,4 @@
-<div class="media-grid {{ $viewMode === 'grid' ? 'grid-view' : 'list-view' }}">
+<div class="p-4 {{ $viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4' : 'flex flex-col gap-2' }}">
 	@foreach($media as $item)
 		<livewire:media::media-item
 			:media="$item"
@@ -9,25 +9,3 @@
 		/>
 	@endforeach
 </div>
-
-<style>
-	.media-grid.grid-view {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 1rem;
-		padding: 1rem;
-	}
-
-	.media-grid.list-view {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		padding: 1rem;
-	}
-
-	@media (max-width: 768px) {
-		.media-grid.grid-view {
-			grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-		}
-	}
-</style>

@@ -245,7 +245,7 @@
             "dist": {
                 "type": "path",
                 "url": "../livewire-ui-components",
-                "reference": "8f75a6f11480805c79e4730621d90a8ad4772c38"
+                "reference": "30bff9b92198c768e05dd1cc3b0ffb7fc7b254f1"
             },
             "require": {
                 "artisanpack-ui/accessibility": "^1.1",

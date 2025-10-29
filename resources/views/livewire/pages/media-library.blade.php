@@ -1,69 +1,82 @@
-<div class="media-library-container">
+<div class="media-library-container space-y-6">
 	{{-- Header --}}
-	<div class="media-library-header">
-		<div class="header-left">
-			<h1 class="page-title">{{ __('Media Library') }}</h1>
+	<div class="flex items-center justify-between">
+		<div class="flex-1">
+			<x-artisanpack-heading level="1">{{ __('Media Library') }}</x-artisanpack-heading>
 
 			@if($this->currentFolder)
-				<div class="breadcrumb">
-					<a href="#" wire:click.prevent="setFolder(null)">{{ __('All Media') }}</a>
-					<span class="separator">/</span>
-					<span class="current">{{ $this->currentFolder->name }}</span>
-				</div>
+				<x-artisanpack-breadcrumbs class="mt-2">
+					<x-artisanpack-link href="#" wire:click.prevent="setFolder(null)">
+						{{ __('All Media') }}
+					</x-artisanpack-link>
+					<x-artisanpack-link>{{ $this->currentFolder->name }}</x-artisanpack-link>
+				</x-artisanpack-breadcrumbs>
 			@endif
 		</div>
 
-		<div class="header-actions">
-			<button type="button" wire:click="toggleViewMode" class="btn btn-icon" title="{{ __('Toggle View') }}">
+		<div class="flex items-center gap-2">
+			<x-artisanpack-button
+				wire:click="toggleViewMode"
+				type="button"
+				variant="secondary"
+				size="sm"
+				:title="__('Toggle View')"
+			>
 				@if($viewMode === 'grid')
-					<x-icon-fas-list />
+					<x-artisanpack-icon name="fas.list" />
 				@else
-					<x-icon-fas-grid />
+					<x-artisanpack-icon name="fas.th" />
 				@endif
-			</button>
+			</x-artisanpack-button>
 
-			<button type="button" wire:click="toggleBulkSelect" class="btn btn-secondary">
+			<x-artisanpack-button
+				wire:click="toggleBulkSelect"
+				type="button"
+				variant="secondary"
+				size="sm"
+			>
 				@if($bulkSelectMode)
 					{{ __('Cancel Selection') }}
 				@else
 					{{ __('Select Multiple') }}
 				@endif
-			</button>
+			</x-artisanpack-button>
 
-			<a href="{{ route('admin.media.add') }}" class="btn btn-primary">
-				<x-icon-fas-upload class="mr-2" />
+			<x-artisanpack-button
+				:href="route('admin.media.add')"
+				variant="primary"
+				size="sm"
+			>
+				<x-artisanpack-icon name="fas.upload" class="mr-2" />
 				{{ __('Upload Media') }}
-			</a>
+			</x-artisanpack-button>
 		</div>
 	</div>
 
 	{{-- Filters Bar --}}
-	<div class="media-filters">
-		<div class="filter-group">
-			<label for="search">{{ __('Search') }}</label>
-			<input
-				type="text"
-				id="search"
+	<x-artisanpack-card>
+		<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+			<x-artisanpack-input
 				wire:model.live.debounce.300ms="search"
-				placeholder="{{ __('Search media...') }}"
-				class="form-input"
+				:label="__('Search')"
+				:placeholder="__('Search media...')"
 			/>
-		</div>
 
-		<div class="filter-group">
-			<label for="type">{{ __('Type') }}</label>
-			<select id="type" wire:model.live="type" class="form-select">
+			<x-artisanpack-select
+				wire:model.live="type"
+				:label="__('Type')"
+			>
 				<option value="">{{ __('All Types') }}</option>
 				<option value="image">{{ __('Images') }}</option>
 				<option value="video">{{ __('Videos') }}</option>
 				<option value="audio">{{ __('Audio') }}</option>
 				<option value="document">{{ __('Documents') }}</option>
-			</select>
-		</div>
+			</x-artisanpack-select>
 
-		<div class="filter-group">
-			<label for="folder">{{ __('Folder') }}</label>
-			<select id="folder" wire:model.live="folderId" class="form-select">
+			<x-artisanpack-select
+				wire:model.live="folderId"
+				:label="__('Folder')"
+			>
 				<option value="">{{ __('All Folders') }}</option>
 				@foreach($this->folders as $folder)
 					<option value="{{ $folder->id }}">{{ $folder->name }}</option>
@@ -73,111 +86,129 @@
 						@endforeach
 					@endif
 				@endforeach
-			</select>
-		</div>
+			</x-artisanpack-select>
 
-		<div class="filter-group">
-			<label for="sort">{{ __('Sort By') }}</label>
-			<select id="sort" wire:model.live="sortBy" class="form-select">
+			<x-artisanpack-select
+				wire:model.live="sortBy"
+				:label="__('Sort By')"
+			>
 				<option value="created_at">{{ __('Date Added') }}</option>
 				<option value="title">{{ __('Title') }}</option>
 				<option value="file_name">{{ __('File Name') }}</option>
 				<option value="file_size">{{ __('File Size') }}</option>
-			</select>
-		</div>
+			</x-artisanpack-select>
 
-		<div class="filter-group">
-			<label for="order">{{ __('Order') }}</label>
-			<select id="order" wire:model.live="sortOrder" class="form-select">
+			<x-artisanpack-select
+				wire:model.live="sortOrder"
+				:label="__('Order')"
+			>
 				<option value="desc">{{ __('Descending') }}</option>
 				<option value="asc">{{ __('Ascending') }}</option>
-			</select>
+			</x-artisanpack-select>
 		</div>
 
 		@if($search || $folderId || $type || $tag)
-			<div class="filter-group">
-				<button type="button" wire:click="clearFilters" class="btn btn-text">
+			<div class="mt-4">
+				<x-artisanpack-button
+					wire:click="clearFilters"
+					type="button"
+					variant="ghost"
+					size="sm"
+				>
 					{{ __('Clear Filters') }}
-				</button>
+				</x-artisanpack-button>
 			</div>
 		@endif
-	</div>
+	</x-artisanpack-card>
 
 	{{-- Bulk Actions Bar --}}
 	@if($bulkSelectMode && count($selectedMedia) > 0)
-		<div class="bulk-actions-bar">
-			<div class="selected-count">
-				{{ __(':count items selected', ['count' => count($selectedMedia)]) }}
-			</div>
-
-			<div class="actions">
-				<button type="button" wire:click="selectAll" class="btn btn-sm btn-secondary">
-					{{ __('Select All on Page') }}
-				</button>
-
-				<button type="button" wire:click="deselectAll" class="btn btn-sm btn-secondary">
-					{{ __('Deselect All') }}
-				</button>
-
-				<div class="dropdown">
-					<button type="button" class="btn btn-sm btn-secondary dropdown-toggle">
-						{{ __('Move to Folder') }}
-					</button>
-					<div class="dropdown-menu">
-						<button wire:click="bulkMove(null)" class="dropdown-item">
-							{{ __('No Folder') }}
-						</button>
-						@foreach($this->folders as $folder)
-							<button wire:click="bulkMove({{ $folder->id }})" class="dropdown-item">
-								{{ $folder->name }}
-							</button>
-						@endforeach
-					</div>
+		<x-artisanpack-card>
+			<div class="flex items-center justify-between">
+				<div class="text-sm font-medium">
+					{{ __(':count items selected', ['count' => count($selectedMedia)]) }}
 				</div>
 
-				<button
-					type="button"
-					wire:click="bulkDelete"
-					wire:confirm="{{ __('Are you sure you want to delete the selected media?') }}"
-					class="btn btn-sm btn-danger"
-				>
-					<x-icon-fas-trash class="mr-1" />
-					{{ __('Delete') }}
-				</button>
+				<div class="flex items-center gap-2">
+					<x-artisanpack-button
+						wire:click="selectAll"
+						type="button"
+						variant="secondary"
+						size="sm"
+					>
+						{{ __('Select All on Page') }}
+					</x-artisanpack-button>
+
+					<x-artisanpack-button
+						wire:click="deselectAll"
+						type="button"
+						variant="secondary"
+						size="sm"
+					>
+						{{ __('Deselect All') }}
+					</x-artisanpack-button>
+
+					<x-artisanpack-dropdown>
+						<x-slot:trigger>
+							<x-artisanpack-button variant="secondary" size="sm">
+								{{ __('Move to Folder') }}
+								<x-artisanpack-icon name="fas.chevron-down" class="ml-2" />
+							</x-artisanpack-button>
+						</x-slot:trigger>
+
+						<x-artisanpack-menu-item wire:click="bulkMove(null)">
+							{{ __('No Folder') }}
+						</x-artisanpack-menu-item>
+
+						@foreach($this->folders as $folder)
+							<x-artisanpack-menu-item wire:click="bulkMove({{ $folder->id }})">
+								{{ $folder->name }}
+							</x-artisanpack-menu-item>
+						@endforeach
+					</x-artisanpack-dropdown>
+
+					<x-artisanpack-button
+						wire:click="bulkDelete"
+						wire:confirm="{{ __('Are you sure you want to delete the selected media?') }}"
+						type="button"
+						variant="danger"
+						size="sm"
+					>
+						<x-artisanpack-icon name="fas.trash" class="mr-1" />
+						{{ __('Delete') }}
+					</x-artisanpack-button>
+				</div>
 			</div>
-		</div>
+		</x-artisanpack-card>
 	@endif
 
 	{{-- Loading State --}}
-	<div wire:loading class="loading-overlay">
-		<div class="loading-spinner">
-			<div class="spinner"></div>
-			<p>{{ __('Loading...') }}</p>
-		</div>
+	<div wire:loading class="flex items-center justify-center py-12">
+		<x-artisanpack-loading class="w-8 h-8" />
+		<span class="ml-2">{{ __('Loading...') }}</span>
 	</div>
 
 	{{-- Media Grid --}}
 	<div wire:loading.remove>
 		@if($this->media->isEmpty())
 			{{-- Empty State --}}
-			<div class="empty-state">
-				<div class="empty-icon">
-					<x-icon-fas-images />
-				</div>
-				<h3>{{ __('No media found') }}</h3>
+			<x-artisanpack-card class="text-center py-12">
+				<x-artisanpack-icon name="fas.images" class="w-16 h-16 mx-auto text-zinc-400 dark:text-zinc-600 mb-4" />
+				<x-artisanpack-heading level="3" class="mb-2">{{ __('No media found') }}</x-artisanpack-heading>
+
 				@if($search || $type || $folderId)
-					<p>{{ __('Try adjusting your filters or search terms') }}</p>
-					<button type="button" wire:click="clearFilters" class="btn btn-primary">
+					<p class="text-zinc-600 dark:text-zinc-400 mb-4">{{ __('Try adjusting your filters or search terms') }}</p>
+					<x-artisanpack-button wire:click="clearFilters" variant="primary">
 						{{ __('Clear Filters') }}
-					</button>
+					</x-artisanpack-button>
 				@else
-					<p>{{ __('Upload your first media file to get started') }}</p>
-					<a href="{{ route('admin.media.add') }}" class="btn btn-primary">
-						<x-icon-fas-upload class="mr-2" />
+					<p class="text-zinc-600 dark:text-zinc-400 mb-4">{{ __('Upload your first media file to get started') }}</p>
+					<x-artisanpack-button :href="route('admin.media.add')" variant="primary">
+						<x-artisanpack-icon name="fas.upload" class="mr-2" />
 						{{ __('Upload Media') }}
-					</a>
+					</x-artisanpack-button>
 				@endif
-			</div>
+			</x-artisanpack-card>
 		@else
 			{{-- Media Grid Component --}}
 			<livewire:media::media-grid
@@ -188,7 +219,7 @@
 			/>
 
 			{{-- Pagination --}}
-			<div class="pagination-wrapper">
+			<div class="mt-6">
 				{{ $this->media->links() }}
 			</div>
 		@endif

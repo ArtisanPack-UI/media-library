@@ -1,227 +1,102 @@
-<div class="media-item {{ $selected ? 'selected' : '' }}" wire:key="media-{{ $media->id }}">
+<div
+	class="relative bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
+	:class="{ 'border-primary ring-2 ring-primary/30': {{ $selected ? 'true' : 'false' }} }"
+	wire:key="media-{{ $media->id }}"
+>
 	{{-- Selection Checkbox (shown in bulk select mode) --}}
 	@if($bulkSelectMode)
-		<div class="media-checkbox">
-			<input
-				type="checkbox"
+		<div class="absolute top-2 left-2 z-10">
+			<x-artisanpack-checkbox
 				wire:model="selected"
 				wire:change="toggleSelect"
 				id="media-{{ $media->id }}"
-				class="form-checkbox"
 			/>
 		</div>
 	@endif
 
 	{{-- Media Preview --}}
-	<div class="media-preview">
+	<div class="relative aspect-square bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center overflow-hidden">
 		@if($media->isImage())
 			<img
 				src="{{ $media->imageUrl('thumbnail') }}"
 				alt="{{ $media->alt_text ?? $media->title }}"
 				loading="lazy"
-				class="media-thumbnail"
+				class="w-full h-full object-cover"
 			/>
 		@elseif($media->isVideo())
-			<div class="media-icon video-icon">
-				<x-icon-fas-video />
-			</div>
+			<x-artisanpack-icon name="fas.video" class="w-12 h-12 text-zinc-400" />
 		@elseif($media->isAudio())
-			<div class="media-icon audio-icon">
-				<x-icon-fas-music />
-			</div>
+			<x-artisanpack-icon name="fas.music" class="w-12 h-12 text-zinc-400" />
 		@else
-			<div class="media-icon document-icon">
-				<x-icon-fas-file />
-			</div>
+			<x-artisanpack-icon name="fas.file" class="w-12 h-12 text-zinc-400" />
 		@endif
 
 		{{-- Hover Actions --}}
-		<div class="media-actions">
-			<button
-				type="button"
+		<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-8 flex gap-2 justify-center opacity-0 hover:opacity-100 transition-opacity group-hover:opacity-100">
+			<x-artisanpack-button
 				wire:click="copyUrl"
-				title="{{ __('Copy URL') }}"
-				class="action-btn"
+				:title="__('Copy URL')"
+				variant="secondary"
+				size="sm"
+				class="bg-white/90 hover:bg-white"
 			>
-				<x-icon-fas-link />
-			</button>
+				<x-artisanpack-icon name="fas.link" />
+			</x-artisanpack-button>
 
-			<button
-				type="button"
+			<x-artisanpack-button
 				wire:click="download"
-				title="{{ __('Download') }}"
-				class="action-btn"
+				:title="__('Download')"
+				variant="secondary"
+				size="sm"
+				class="bg-white/90 hover:bg-white"
 			>
-				<x-icon-fas-download />
-			</button>
+				<x-artisanpack-icon name="fas.download" />
+			</x-artisanpack-button>
 
-			<a
-				href="{{ route('admin.media.edit', $media->id) }}"
-				title="{{ __('Edit') }}"
-				class="action-btn"
+			<x-artisanpack-button
+				:href="route('admin.media.edit', $media->id)"
+				:title="__('Edit')"
+				variant="secondary"
+				size="sm"
+				class="bg-white/90 hover:bg-white"
 			>
-				<x-icon-fas-edit />
-			</a>
+				<x-artisanpack-icon name="fas.edit" />
+			</x-artisanpack-button>
 
 			@can('delete', $media)
-				<button
-					type="button"
+				<x-artisanpack-button
 					wire:click="delete"
 					wire:confirm="{{ __('Are you sure you want to delete this media?') }}"
-					title="{{ __('Delete') }}"
-					class="action-btn delete-btn"
+					:title="__('Delete')"
+					variant="danger"
+					size="sm"
+					class="bg-danger/90 hover:bg-danger"
 				>
-					<x-icon-fas-trash />
-				</button>
+					<x-artisanpack-icon name="fas.trash" />
+				</x-artisanpack-button>
 			@endcan
 		</div>
 	</div>
 
 	{{-- Media Info --}}
-	<div class="media-info">
-		<h4 class="media-title" title="{{ $media->title ?? $media->file_name }}">
+	<div class="p-3">
+		<h4 class="text-sm font-medium text-zinc-900 dark:text-white mb-2 truncate" title="{{ $media->title ?? $media->file_name }}">
 			{{ Str::limit($media->title ?? $media->file_name, 30) }}
 		</h4>
 
-		<div class="media-meta">
-			<span class="file-size">{{ $media->humanFileSize() }}</span>
+		<div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 mb-2">
+			<span>{{ $media->humanFileSize() }}</span>
 			@if($media->width && $media->height)
-				<span class="dimensions">{{ $media->width }} × {{ $media->height }}</span>
+				<span>•</span>
+				<span>{{ $media->width }} × {{ $media->height }}</span>
 			@endif
 		</div>
 
 		@if($media->folder)
-			<div class="media-folder">
-				<x-icon-fas-folder class="folder-icon" />
+			<x-artisanpack-badge variant="secondary" size="sm" class="inline-flex items-center gap-1">
+				<x-artisanpack-icon name="fas.folder" class="w-3 h-3" />
 				<span>{{ $media->folder->name }}</span>
-			</div>
+			</x-artisanpack-badge>
 		@endif
 	</div>
 </div>
-
-<style>
-	.media-item {
-		position: relative;
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.5rem;
-		overflow: hidden;
-		transition: all 0.2s;
-		cursor: pointer;
-	}
-
-	.media-item:hover {
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-		transform: translateY(-2px);
-	}
-
-	.media-item.selected {
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-	}
-
-	.media-checkbox {
-		position: absolute;
-		top: 0.5rem;
-		left: 0.5rem;
-		z-index: 10;
-	}
-
-	.media-preview {
-		position: relative;
-		aspect-ratio: 1;
-		background: #f3f4f6;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-	}
-
-	.media-thumbnail {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.media-icon {
-		font-size: 3rem;
-		color: #9ca3af;
-	}
-
-	.media-actions {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-		padding: 1rem 0.5rem 0.5rem;
-		display: flex;
-		gap: 0.5rem;
-		justify-content: center;
-		opacity: 0;
-		transition: opacity 0.2s;
-	}
-
-	.media-item:hover .media-actions {
-		opacity: 1;
-	}
-
-	.action-btn {
-		background: rgba(255, 255, 255, 0.9);
-		border: none;
-		border-radius: 0.375rem;
-		padding: 0.5rem;
-		cursor: pointer;
-		transition: background 0.2s;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.action-btn:hover {
-		background: white;
-	}
-
-	.action-btn.delete-btn {
-		background: rgba(239, 68, 68, 0.9);
-		color: white;
-	}
-
-	.action-btn.delete-btn:hover {
-		background: #dc2626;
-	}
-
-	.media-info {
-		padding: 0.75rem;
-	}
-
-	.media-title {
-		font-size: 0.875rem;
-		font-weight: 500;
-		margin: 0 0 0.5rem 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.media-meta {
-		display: flex;
-		gap: 0.5rem;
-		font-size: 0.75rem;
-		color: #6b7280;
-	}
-
-	.media-folder {
-		margin-top: 0.5rem;
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-		font-size: 0.75rem;
-		color: #6b7280;
-	}
-
-	.folder-icon {
-		width: 1rem;
-		height: 1rem;
-	}
-</style>
