@@ -1,83 +1,178 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
-use ArtisanPackUI\medialibrary\Database\Factories\MediaFolderFactory;
+use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFolderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Dloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
+/**
+ * MediaFolder model representing hierarchical media folders.
+ *
+ * @since 1.0.0
+ */
 class MediaFolder extends Model
 {
-    use HasFactory;
+	use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @vqr string
-     */
-    protected $table = 'media_folders';
+	/**
+	 * The table associated with the model.
+	 *
+	 * @var string
+	 */
+	protected $table = 'media_folders';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var string>
-     */
-    proc¹Ñ•Ñ•€‘™¥±±…‰±”€ôl(€€€€€€€€¹…µ”œ°(€€€€€€€€Í±Õœœ°(€€€€€€€€‘•ÍÉ¥ÁÑ¥½¸œ°(€€€€€€€€Á…É•¹Ñ}¥œ°(€€€€€€€€É•…Ñ•‘}‰äœ°(€€€tì((€€€€¼¨¨(€€€€€¨É•…Ñ”„¹•Ü™…Ñ½Éä¥¹ÍÑ…¹”™½ÈÑ¡”µ½‘•°¸(€€€€€¨¼(€€€ÁÉ½Ñ•Ñ•ÍÑ…Ñ¥Œ™Õ¹Ñ¥½¸¹•Ý…Ñ½Éä ¤è5•‘¥…½±‘•É…Ñ½Éä(€€€ì(€€€€€€€É•ÑÕÉ¸5•‘¥…½±‘•É…Ñ½Éäèé¹•Ü ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•ÐÑ¡”Á…É•¹Ð™½±‘•È¸(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸Á…É•¹Ð ¤è	•±½¹ÍQ¼(€€€ì(€€€€€€€É•ÑÕÉ¸€‘Ñ¡¥Ì´ù‰•±½¹ÍQ¼¡5•‘¥…½±‘•Èèé±…ÍÌ°€Á…É•¹Ñ}¥œ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•ÐÑ¡”¡¥±™½±‘•ÉÌ¸(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸¡¥±‘É•¸ ¤è!…Í5…¹ä(€€€ì(€€€€€€€É•ÑÕÉ¸€‘Ñ¡¥Ì´ù¡…Í5…¹ä¡5•‘¥…½±‘•Èèé±…ÍÌ°€Á…É•¹Ñ}¥œ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•Ð…±°µ•‘¥„¥Ñ•µÌ¥¸Ñ¡¥Ì™½±‘•È¸(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸µ•‘¥„ ¤è!…Í5…¹ä(€€€ì(€€€€€€€É•ÑÕÉ¸€‘Ñ¡¥Ì´ù¡…Í5…¹ä¡5•‘¥„èé±…ÍÌ°€™½±‘•É}¥œ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•ÐÑ¡”ÕÍ•ÈÝ¡¼É•…Ñ•Ñ¡¥Ì™½±‘•È¸(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸É•…Ñ½È ¤è	•±½¹ÍQ¼(€€€ì(€€€€€€€É•ÑÕÉ¸€‘Ñ¡¥Ì´ù‰•±½¹ÍQ¼¡½¹™¥œ …ÉÑ¥Í…¹Á…¬¹µ•‘¥„¹ÕÍ•É}µ½‘•°œ¤°€É•…Ñ•‘}‰äœ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•Ð™Õ±°Á…Ñ ½˜™½±‘•È€¡Á…É•¹Ð½¡¥±½É…¹‘¡¥±¤¸(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸™Õ±±A…Ñ  ¤èÍÑÉ¥¹œ(€€€ì(€€€€€€€€‘…¹•ÍÑ½ÉÌ€ô€‘Ñ¡¥Ì´ù…¹•ÍÑ½ÉÌ ¤ì(€€€€€€€€‘…¹•ÍÑ½ÉÌ´ùÁÕÍ  ‘Ñ¡¥Ì¤ì((€€€€€€€É•ÑÕÉ¸€‘…¹•ÍÑ½ÉÌ´ùÁ±Õ¬ ¹…µ”œ¤´ù¥µÁ±½‘” œ¼œ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•ÐÑ¡”É•ÕÉÍ¥Ù”Á…É•¹ÐÉ•±…Ñ¥½¹Í¡¥À¸(€€€€€¨(€€€€€¨É•ÑÕÉ¸	•±½¹ÍQ¼(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸Á…É•¹ÑI•ÕÉÍ¥Ù” ¤è	•±½¹ÍQ¼(€€€ì(€€€€€€€É•ÑÕÉ¸€‘Ñ¡¥Ì´ùÁ…É•¹Ð ¤´ùÝ¥Ñ  Á…É•¹ÑI•ÕÉÍ¥Ù”œ¤ì(€€€ô((€€€€¼¨¨(€€€€€¨•Ð…±°…¹•ÍÑ½È™½±‘•ÉÌ¸(€€€€€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸…¹•ÍÑ½ÉÌ ¤è½±±•Ñ¥½¸(€€€ì(€€€€€€€€‘…¹•ÍÑ½ÉÌ€ô½±±•Ð ¤ì(€€€€€€€€‘Á…É•¹Ð€€€€ô€‘Ñ¡¥Ì´ùÁ…É•¹ÑI•ÕÉÍ¥Ù”ì((€€€€€€€Ý¡¥±”€ ‘Á…É•¹Ð¤ì(€€€€€€€€€€€€‘…¹•ÍÑ½ÉÌ´ùÁÉ•Á•¹ ‘Á…É•¹Ð¤ì(€€€€€€€€€€€€‘Á…É•¹Ð€ô€‘Á…É•¹Ð´ùÁ…É•¹ÑI•ÕÉÍ¥Ù”ì(€€€€€€€ô((€€€€€€€É•ÑÕÉ¸€‘…¹•ÍÑ½ÉÌì(€€€ô((€€€€¼¨¨(€€€€€¨•ÐÑ¡”É•‹§rsive children relationship.
-     *
-     * @return HasMany
-     */
-    public function childrenRecursive(): HasMany
-    {
-        return $this->children()->with('childrenRecursive');
-    }
+	/**
+	 * The attributes that are mass assignable.
+	 *
+	 * @var array<string>
+	 */
+	protected $fillable = [
+		'name',
+		'slug',
+		'description',
+		'parent_id',
+		'created_by',
+	];
 
-    /**
-     * Move folder to a new parent.
-     */
-    public function moveTO(?int $parentId): bool
-    {
-        // Prevent circular references
-        if (null !== $parentId) {
-            $newParent = static::find($parentId);
+	/**
+	 * Create a new factory instance for the model.
+	 */
+	protected static function newFactory(): MediaFolderFactory
+	{
+		return MediaFolderFactory::new();
+	}
 
-            if ( ! $newParent) {
-                return false;
-            }
+	/**
+	 * Parent folder relationship.
+	 */
+	public function parent(): BelongsTo
+	{
+		return $this->belongsTo(self::class, 'parent_id');
+	}
 
-            // Check if the new parent is a descendant of this folder
-            if ($this->id === $newParent->id || $this->descendants()->contains('id', $parentId)) {
-                return false;
-            }
-        }
+	/**
+	 * Children folders relationship.
+	 */
+	public function children(): HasMany
+	{
+		return $this->hasMany(self::class, 'parent_id');
+	}
 
-        $this->parent_id = $parentId;
+	/**
+	 * Recursive children relationship.
+	 */
+	public function childrenRecursive(): HasMany
+	{
+		return $this->children()->with('childrenRecursive');
+	}
 
-        return $this->save();
-    }
+	/**
+	 * Media items in this folder.
+	 */
+	public function media(): HasMany
+	{
+		return $this->hasMany(Media::class, 'folder_id');
+	}
 
-    /**
-     * Get all descendant folders.
-     */
-    public function descendants(): Collection
-    {
-        $descendants = collect();
-        $children    = $this->childrenRecursive;
-        $addChildren = function ($children) use (\&descendants, \&addChildren) {
-            foreach ($children as $child) {
-                $descendants->push($child);
-                if ($child->childrenRecursive->isNotEmpty()) {
-                      $addChildren($child->childrenRecursive);
-                }
-            }
-        };
+	/**
+	 * Creator relationship.
+	 */
+	public function creator(): BelongsTo
+	{
+		$userModel = config('artisanpack.media.user_model')
+			?: config('artisanpack.cms-framework.user_model')
+			?: 'App\\Models\\User';
 
-        $addChildren($children);
+		return $this->belongsTo($userModel, 'created_by');
+	}
 
-        return $descendants;
-    }
+	/**
+	 * Get full hierarchical path: parent/child/grandchild.
+	 */
+	public function fullPath(): string
+	{
+		$ancestors = $this->ancestors()->pluck('name')->toArray();
+		$parts     = array_map(static fn (string $name): string => trim($name), $ancestors);
+		$parts[]   = $this->name;
+
+		return implode('/', $parts);
+	}
+
+	/**
+	 * Get all ancestor folders, ordered from root to direct parent.
+	 *
+	 * @return Collection<int, MediaFolder>
+	 */
+	public function ancestors(): Collection
+	{
+		$ancestors = collect();
+		$current  = $this->parent;
+
+		while (null !== $current) {
+			$ancestors->prepend($current);
+			$current = $current->parent;
+		}
+
+		return $ancestors;
+	}
+
+	/**
+	 * Get all descendant folders.
+	 *
+	 * @return Collection<int, MediaFolder>
+	 */
+	public function descendants(): Collection
+	{
+		$descendants = collect();
+
+		$walk = function (MediaFolder $folder) use (&$descendants, &$walk): void {
+			foreach ($folder->children as $child) {
+				$descendants->push($child);
+				$walk($child);
+			}
+		};
+
+		$walk($this->loadMissing('children'));
+
+		return $descendants;
+	}
+
+	/**
+	 * Move folder to a new parent.
+	 */
+	public function moveTo(?int $parentId): bool
+	{
+		if (null === $parentId) {
+			$this->parent_id = null;
+			return $this->save();
+		}
+
+		$newParent = self::find($parentId);
+		if (null === $newParent) {
+			return false;
+		}
+
+		// Prevent circular references
+		if ($this->id === $newParent->id) {
+			return false;
+		}
+
+		$cursor = $newParent->parent;
+		while (null !== $cursor) {
+			if ($cursor->id === $this->id) {
+				return false;
+			}
+			$cursor = $cursor->parent;
+		}
+
+		$this->parent_id = $parentId;
+
+		return $this->save();
+	}
 }

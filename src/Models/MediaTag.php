@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaTagFactory;
@@ -7,6 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * MediaTag model represents a tag that can be assigned to media items.
+ *
+ * @since 1.0.0
+ */
 class MediaTag extends Model
 {
 	use HasFactory;
@@ -42,6 +49,11 @@ class MediaTag extends Model
 	 */
 	public function mediaCount(): int
 	{
+		// Use eager-loaded aggregate if available to avoid an extra query
+		if (isset($this->attributes['media_count'])) {
+			return (int) $this->attributes['media_count'];
+		}
+
 		return $this->media()->count();
 	}
 
@@ -50,6 +62,6 @@ class MediaTag extends Model
 	 */
 	public function media(): BelongsToMany
 	{
-		return $this->belongsToMany( Media::class, 'media_taggables' );
+		return $this->belongsToMany(Media::class, 'media_taggables');
 	}
 }
