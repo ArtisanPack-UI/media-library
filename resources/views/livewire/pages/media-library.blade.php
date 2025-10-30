@@ -43,6 +43,26 @@
 			</x-artisanpack-button>
 
 			<x-artisanpack-button
+				@click="$dispatch('open-folder-manager')"
+				type="button"
+				variant="secondary"
+				size="sm"
+			>
+				<x-artisanpack-icon name="fas.folder" class="mr-2" />
+				{{ __('Manage Folders') }}
+			</x-artisanpack-button>
+
+			<x-artisanpack-button
+				@click="$dispatch('open-tag-manager')"
+				type="button"
+				variant="secondary"
+				size="sm"
+			>
+				<x-artisanpack-icon name="fas.tags" class="mr-2" />
+				{{ __('Manage Tags') }}
+			</x-artisanpack-button>
+
+			<x-artisanpack-button
 				:href="route('admin.media.add')"
 				variant="primary"
 				size="sm"
@@ -52,6 +72,12 @@
 			</x-artisanpack-button>
 		</div>
 	</div>
+
+	{{-- Folder Manager Modal --}}
+	<livewire:media::folder-manager />
+
+	{{-- Tag Manager Modal --}}
+	<livewire:media::tag-manager />
 
 	{{-- Filters Bar --}}
 	<x-artisanpack-card>

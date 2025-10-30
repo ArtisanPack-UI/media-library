@@ -2,12 +2,14 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Livewire\Components\FolderManager;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaEdit;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaItem;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaModal;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\TagManager;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Policies\MediaPolicy;
 use ArtisanPackUI\MediaLibrary\Services\ImageOptimizationService;
@@ -169,5 +171,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
 		Livewire::component( 'media::media-grid', MediaGrid::class );
 		Livewire::component( 'media::media-item', MediaItem::class );
 		Livewire::component( 'media::media-modal', MediaModal::class );
+		Livewire::component( 'media::folder-manager', FolderManager::class );
+		Livewire::component( 'media::tag-manager', TagManager::class );
 	}
 }

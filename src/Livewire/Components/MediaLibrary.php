@@ -186,7 +186,7 @@ class MediaLibrary extends Component
      */
     #[Computed]
     public function currentFolder(): ?MediaFolder
-    {
+    { 
         if ($this->folderId === null) {
             return null;
         }
@@ -423,3 +423,4 @@ class MediaLibrary extends Component
         return view('media::livewire.pages.media-library');
     }
 }
+

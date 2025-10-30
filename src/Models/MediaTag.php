@@ -26,6 +26,7 @@ class MediaTag extends Model
 	protected $fillable = [
 		'name',
 		'slug',
+		'description',
 	];
 
 	/**

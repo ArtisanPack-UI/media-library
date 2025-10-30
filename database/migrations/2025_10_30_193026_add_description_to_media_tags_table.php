@@ -13,15 +13,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('media_tags', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->timestamps();
-
-            // Indexes
-            $table->index('slug');
+        Schema::table('media_tags', function (Blueprint $table) {
+            $table->text('description')->nullable()->after('slug');
         });
     }
 
@@ -30,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('media_tags');
+        Schema::table('media_tags', function (Blueprint $table) {
+            $table->dropColumn('description');
+        });
     }
 };
