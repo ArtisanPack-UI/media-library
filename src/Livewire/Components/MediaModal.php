@@ -1,12 +1,12 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
+use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
-use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -22,347 +22,376 @@ use Livewire\WithPagination;
  * Supports both single and multi-select modes with tabbed interface.
  *
  * @since   1.0.0
+ *
  * @package ArtisanPackUI\MediaLibrary\Livewire\Components
  */
 class MediaModal extends Component
 {
-	use Toast;
-	use WithPagination;
+    use Toast;
+    use WithPagination;
 
-	/**
-	 * Whether the modal is open.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var bool
-	 */
-	public bool $isOpen = false;
+    /**
+     * Whether the modal is open.
+     *
+     * @since 1.0.0
+     */
+    public bool $isOpen = false;
 
-	/**
-	 * Whether multi-select mode is enabled.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var bool
-	 */
-	public bool $multiSelect = false;
+    /**
+     * Whether multi-select mode is enabled.
+     *
+     * @since 1.0.0
+     */
+    public bool $multiSelect = false;
 
-	/**
-	 * Maximum number of selections allowed (0 = unlimited).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var int
-	 */
-	public int $maxSelections = 0;
+    /**
+     * Maximum number of selections allowed (0 = unlimited).
+     *
+     * @since 1.0.0
+     */
+    public int $maxSelections = 0;
 
-	/**
-	 * Currently selected media IDs.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array<int, int>
-	 */
-	public array $selectedMedia = [];
+    /**
+     * Currently selected media IDs.
+     *
+     * @since 1.0.0
+     *
+     * @var array<int, int>
+     */
+    public array $selectedMedia = [];
 
-	/**
-	 * Active tab (library or upload).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var string
-	 */
-	#[Url]
-	public string $activeTab = 'library';
+    /**
+     * Active tab (library or upload).
+     *
+     * @since 1.0.0
+     */
+    #[Url]
+    public string $activeTab = 'library';
 
-	/**
-	 * Search query for filtering media.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var string
-	 */
-	#[Url]
-	public string $search = '';
+    /**
+     * Search query for filtering media.
+     *
+     * @since 1.0.0
+     */
+    #[Url]
+    public string $search = '';
 
-	/**
-	 * Selected folder ID for filtering.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var int|null
-	 */
-	#[Url]
-	public ?int $folderId = null;
+    /**
+     * Selected folder ID for filtering.
+     *
+     * @since 1.0.0
+     */
+    #[Url]
+    public ?int $folderId = null;
 
-	/**
-	 * Selected media type filter.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var string
-	 */
-	#[Url]
-	public string $typeFilter = '';
+    /**
+     * Selected media type filter.
+     *
+     * @since 1.0.0
+     */
+    #[Url]
+    public string $typeFilter = '';
 
-	/**
-	 * Items per page.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var int
-	 */
-	public int $perPage = 12;
+    /**
+     * Items per page.
+     *
+     * @since 1.0.0
+     */
+    public int $perPage = 12;
 
-	/**
-	 * Mount the component.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  bool  $multiSelect  Whether multi-select mode is enabled.
-	 * @param  int  $maxSelections  Maximum number of selections (0 = unlimited).
-	 * @param  array  $selectedMedia  Pre-selected media IDs.
-	 */
-	public function mount( bool $multiSelect = false, int $maxSelections = 0, array $selectedMedia = [] ): void
-	{
-		$this->multiSelect    = $multiSelect;
-		$this->maxSelections  = $maxSelections;
-		$this->selectedMedia  = $selectedMedia;
-	}
+    /**
+     * Mount the component.
+     *
+     * @since 1.0.0
+     *
+     * @param  bool  $multiSelect  Whether multi-select mode is enabled.
+     * @param  int  $maxSelections  Maximum number of selections (0 = unlimited).
+     * @param  array  $selectedMedia  Pre-selected media IDs.
+     */
+    public function mount(bool $multiSelect = false, int $maxSelections = 0, array $selectedMedia = []): void
+    {
+        $this->multiSelect = $multiSelect;
+        $this->maxSelections = $maxSelections;
+        $this->selectedMedia = $selectedMedia;
+    }
 
-	/**
-	 * Get the filtered and paginated media items.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return \Illuminate\Pagination\LengthAwarePaginator
-	 */
-	#[Computed]
-	public function media()
-	{
-		$query = Media::query();
+    /**
+     * Get the filtered and paginated media items.
+     *
+     * @since 1.0.0
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    #[Computed]
+    public function media()
+    {
+        $query = Media::query();
 
-		// Apply search filter
-		if ( ! empty( $this->search ) ) {
-			$query->where( function ( $q ) {
-				$q->where( 'title', 'like', '%' . $this->search . '%' )
-					->orWhere( 'file_name', 'like', '%' . $this->search . '%' )
-					->orWhere( 'alt_text', 'like', '%' . $this->search . '%' );
-			} );
-		}
+        // Apply search filter
+        if (! empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('file_name', 'like', '%'.$this->search.'%')
+                    ->orWhere('alt_text', 'like', '%'.$this->search.'%');
+            });
+        }
 
-		// Apply folder filter
-		if ( null !== $this->folderId ) {
-			$query->where( 'folder_id', $this->folderId );
-		}
+        // Apply folder filter
+        if ($this->folderId !== null) {
+            $query->where('folder_id', $this->folderId);
+        }
 
-		// Apply type filter
-		if ( ! empty( $this->typeFilter ) ) {
-			switch ( $this->typeFilter ) {
-				case 'image':
-					$query->where( 'mime_type', 'like', 'image/%' );
-					break;
-				case 'video':
-					$query->where( 'mime_type', 'like', 'video/%' );
-					break;
-				case 'audio':
-					$query->where( 'mime_type', 'like', 'audio/%' );
-					break;
-				case 'document':
-					$query->whereIn( 'mime_type', [
-						'application/pdf',
-						'application/msword',
-						'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-						'application/vnd.ms-excel',
-						'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-					] );
-					break;
-			}
-		}
+        // Apply type filter
+        if (! empty($this->typeFilter)) {
+            switch ($this->typeFilter) {
+                case 'image':
+                    $query->where('mime_type', 'like', 'image/%');
+                    break;
+                case 'video':
+                    $query->where('mime_type', 'like', 'video/%');
+                    break;
+                case 'audio':
+                    $query->where('mime_type', 'like', 'audio/%');
+                    break;
+                case 'document':
+                    $query->whereIn('mime_type', [
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-excel',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    ]);
+                    break;
+            }
+        }
 
-		return $query->with( [ 'folder', 'uploadedBy' ] )
-			->latest()
-			->paginate( $this->perPage );
-	}
+        return $query->with(['folder', 'uploadedBy'])
+            ->latest()
+            ->paginate($this->perPage);
+    }
 
-	/**
-	 * Get all folders for the folder dropdown.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return Collection<int, MediaFolder>
-	 */
-	#[Computed]
-	public function folders(): Collection
-	{
-		return MediaFolder::orderBy( 'name' )->get();
-	}
+    /**
+     * Get all folders for the folder dropdown.
+     *
+     * @since 1.0.0
+     *
+     * @return Collection<int, MediaFolder>
+     */
+    #[Computed]
+    public function folders(): Collection
+    {
+        return MediaFolder::orderBy('name')->get();
+    }
 
-	/**
-	 * Open the modal.
-	 *
-	 * @since 1.0.0
-	 */
-	#[On( 'open-media-modal' )]
-	public function open(): void
-	{
-		$this->isOpen = true;
-		$this->resetFilters();
-	}
+    /**
+     * Get type filter options for the select component.
+     *
+     * @since 1.0.0
+     *
+     * @return array<int, array{key: string, label: string}>
+     */
+    #[Computed]
+    public function typeFilterOptions(): array
+    {
+        return [
+            ['key' => '', 'label' => __('All Types')],
+            ['key' => 'image', 'label' => __('Images')],
+            ['key' => 'video', 'label' => __('Videos')],
+            ['key' => 'audio', 'label' => __('Audio')],
+            ['key' => 'document', 'label' => __('Documents')],
+        ];
+    }
 
-	/**
-	 * Close the modal.
-	 *
-	 * @since 1.0.0
-	 */
-	public function close(): void
-	{
-		$this->isOpen        = false;
-		$this->selectedMedia = [];
-		$this->resetFilters();
-	}
+    /**
+     * Get folder options for the select component.
+     *
+     * @since 1.0.0
+     *
+     * @return array<int, array{key: string|int, label: string}>
+     */
+    #[Computed]
+    public function folderOptions(): array
+    {
+        $options = [
+            ['key' => '', 'label' => __('All Folders')],
+        ];
 
-	/**
-	 * Switch to a different tab.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string  $tab  The tab to switch to.
-	 */
-	public function switchTab( string $tab ): void
-	{
-		$this->activeTab = $tab;
-	}
+        foreach ($this->folders as $folder) {
+            $options[] = [
+                'key' => $folder->id,
+                'label' => $folder->name,
+            ];
+        }
 
-	/**
-	 * Toggle selection of a media item.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  int  $mediaId  The media ID to toggle.
-	 */
-	public function toggleSelect( int $mediaId ): void
-	{
-		if ( in_array( $mediaId, $this->selectedMedia, true ) ) {
-			// Deselect
-			$this->selectedMedia = array_values( array_diff( $this->selectedMedia, [ $mediaId ] ) );
-		} else {
-			// Select
-			if ( ! $this->multiSelect ) {
-				// Single select mode - replace selection
-				$this->selectedMedia = [ $mediaId ];
-			} else {
-				// Multi select mode - add to selection
-				if ( 0 === $this->maxSelections || count( $this->selectedMedia ) < $this->maxSelections ) {
-					$this->selectedMedia[] = $mediaId;
-				} else {
-					$this->error( __( 'Maximum :count selections allowed', [ 'count' => $this->maxSelections ] ) );
-				}
-			}
-		}
-	}
+        return $options;
+    }
 
-	/**
-	 * Clear all selections.
-	 *
-	 * @since 1.0.0
-	 */
-	public function clearSelections(): void
-	{
-		$this->selectedMedia = [];
-	}
+    /**
+     * Open the modal.
+     *
+     * @since 1.0.0
+     */
+    #[On('open-media-modal')]
+    public function open(): void
+    {
+        $this->isOpen = true;
+        $this->resetFilters();
+    }
 
-	/**
-	 * Confirm and emit the selected media.
-	 *
-	 * @since 1.0.0
-	 */
-	public function confirmSelection(): void
-	{
-		if ( empty( $this->selectedMedia ) ) {
-			$this->error( __( 'Please select at least one media item' ) );
-			return;
-		}
+    /**
+     * Close the modal.
+     *
+     * @since 1.0.0
+     */
+    public function close(): void
+    {
+        $this->isOpen = false;
+        $this->selectedMedia = [];
+        $this->resetFilters();
+    }
 
-		// Get the actual media objects
-		$media = Media::whereIn( 'id', $this->selectedMedia )->get();
+    /**
+     * Switch to a different tab.
+     *
+     * @since 1.0.0
+     *
+     * @param  string  $tab  The tab to switch to.
+     */
+    public function switchTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+    }
 
-		// Emit event with selected media
-		$this->dispatch( 'media-selected', media: $media->toArray() );
+    /**
+     * Toggle selection of a media item.
+     *
+     * @since 1.0.0
+     *
+     * @param  int  $mediaId  The media ID to toggle.
+     */
+    public function toggleSelect(int $mediaId): void
+    {
+        if (in_array($mediaId, $this->selectedMedia, true)) {
+            // Deselect
+            $this->selectedMedia = array_values(array_diff($this->selectedMedia, [$mediaId]));
+        } else {
+            // Select
+            if (! $this->multiSelect) {
+                // Single select mode - replace selection
+                $this->selectedMedia = [$mediaId];
+            } else {
+                // Multi select mode - add to selection
+                if ($this->maxSelections === 0 || count($this->selectedMedia) < $this->maxSelections) {
+                    $this->selectedMedia[] = $mediaId;
+                } else {
+                    $this->error(__('Maximum :count selections allowed', ['count' => $this->maxSelections]));
+                }
+            }
+        }
+    }
 
-		// Close the modal
-		$this->close();
+    /**
+     * Clear all selections.
+     *
+     * @since 1.0.0
+     */
+    public function clearSelections(): void
+    {
+        $this->selectedMedia = [];
+    }
 
-		$this->success( __( ':count media item(s) selected', [ 'count' => count( $this->selectedMedia ) ] ) );
-	}
+    /**
+     * Confirm and emit the selected media.
+     *
+     * @since 1.0.0
+     */
+    public function confirmSelection(): void
+    {
+        if (empty($this->selectedMedia)) {
+            $this->error(__('Please select at least one media item'));
 
-	/**
-	 * Handle media uploaded event from upload tab.
-	 *
-	 * @since 1.0.0
-	 */
-	#[On( 'media-uploaded' )]
-	public function handleMediaUploaded(): void
-	{
-		// Refresh the media list
-		unset( $this->media );
+            return;
+        }
 
-		// Switch to library tab to show uploaded media
-		$this->activeTab = 'library';
+        // Get the actual media objects
+        $media = Media::whereIn('id', $this->selectedMedia)->get();
 
-		$this->success( __( 'Media uploaded successfully. You can now select it.' ) );
-	}
+        // Emit event with selected media
+        $this->dispatch('media-selected', media: $media->toArray());
 
-	/**
-	 * Reset all filters.
-	 *
-	 * @since 1.0.0
-	 */
-	public function resetFilters(): void
-	{
-		$this->search     = '';
-		$this->folderId   = null;
-		$this->typeFilter = '';
-		$this->resetPage();
-	}
+        // Close the modal
+        $this->close();
 
-	/**
-	 * Update search and reset pagination.
-	 *
-	 * @since 1.0.0
-	 */
-	public function updatedSearch(): void
-	{
-		$this->resetPage();
-	}
+        $this->success(__(':count media item(s) selected', ['count' => count($this->selectedMedia)]));
+    }
 
-	/**
-	 * Update folder filter and reset pagination.
-	 *
-	 * @since 1.0.0
-	 */
-	public function updatedFolderId(): void
-	{
-		$this->resetPage();
-	}
+    /**
+     * Handle media uploaded event from upload tab.
+     *
+     * @since 1.0.0
+     */
+    #[On('media-uploaded')]
+    public function handleMediaUploaded(): void
+    {
+        // Refresh the media list
+        unset($this->media);
 
-	/**
-	 * Update type filter and reset pagination.
-	 *
-	 * @since 1.0.0
-	 */
-	public function updatedTypeFilter(): void
-	{
-		$this->resetPage();
-	}
+        // Switch to library tab to show uploaded media
+        $this->activeTab = 'library';
 
-	/**
-	 * Render the component.
-	 *
-	 * @since 1.0.0
-	 */
-	public function render(): View
-	{
-		return view( 'media::livewire.components.media-modal' );
-	}
+        $this->success(__('Media uploaded successfully. You can now select it.'));
+    }
+
+    /**
+     * Reset all filters.
+     *
+     * @since 1.0.0
+     */
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->folderId = null;
+        $this->typeFilter = '';
+        $this->resetPage();
+    }
+
+    /**
+     * Update search and reset pagination.
+     *
+     * @since 1.0.0
+     */
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Update folder filter and reset pagination.
+     *
+     * @since 1.0.0
+     */
+    public function updatedFolderId(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Update type filter and reset pagination.
+     *
+     * @since 1.0.0
+     */
+    public function updatedTypeFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Render the component.
+     *
+     * @since 1.0.0
+     */
+    public function render(): View
+    {
+        return view('media::livewire.components.media-modal');
+    }
 }

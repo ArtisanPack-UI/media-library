@@ -89,6 +89,12 @@ class MediaLibrary extends Component
      */
     public int $perPage = 24;
 
+    public array $types = [];
+
+    public array $sortByOptions = [];
+
+    public array $sortOrderOptions = [];
+
     /**
      * Mount the component.
      *
@@ -98,6 +104,58 @@ class MediaLibrary extends Component
     {
         // Load view mode from session
         $this->viewMode = session('media.viewMode', 'grid');
+        $this->types = [
+            [
+                'value' => '',
+                'label' => __('All Types'),
+            ],
+            [
+                'value' => 'image',
+                'label' => __('Image'),
+            ],
+            [
+                'value' => 'video',
+                'label' => __('Video'),
+            ],
+            [
+                'value' => 'audio',
+                'label' => __('Audio'),
+            ],
+            [
+                'value' => 'document',
+                'label' => __('Documents'),
+            ],
+        ];
+
+        $this->sortByOptions = [
+            [
+                'value' => 'created_at',
+                'label' => __('Date Added'),
+            ],
+            [
+                'value' => 'title',
+                'label' => __('Title'),
+            ],
+            [
+                'value' => 'file_name',
+                'label' => __('File Name'),
+            ],
+            [
+                'value' => 'file_size',
+                'label' => __('File Size'),
+            ],
+        ];
+
+        $this->sortOrderOptions = [
+            [
+                'value' => 'asc',
+                'label' => __('Ascending'),
+            ],
+            [
+                'value' => 'desc',
+                'label' => __('Descending'),
+            ],
+        ];
     }
 
     /**
@@ -186,7 +244,7 @@ class MediaLibrary extends Component
      */
     #[Computed]
     public function currentFolder(): ?MediaFolder
-    { 
+    {
         if ($this->folderId === null) {
             return null;
         }
@@ -423,4 +481,3 @@ class MediaLibrary extends Component
         return view('media::livewire.pages.media-library');
     }
 }
-

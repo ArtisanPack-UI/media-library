@@ -1,56 +1,11 @@
 <div>
-    {{-- Modal Overlay --}}
-    <div
-            x-data="{ open: @entangle('isOpen') }"
-            x-show="open"
-            x-cloak
-            class="fixed inset-0 z-50 overflow-y-auto"
-            aria-labelledby="modal-title"
-            role="dialog"
-            aria-modal="true"
+    <x-artisanpack-modal
+        wire:model="isOpen"
+        :title="__('Manage Folders')"
+        class="max-w-4xl"
     >
-        {{-- Background Overlay --}}
-        <div
-                x-show="open"
-                x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-200"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="fixed inset-0 bg-black/50 transition-opacity"
-                @click="$wire.close()"
-        ></div>
-
-        {{-- Modal Panel --}}
-        <div class="flex min-h-full items-center justify-center p-4">
-            <div
-                    x-show="open"
-                    x-transition:enter="ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave="ease-in duration-200"
-                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    class="relative w-full max-w-4xl transform overflow-hidden rounded-lg bg-white dark:bg-zinc-800 shadow-xl transition-all"
-            >
-                <x-artisanpack-card>
-                    {{-- Modal Header --}}
-                    <div class="flex items-center justify-between mb-6">
-                        <x-artisanpack-heading level="2">
-                            {{ __('Manage Folders') }}
-                        </x-artisanpack-heading>
-                        <button
-                                type="button"
-                                wire:click="close"
-                                class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
-                        >
-                            <x-artisanpack-icon name="fas.times" class="w-5 h-5"/>
-                        </button>
-                    </div>
-
-                    {{-- Form Section --}}
-                    <div class="mb-6">
+        {{-- Form Section --}}
+        <div class="mb-6">
                         <x-artisanpack-card variant="secondary">
                             <x-artisanpack-heading level="3" class="mb-4">
                                 @if($isEditing)
@@ -81,21 +36,10 @@
                                 <x-artisanpack-select
                                         wire:model="form.parent_id"
                                         :label="__('Parent Folder')"
-                                >
-                                    <option value="">{{ __('No Parent (Root Level)') }}</option>
-                                    @foreach($folders as $folder)
-                                        @if(!$isEditing || $folder->id !== $editingFolder?->id)
-                                            <option value="{{ $folder->id }}">{{ $folder->name }}</option>
-                                            @if($folder->children->isNotEmpty())
-                                                @foreach($folder->children as $child)
-                                                    @if(!$isEditing || $child->id !== $editingFolder?->id)
-                                                        <option value="{{ $child->id }}">-- {{ $child->name }}</option>
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                </x-artisanpack-select>
+                                        :options="$parentFolderOptions"
+                                        option-value="key"
+                                        option-label="label"
+                                />
 
                                 <x-artisanpack-textarea
                                         wire:model="form.description"
@@ -251,18 +195,14 @@
                         @endif
                     </div>
 
-                    {{-- Modal Footer --}}
-                    <div class="flex items-center justify-end mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
-                        <x-artisanpack-button
-                                type="button"
-                                wire:click="close"
-                                variant="secondary"
-                        >
-                            {{ __('Close') }}
-                        </x-artisanpack-button>
-                    </div>
-                </x-artisanpack-card>
-            </div>
-        </div>
-    </div>
+        <x-slot:actions>
+            <x-artisanpack-button
+                    type="button"
+                    wire:click="close"
+                    variant="secondary"
+            >
+                {{ __('Close') }}
+            </x-artisanpack-button>
+        </x-slot:actions>
+    </x-artisanpack-modal>
 </div>

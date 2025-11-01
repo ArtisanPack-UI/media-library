@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ArtisanPackUI\MediaLibrary\Policies;
 
@@ -14,104 +14,104 @@ use Illuminate\Contracts\Auth\Authenticatable;
  * Uses hooks to allow customization of capability checks.
  *
  * @since   1.0.0
- * @package ArtisanPackUI\MediaLibrary\Policies
  *
+ * @package ArtisanPackUI\MediaLibrary\Policies
  */
 class MediaPolicy
 {
-	/**
-	 * Determine whether the user can view any media.
-	 *
-	 * @param Authenticatable $user The authenticated user.
-	 * @return bool True if the user can view any media, false otherwise.
-	 */
-	public function viewAny( Authenticatable $user ): bool
-	{
-		$capability = applyFilters( 'ap.media.viewAny', 'media.view' );
+    /**
+     * Determine whether the user can view any media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @return bool True if the user can view any media, false otherwise.
+     */
+    public function viewAny(Authenticatable $user): bool
+    {
+        $capability = applyFilters('ap.media.viewAny', 'media.view');
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 
-	/**
-	 * Determine whether the user can view the media.
-	 *
-	 * @param Authenticatable $user  The authenticated user.
-	 * @param Media           $media The media instance.
-	 * @return bool True if the user can view the media, false otherwise.
-	 */
-	public function view( Authenticatable $user, Media $media ): bool
-	{
-		$capability = applyFilters( 'ap.media.view', 'media.view', $media );
+    /**
+     * Determine whether the user can view the media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @param  Media  $media  The media instance.
+     * @return bool True if the user can view the media, false otherwise.
+     */
+    public function view(Authenticatable $user, Media $media): bool
+    {
+        $capability = applyFilters('ap.media.view', 'media.view', $media);
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 
-	/**
-	 * Determine whether the user can create media.
-	 *
-	 * @param Authenticatable $user The authenticated user.
-	 * @return bool True if the user can create media, false otherwise.
-	 */
-	public function create( Authenticatable $user ): bool
-	{
-		$capability = applyFilters( 'ap.media.create', 'media.upload' );
+    /**
+     * Determine whether the user can create media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @return bool True if the user can create media, false otherwise.
+     */
+    public function create(Authenticatable $user): bool
+    {
+        $capability = applyFilters('ap.media.create', 'media.upload');
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 
-	/**
-	 * Determine whether the user can update the media.
-	 *
-	 * @param Authenticatable $user  The authenticated user.
-	 * @param Media           $media The media instance.
-	 * @return bool True if the user can update the media, false otherwise.
-	 */
-	public function update( Authenticatable $user, Media $media ): bool
-	{
-		$capability = applyFilters( 'ap.media.update', 'media.edit', $media );
+    /**
+     * Determine whether the user can update the media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @param  Media  $media  The media instance.
+     * @return bool True if the user can update the media, false otherwise.
+     */
+    public function update(Authenticatable $user, Media $media): bool
+    {
+        $capability = applyFilters('ap.media.update', 'media.edit', $media);
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 
-	/**
-	 * Determine whether the user can delete the media.
-	 *
-	 * @param Authenticatable $user  The authenticated user.
-	 * @param Media           $media The media instance.
-	 * @return bool True if the user can delete the media, false otherwise.
-	 */
-	public function delete( Authenticatable $user, Media $media ): bool
-	{
-		$capability = applyFilters( 'ap.media.delete', 'media.delete', $media );
+    /**
+     * Determine whether the user can delete the media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @param  Media  $media  The media instance.
+     * @return bool True if the user can delete the media, false otherwise.
+     */
+    public function delete(Authenticatable $user, Media $media): bool
+    {
+        $capability = applyFilters('ap.media.delete', 'media.delete', $media);
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 
-	/**
-	 * Determine whether the user can restore the media.
-	 *
-	 * @param Authenticatable $user  The authenticated user.
-	 * @param Media           $media The media instance.
-	 * @return bool True if the user can restore the media, false otherwise.
-	 */
-	public function restore( Authenticatable $user, Media $media ): bool
-	{
-		$capability = applyFilters( 'ap.media.restore', 'media.delete', $media );
+    /**
+     * Determine whether the user can restore the media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @param  Media  $media  The media instance.
+     * @return bool True if the user can restore the media, false otherwise.
+     */
+    public function restore(Authenticatable $user, Media $media): bool
+    {
+        $capability = applyFilters('ap.media.restore', 'media.delete', $media);
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 
-	/**
-	 * Determine whether the user can permanently delete the media.
-	 *
-	 * @param Authenticatable $user  The authenticated user.
-	 * @param Media           $media The media instance.
-	 * @return bool True if the user can force delete the media, false otherwise.
-	 */
-	public function forceDelete( Authenticatable $user, Media $media ): bool
-	{
-		$capability = applyFilters( 'ap.media.forceDelete', 'media.delete', $media );
+    /**
+     * Determine whether the user can permanently delete the media.
+     *
+     * @param  Authenticatable  $user  The authenticated user.
+     * @param  Media  $media  The media instance.
+     * @return bool True if the user can force delete the media, false otherwise.
+     */
+    public function forceDelete(Authenticatable $user, Media $media): bool
+    {
+        $capability = applyFilters('ap.media.forceDelete', 'media.delete', $media);
 
-		return $user->can( $capability );
-	}
+        return $user->can($capability);
+    }
 }

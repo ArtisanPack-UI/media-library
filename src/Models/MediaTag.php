@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
@@ -16,52 +16,52 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class MediaTag extends Model
 {
-	use HasFactory;
+    use HasFactory;
 
-	/**
-	 * The table associated with the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'media_tags';
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'media_tags';
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array<string>
-	 */
-	protected $fillable = [
-		'name',
-		'slug',
-		'description',
-	];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+    ];
 
-	/**
-	 * Create a new factory instance for the model.
-	 */
-	protected static function newFactory(): MediaTagFactory
-	{
-		return MediaTagFactory::new();
-	}
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): MediaTagFactory
+    {
+        return MediaTagFactory::new();
+    }
 
-	/**
-	 * Get count of media items with this tag.
-	 */
-	public function mediaCount(): int
-	{
-		// Use eager-loaded aggregate if available to avoid an extra query
-		if (isset($this->attributes['media_count'])) {
-			return (int) $this->attributes['media_count'];
-		}
+    /**
+     * Get count of media items with this tag.
+     */
+    public function mediaCount(): int
+    {
+        // Use eager-loaded aggregate if available to avoid an extra query
+        if (isset($this->attributes['media_count'])) {
+            return (int) $this->attributes['media_count'];
+        }
 
-		return $this->media()->count();
-	}
+        return $this->media()->count();
+    }
 
-	/**
-	 * Get all media items with this tag.
-	 */
-	public function media(): BelongsToMany
-	{
-		return $this->belongsToMany(Media::class, 'media_taggables');
-	}
+    /**
+     * Get all media items with this tag.
+     */
+    public function media(): BelongsToMany
+    {
+        return $this->belongsToMany(Media::class, 'media_taggables');
+    }
 }

@@ -7,6 +7,7 @@ namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -85,6 +86,50 @@ class FolderManager extends Component
         $this->folders = MediaFolder::with(['parent', 'children', 'creator'])
             ->orderBy('name')
             ->get();
+    }
+
+    /**
+     * Get parent folder options for the select component.
+     *
+     * @since 1.0.0
+     *
+     * @return array<int, array{key: string|int, label: string}>
+     */
+    #[Computed]
+    public function parentFolderOptions(): array
+    {
+        $options = [
+            ['key' => '', 'label' => __('No Parent (Root Level)')],
+        ];
+
+        foreach ($this->folders as $folder) {
+            // Skip the folder being edited and its children
+            if ($this->isEditing && $this->editingFolder && $folder->id === $this->editingFolder->id) {
+                continue;
+            }
+
+            $options[] = [
+                'key' => $folder->id,
+                'label' => $folder->name,
+            ];
+
+            // Add children with indentation
+            if ($folder->children->isNotEmpty()) {
+                foreach ($folder->children as $child) {
+                    // Skip the folder being edited
+                    if ($this->isEditing && $this->editingFolder && $child->id === $this->editingFolder->id) {
+                        continue;
+                    }
+
+                    $options[] = [
+                        'key' => $child->id,
+                        'label' => '-- '.$child->name,
+                    ];
+                }
+            }
+        }
+
+        return $options;
     }
 
     /**
@@ -186,7 +231,7 @@ class FolderManager extends Component
 
         // Add unique validation for slug, excluding current folder if editing
         if ($this->isEditing && $this->editingFolder) {
-            $rules['form.slug'][] = 'unique:media_folders,slug,' . $this->editingFolder->id;
+            $rules['form.slug'][] = 'unique:media_folders,slug,'.$this->editingFolder->id;
         } else {
             $rules['form.slug'][] = 'unique:media_folders,slug';
         }
@@ -242,12 +287,14 @@ class FolderManager extends Component
             // Check if folder has children
             if ($folder->children()->exists()) {
                 $this->error(__('Cannot delete folder with subfolders. Please delete or move subfolders first.'));
+
                 return;
             }
 
             // Check if folder has media
             if ($folder->media()->exists()) {
                 $this->error(__('Cannot delete folder with media items. Please delete or move media first.'));
+
                 return;
             }
 

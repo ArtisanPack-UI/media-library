@@ -15,52 +15,53 @@ use Laravel\Sanctum\HasApiTokens;
  * configured via artisanpack.media.user_model.
  *
  * @since   1.0.0
- * @package ArtisanPackUI\MediaLibrary\Models
  *
+ * @package ArtisanPackUI\MediaLibrary\Models
  */
 class User extends Authenticatable
 {
-	use HasApiTokens;
-	use HasFactory;
+    use HasApiTokens;
+    use HasFactory;
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array<string>
-	 */
-	protected $fillable = [
-		'name',
-		'email',
-		'password',
-	];
-	/**
-	 * The attributes that should be hidden for serialization.
-	 *
-	 * @var array<string>
-	 */
-	protected $hidden = [
-		'password',
-		'remember_token',
-	];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
 
-	/**
-	 * Create a new factory instance for the model.
-	 */
-	protected static function newFactory()
-	{
-		return UserFactory::new();
-	}
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-	/**
-	 * Get the attributes that should be cast.
-	 *
-	 * @return array<string, string>
-	 */
-	protected function casts(): array
-	{
-		return [
-			'email_verified_at' => 'datetime',
-			'password'          => 'hashed',
-		];
-	}
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return UserFactory::new();
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 }
