@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 
 use ArtisanPackUI\MediaLibrary\Http\Requests\MediaStoreRequest;

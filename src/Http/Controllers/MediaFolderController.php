@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 
 use ArtisanPackUI\MediaLibrary\Http\Requests\MediaFolderStoreRequest;
@@ -94,39 +92,6 @@ class MediaFolderController extends Controller
     }
 
     /**
-     * Update the specified folder.
-     *
-     * @param  MediaFolderUpdateRequest  $request  The validated request.
-     * @param  int  $id  The folder ID.
-     * @return JsonResponse The updated folder.
-     */
-    public function update(MediaFolderUpdateRequest $request, int $id): JsonResponse
-    {
-        $folder = MediaFolder::findOrFail($id);
-        $data = $request->validated();
-
-        // Update slug if name changed
-        if (isset($data['name']) && $data['name'] !== $folder->name) {
-            $data['slug'] = Str::slug($data['name']);
-
-            // Ensure unique slug
-            $originalSlug = $data['slug'];
-            $counter = 1;
-            while (MediaFolder::where('slug', $data['slug'])->where('id', '!=', $id)->exists()) {
-                $data['slug'] = $originalSlug.'-'.$counter;
-                $counter++;
-            }
-        }
-
-        $folder->update($data);
-
-        return response()->json([
-            'data' => $folder->load(['parent', 'children', 'creator']),
-            'message' => 'Folder updated successfully',
-        ]);
-    }
-
-    /**
      * Remove the specified folder.
      *
      * @param  int  $id  The folder ID.
@@ -189,6 +154,39 @@ class MediaFolderController extends Controller
         return response()->json([
             'data' => $folder->load(['parent', 'children', 'creator']),
             'message' => 'Folder moved successfully',
+        ]);
+    }
+
+    /**
+     * Update the specified folder.
+     *
+     * @param  MediaFolderUpdateRequest  $request  The validated request.
+     * @param  int  $id  The folder ID.
+     * @return JsonResponse The updated folder.
+     */
+    public function update(MediaFolderUpdateRequest $request, int $id): JsonResponse
+    {
+        $folder = MediaFolder::findOrFail($id);
+        $data = $request->validated();
+
+        // Update slug if name changed
+        if (isset($data['name']) && $data['name'] !== $folder->name) {
+            $data['slug'] = Str::slug($data['name']);
+
+            // Ensure unique slug
+            $originalSlug = $data['slug'];
+            $counter = 1;
+            while (MediaFolder::where('slug', $data['slug'])->where('id', '!=', $id)->exists()) {
+                $data['slug'] = $originalSlug.'-'.$counter;
+                $counter++;
+            }
+        }
+
+        $folder->update($data);
+
+        return response()->json([
+            'data' => $folder->load(['parent', 'children', 'creator']),
+            'message' => 'Folder updated successfully',
         ]);
     }
 }

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Media Library Helper Functions
+ *
+ * Global helper functions for media management.
+ *
+ * @package ArtisanPackUI\MediaLibrary
+ *
+ * @since   1.0.0
+ */
+
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use Illuminate\Http\UploadedFile;
 
@@ -11,10 +21,10 @@ if (! function_exists('apRegisterImageSize')) {
      *
      * @since 1.0.0
      *
+     * @param  string  $name  The name of the image size.
      * @param  int  $width  The maximum width in pixels.
      * @param  int  $height  The maximum height in pixels.
      * @param  bool  $crop  Whether to crop to exact dimensions.
-     * @param  string  $name  The name of the image size.
      */
     function apRegisterImageSize(string $name, int $width, int $height, bool $crop = false): void
     {
@@ -44,8 +54,8 @@ if (! function_exists('apGetMediaUrl')) {
      *
      * @since 1.0.0
      *
-     * @param  string  $size  The image size (e.g., 'thumbnail', 'medium', 'large', 'full').
      * @param  int  $id  The media ID.
+     * @param  string  $size  The image size (e.g., 'thumbnail', 'medium', 'large', 'full').
      * @return string|null The media URL or null if not found.
      */
     function apGetMediaUrl(int $id, string $size = 'full'): ?string
@@ -68,8 +78,8 @@ if (! function_exists('apUploadMedia')) {
      *
      * @since 1.0.0
      *
-     * @param  array<string, mixed>  $options  Additional options for the upload.
      * @param  UploadedFile  $file  The uploaded file.
+     * @param  array<string, mixed>  $options  Additional options for the upload.
      * @return Media The created media instance.
      */
     function apUploadMedia(UploadedFile $file, array $options = []): Media

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 
 use ArtisanPackUI\MediaLibrary\Http\Requests\MediaTagStoreRequest;
@@ -144,31 +142,6 @@ class MediaTagController extends Controller
     }
 
     /**
-     * Attach a tag to multiple media items.
-     *
-     * @param  Request  $request  The HTTP request instance.
-     * @param  int  $id  The tag ID.
-     * @return JsonResponse The result.
-     */
-    public function attach(Request $request, int $id): JsonResponse
-    {
-        $request->validate([
-            'media_ids' => ['required', 'array'],
-            'media_ids.*' => ['exists:media,id'],
-        ]);
-
-        $tag = MediaTag::findOrFail($id);
-        $mediaIds = $request->input('media_ids');
-
-        // Attach without duplicates
-        $tag->media()->syncWithoutDetaching($mediaIds);
-
-        return response()->json([
-            'message' => 'Tag attached to media successfully',
-        ]);
-    }
-
-    /**
      * Detach a tag from multiple media items.
      *
      * @param  Request  $request  The HTTP request instance.
@@ -190,6 +163,31 @@ class MediaTagController extends Controller
 
         return response()->json([
             'message' => 'Tag detached from media successfully',
+        ]);
+    }
+
+    /**
+     * Attach a tag to multiple media items.
+     *
+     * @param  Request  $request  The HTTP request instance.
+     * @param  int  $id  The tag ID.
+     * @return JsonResponse The result.
+     */
+    public function attach(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'media_ids' => ['required', 'array'],
+            'media_ids.*' => ['exists:media,id'],
+        ]);
+
+        $tag = MediaTag::findOrFail($id);
+        $mediaIds = $request->input('media_ids');
+
+        // Attach without duplicates
+        $tag->media()->syncWithoutDetaching($mediaIds);
+
+        return response()->json([
+            'message' => 'Tag attached to media successfully',
         ]);
     }
 }

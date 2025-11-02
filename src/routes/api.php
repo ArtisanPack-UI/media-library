@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaFolderController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaTagController;

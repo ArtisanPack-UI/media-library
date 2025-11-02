@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use ArtisanPackUI\MediaLibrary\Models\MediaTag;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -16,7 +16,7 @@ use Livewire\Component;
  *
  * Provides a modal interface for creating, editing, and deleting media tags.
  *
- * @since 1.0.0
+ * @since   1.0.0
  *
  * @package ArtisanPackUI\MediaLibrary\Livewire\Components
  */
@@ -214,7 +214,7 @@ class TagManager extends Component
 
             // Notify other components to refresh
             $this->dispatch('tags-updated');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error(__('Failed to save tag: :error', ['error' => $e->getMessage()]));
         }
     }
@@ -241,7 +241,7 @@ class TagManager extends Component
 
             // Notify other components to refresh
             $this->dispatch('tags-updated');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error(__('Failed to delete tag: :error', ['error' => $e->getMessage()]));
         }
     }
@@ -251,7 +251,7 @@ class TagManager extends Component
      *
      * @since 1.0.0
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('media::livewire.components.tag-manager');
     }

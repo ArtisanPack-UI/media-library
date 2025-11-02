@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFactory;
@@ -13,6 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Media model representing a single uploaded media item (image, video, audio, or document).
+ *
+ * Provides helpers for URLs, image sizes, file deletion, and query scopes by type/tag/folder.
+ *
+ * @since 1.0.0
+ */
 class Media extends Model
 {
     use HasFactory;
@@ -50,6 +55,10 @@ class Media extends Model
 
     /**
      * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaFactory The model factory instance.
      */
     protected static function newFactory(): MediaFactory
     {
@@ -58,6 +67,10 @@ class Media extends Model
 
     /**
      * Get the user who uploaded this media.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsTo The relationship to the uploader user model.
      */
     public function uploadedBy(): BelongsTo
     {
@@ -66,6 +79,10 @@ class Media extends Model
 
     /**
      * Get the folder this media belongs to.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsTo The relationship to the parent folder model.
      */
     public function folder(): BelongsTo
     {
@@ -74,6 +91,10 @@ class Media extends Model
 
     /**
      * Get the tags associated with this media.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsToMany The many-to-many relationship to tags.
      */
     public function tags(): BelongsToMany
     {

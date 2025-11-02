@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaTagFactory;
@@ -38,6 +36,10 @@ class MediaTag extends Model
 
     /**
      * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaTagFactory The model factory instance.
      */
     protected static function newFactory(): MediaTagFactory
     {

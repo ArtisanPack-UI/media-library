@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Policies;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
@@ -27,6 +25,16 @@ class MediaPolicy
      */
     public function viewAny(Authenticatable $user): bool
     {
+        /**
+         * Filters the capability slug used to check whether the user can view any media.
+         *
+         * This allows applications to customize which capability is required for listing media items.
+         *
+         * @since 1.0.0
+         *
+         * @param  string  $default  Default capability slug. Default 'media.view'.
+         * @return string Filtered capability slug.
+         */
         $capability = applyFilters('ap.media.viewAny', 'media.view');
 
         return $user->can($capability);
@@ -41,6 +49,18 @@ class MediaPolicy
      */
     public function view(Authenticatable $user, Media $media): bool
     {
+        /**
+         * Filters the capability slug used to check viewing a specific media item.
+         *
+         * Allows applications to change which capability is required when viewing
+         * a particular media record.
+         *
+         * @since 1.0.0
+         *
+         * @param  string  $default  Default capability slug. Default 'media.view'.
+         * @param  Media  $media  The media instance being checked.
+         * @return string Filtered capability slug.
+         */
         $capability = applyFilters('ap.media.view', 'media.view', $media);
 
         return $user->can($capability);
@@ -54,6 +74,14 @@ class MediaPolicy
      */
     public function create(Authenticatable $user): bool
     {
+        /**
+         * Filters the capability slug used to check whether the user can create media.
+         *
+         * @since 1.0.0
+         *
+         * @param  string  $default  Default capability slug. Default 'media.upload'.
+         * @return string Filtered capability slug.
+         */
         $capability = applyFilters('ap.media.create', 'media.upload');
 
         return $user->can($capability);
@@ -68,6 +96,15 @@ class MediaPolicy
      */
     public function update(Authenticatable $user, Media $media): bool
     {
+        /**
+         * Filters the capability slug used to check whether the user can update a media item.
+         *
+         * @since 1.0.0
+         *
+         * @param  string  $default  Default capability slug. Default 'media.edit'.
+         * @param  Media  $media  The media instance being checked.
+         * @return string Filtered capability slug.
+         */
         $capability = applyFilters('ap.media.update', 'media.edit', $media);
 
         return $user->can($capability);
@@ -82,6 +119,15 @@ class MediaPolicy
      */
     public function delete(Authenticatable $user, Media $media): bool
     {
+        /**
+         * Filters the capability slug used to check whether the user can delete a media item.
+         *
+         * @since 1.0.0
+         *
+         * @param  string  $default  Default capability slug. Default 'media.delete'.
+         * @param  Media  $media  The media instance being checked.
+         * @return string Filtered capability slug.
+         */
         $capability = applyFilters('ap.media.delete', 'media.delete', $media);
 
         return $user->can($capability);

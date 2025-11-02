@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFolderFactory;
@@ -42,6 +40,10 @@ class MediaFolder extends Model
 
     /**
      * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaFolderFactory The model factory instance.
      */
     protected static function newFactory(): MediaFolderFactory
     {
@@ -50,10 +52,26 @@ class MediaFolder extends Model
 
     /**
      * Parent folder relationship.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsTo The relationship to the parent folder.
      */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Recursive children relationship.
+     *
+     * @since 1.0.0
+     *
+     * @return HasMany The relationship for eager-loading children recursively.
+     */
+    public function childrenRecursive(): HasMany
+    {
+        return $this->children()->with('childrenRecursive');
     }
 
     /**
@@ -62,14 +80,6 @@ class MediaFolder extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
-    }
-
-    /**
-     * Recursive children relationship.
-     */
-    public function childrenRecursive(): HasMany
-    {
-        return $this->children()->with('childrenRecursive');
     }
 
     /**
@@ -87,7 +97,7 @@ class MediaFolder extends Model
     {
         $userModel = config('artisanpack.media.user_model')
             ?: config('artisanpack.cms-framework.user_model')
-            ?: 'App\\Models\\User';
+                ?: 'App\\Models\\User';
 
         return $this->belongsTo($userModel, 'created_by');
     }

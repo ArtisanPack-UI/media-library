@@ -1,14 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use ArtisanPackUI\MediaLibrary\Models\MediaTag;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -18,7 +18,7 @@ use Livewire\Component;
  * Provides an interface for editing media title, alt text, caption,
  * description, folder, and tags.
  *
- * @since 1.0.0
+ * @since   1.0.0
  *
  * @package ArtisanPackUI\MediaLibrary\Livewire\Components
  */
@@ -102,19 +102,6 @@ class MediaEdit extends Component
     }
 
     /**
-     * Get all tags for the tag selector.
-     *
-     * @since 1.0.0
-     *
-     * @return Collection<int, MediaTag>
-     */
-    #[Computed]
-    public function tags(): Collection
-    {
-        return MediaTag::orderBy('name')->get();
-    }
-
-    /**
      * Save the media metadata changes.
      *
      * @since 1.0.0
@@ -151,11 +138,24 @@ class MediaEdit extends Component
 
             // Dispatch event to refresh media library if open
             $this->dispatch('media-updated');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error(__('Failed to update media: :error', ['error' => $e->getMessage()]));
         } finally {
             $this->isSaving = false;
         }
+    }
+
+    /**
+     * Get all tags for the tag selector.
+     *
+     * @since 1.0.0
+     *
+     * @return Collection<int, MediaTag>
+     */
+    #[Computed]
+    public function tags(): Collection
+    {
+        return MediaTag::orderBy('name')->get();
     }
 
     /**
@@ -175,7 +175,7 @@ class MediaEdit extends Component
 
             // Redirect to media library
             $this->redirect(route('admin.media'), navigate: true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error(__('Failed to delete media: :error', ['error' => $e->getMessage()]));
         }
     }
@@ -185,7 +185,7 @@ class MediaEdit extends Component
      *
      * @since 1.0.0
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('media::livewire.pages.media-edit');
     }

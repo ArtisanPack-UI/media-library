@@ -1,18 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Log;
 
 /**
  * MediaUpload Livewire component for uploading media files.
@@ -20,7 +21,7 @@ use Livewire\WithFileUploads;
  * Provides a drag-and-drop interface for uploading single or multiple files
  * with real-time validation, progress tracking, and file previews.
  *
- * @since 1.0.0
+ * @since   1.0.0
  *
  * @package ArtisanPackUI\MediaLibrary\Livewire\Components
  */
@@ -81,16 +82,6 @@ class MediaUpload extends Component
     public int $uploadProgress = 0;
 
     /**
-     * Get total count of all files (both selected and dropped).
-     *
-     * @since 1.0.0
-     */
-    public function getTotalFilesCountProperty(): int
-    {
-        return count($this->files) + count($this->droppedFiles);
-    }
-
-    /**
      * Total number of files to upload.
      *
      * @since 1.0.0
@@ -124,6 +115,16 @@ class MediaUpload extends Component
         'caption' => '',
         'description' => '',
     ];
+
+    /**
+     * Get total count of all files (both selected and dropped).
+     *
+     * @since 1.0.0
+     */
+    public function getTotalFilesCountProperty(): int
+    {
+        return count($this->files) + count($this->droppedFiles);
+    }
 
     /**
      * Get all folders for the folder dropdown.
@@ -197,7 +198,7 @@ class MediaUpload extends Component
      */
     public function processUpload(): void
     {
-        \Log::info('processUpload called', [
+        Log::info('processUpload called', [
             'files_count' => count($this->files),
             'droppedFiles_count' => count($this->droppedFiles),
             'files' => $this->files,
@@ -210,36 +211,36 @@ class MediaUpload extends Component
         // Add files from wire:model (Choose Files button)
         foreach ($this->files as $file) {
             if ($file instanceof TemporaryUploadedFile) {
-                \Log::info('Added file from wire:model', ['filename' => $file->getClientOriginalName()]);
+                Log::info('Added file from wire:model', ['filename' => $file->getClientOriginalName()]);
                 $processedFiles[] = $file;
             }
         }
 
         // Add files from drag-and-drop
         foreach ($this->droppedFiles as $fileReference) {
-            \Log::info('Processing dropped file', ['reference' => $fileReference, 'type' => gettype($fileReference)]);
+            Log::info('Processing dropped file', ['reference' => $fileReference, 'type' => gettype($fileReference)]);
 
             // Livewire automatically hydrates TemporaryUploadedFile objects
             if ($fileReference instanceof TemporaryUploadedFile) {
-                \Log::info('Added file from drag-and-drop (already an object)', ['filename' => $fileReference->getClientOriginalName()]);
+                Log::info('Added file from drag-and-drop (already an object)', ['filename' => $fileReference->getClientOriginalName()]);
                 $processedFiles[] = $fileReference;
             } elseif (is_string($fileReference) && str_starts_with($fileReference, 'livewire-file:')) {
                 // Fallback for string references (shouldn't happen with uploadMultiple, but just in case)
                 $filename = str_replace('livewire-file:', '', $fileReference);
-                \Log::info('Unserializing file from string', ['filename' => $filename]);
+                Log::info('Unserializing file from string', ['filename' => $filename]);
                 $tempFile = TemporaryUploadedFile::unserializeFromLivewireRequest($filename);
                 if ($tempFile) {
-                    \Log::info('Successfully unserialized file', ['filename' => $tempFile->getClientOriginalName()]);
+                    Log::info('Successfully unserialized file', ['filename' => $tempFile->getClientOriginalName()]);
                     $processedFiles[] = $tempFile;
                 } else {
-                    \Log::warning('Failed to unserialize file', ['filename' => $filename]);
+                    Log::warning('Failed to unserialize file', ['filename' => $filename]);
                 }
             } else {
-                \Log::warning('Unknown file reference type', ['type' => gettype($fileReference), 'value' => $fileReference]);
+                Log::warning('Unknown file reference type', ['type' => gettype($fileReference), 'value' => $fileReference]);
             }
         }
 
-        \Log::info('Total processed files', ['count' => count($processedFiles)]);
+        Log::info('Total processed files', ['count' => count($processedFiles)]);
 
         $allFiles = $processedFiles;
 
@@ -282,7 +283,7 @@ class MediaUpload extends Component
                 $media = $uploadService->upload($file, $options);
                 $this->uploadedMedia[] = $media;
                 $this->uploadedCount++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->uploadErrors[] = __('Failed to upload :filename: :error', [
                     'filename' => $file->getClientOriginalName(),
                     'error' => $e->getMessage(),
@@ -379,7 +380,7 @@ class MediaUpload extends Component
      *
      * @since 1.0.0
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('media::livewire.pages.media-upload');
     }

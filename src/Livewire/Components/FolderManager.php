@@ -1,12 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -16,7 +17,7 @@ use Livewire\Component;
  *
  * Provides a modal interface for creating, editing, and deleting media folders.
  *
- * @since 1.0.0
+ * @since   1.0.0
  *
  * @package ArtisanPackUI\MediaLibrary\Livewire\Components
  */
@@ -211,7 +212,7 @@ class FolderManager extends Component
     public function updatedFormName(): void
     {
         if (! $this->isEditing) {
-            $this->form['slug'] = \Illuminate\Support\Str::slug($this->form['name']);
+            $this->form['slug'] = Str::slug($this->form['name']);
         }
     }
 
@@ -267,7 +268,7 @@ class FolderManager extends Component
 
             // Notify other components to refresh
             $this->dispatch('folders-updated');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error(__('Failed to save folder: :error', ['error' => $e->getMessage()]));
         }
     }
@@ -305,7 +306,7 @@ class FolderManager extends Component
 
             // Notify other components to refresh
             $this->dispatch('folders-updated');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error(__('Failed to delete folder: :error', ['error' => $e->getMessage()]));
         }
     }
@@ -315,7 +316,7 @@ class FolderManager extends Component
      *
      * @since 1.0.0
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('media::livewire.components.folder-manager');
     }

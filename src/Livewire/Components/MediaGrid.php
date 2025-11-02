@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

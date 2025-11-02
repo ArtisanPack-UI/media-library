@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use Illuminate\Contracts\View\View;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -129,7 +128,7 @@ class MediaModal extends Component
      *
      * @since 1.0.0
      *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
     #[Computed]
     public function media()
@@ -253,15 +252,16 @@ class MediaModal extends Component
     }
 
     /**
-     * Close the modal.
+     * Reset all filters.
      *
      * @since 1.0.0
      */
-    public function close(): void
+    public function resetFilters(): void
     {
-        $this->isOpen = false;
-        $this->selectedMedia = [];
-        $this->resetFilters();
+        $this->search = '';
+        $this->folderId = null;
+        $this->typeFilter = '';
+        $this->resetPage();
     }
 
     /**
@@ -340,6 +340,18 @@ class MediaModal extends Component
     }
 
     /**
+     * Close the modal.
+     *
+     * @since 1.0.0
+     */
+    public function close(): void
+    {
+        $this->isOpen = false;
+        $this->selectedMedia = [];
+        $this->resetFilters();
+    }
+
+    /**
      * Handle media uploaded event from upload tab.
      *
      * @since 1.0.0
@@ -354,19 +366,6 @@ class MediaModal extends Component
         $this->activeTab = 'library';
 
         $this->success(__('Media uploaded successfully. You can now select it.'));
-    }
-
-    /**
-     * Reset all filters.
-     *
-     * @since 1.0.0
-     */
-    public function resetFilters(): void
-    {
-        $this->search = '';
-        $this->folderId = null;
-        $this->typeFilter = '';
-        $this->resetPage();
     }
 
     /**
