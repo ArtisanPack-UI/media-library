@@ -15,7 +15,7 @@
 	<x-artisanpack-modal
 		wire:model="isOpen"
 		:title="$multiSelect ? __('Select Media') : __('Select Media Item')"
-		class="max-w-7xl"
+		class="w-full media-library-modal"
 	>
 		<x-artisanpack-tabs wire:model="activeTab">
 			<x-artisanpack-tab name="library" :label="__('Media Library')" icon="o-photo">
@@ -34,7 +34,7 @@
 					<div class="min-w-[150px]">
 						<x-artisanpack-select
 							wire:model.live="typeFilter"
-							:options="$typeFilterOptions"
+							:options="$this->typeFilterOptions"
 							option-value="key"
 							option-label="label"
 							aria-label="{{ __('Filter by type') }}"
@@ -45,7 +45,7 @@
 					<div class="min-w-[150px]">
 						<x-artisanpack-select
 							wire:model.live="folderId"
-							:options="$folderOptions"
+							:options="$this->folderOptions"
 							option-value="key"
 							option-label="label"
 							aria-label="{{ __('Filter by folder') }}"
@@ -110,13 +110,15 @@
 						>
 							{{-- Selection Indicator --}}
 							@if (in_array($mediaItem->id, $selectedMedia, true))
-								<div class="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center z-10">
-									<x-artisanpack-icon name="fas.check" class="w-4 h-4 text-white" />
+								<div
+									class="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center z-10">
+									<x-artisanpack-icon name="fas.check" class="w-4 h-4 text-white"/>
 								</div>
 							@endif
 
 							{{-- Media Preview --}}
-							<div class="w-full aspect-square bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center overflow-hidden">
+							<div
+								class="w-full aspect-square bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center overflow-hidden">
 								@if ($mediaItem->isImage())
 									<img
 										src="{{ $mediaItem->imageUrl('thumbnail') }}"
@@ -126,11 +128,11 @@
 									/>
 								@else
 									@if ($mediaItem->isVideo())
-										<x-artisanpack-icon name="fas.video" class="w-12 h-12 text-zinc-400" />
+										<x-artisanpack-icon name="fas.video" class="w-12 h-12 text-zinc-400"/>
 									@elseif ($mediaItem->isAudio())
-										<x-artisanpack-icon name="fas.music" class="w-12 h-12 text-zinc-400" />
+										<x-artisanpack-icon name="fas.music" class="w-12 h-12 text-zinc-400"/>
 									@else
-										<x-artisanpack-icon name="fas.file" class="w-12 h-12 text-zinc-400" />
+										<x-artisanpack-icon name="fas.file" class="w-12 h-12 text-zinc-400"/>
 									@endif
 								@endif
 							</div>
@@ -150,7 +152,7 @@
 						</div>
 					@empty
 						<div class="col-span-full text-center py-12 text-zinc-600 dark:text-zinc-400">
-							<x-artisanpack-icon name="fas.images" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+							<x-artisanpack-icon name="fas.images" class="w-12 h-12 mx-auto mb-4 opacity-50"/>
 							<p class="text-base font-medium mb-2">{{ __('No media found') }}</p>
 							<p class="text-sm">
 								@if ($search || $folderId || $typeFilter)
@@ -172,7 +174,7 @@
 			</x-artisanpack-tab>
 
 			<x-artisanpack-tab name="upload" :label="__('Upload New')" icon="o-cloud-arrow-up">
-				<livewire:media::media-upload />
+				<livewire:media::media-upload/>
 			</x-artisanpack-tab>
 		</x-artisanpack-tabs>
 

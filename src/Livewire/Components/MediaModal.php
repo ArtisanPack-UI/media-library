@@ -100,6 +100,13 @@ class MediaModal extends Component
     public int $perPage = 12;
 
     /**
+     * Context identifier for this modal instance.
+     *
+     * @since 1.0.0
+     */
+    public string $context = '';
+
+    /**
      * Mount the component.
      *
      * @since 1.0.0
@@ -107,12 +114,14 @@ class MediaModal extends Component
      * @param  bool  $multiSelect  Whether multi-select mode is enabled.
      * @param  int  $maxSelections  Maximum number of selections (0 = unlimited).
      * @param  array  $selectedMedia  Pre-selected media IDs.
+     * @param  string  $context  Context identifier for this modal instance.
      */
-    public function mount(bool $multiSelect = false, int $maxSelections = 0, array $selectedMedia = []): void
+    public function mount(bool $multiSelect = false, int $maxSelections = 0, array $selectedMedia = [], string $context = ''): void
     {
         $this->multiSelect = $multiSelect;
         $this->maxSelections = $maxSelections;
         $this->selectedMedia = $selectedMedia;
+        $this->context = $context;
     }
 
     /**
@@ -230,12 +239,17 @@ class MediaModal extends Component
      * Open the modal.
      *
      * @since 1.0.0
+     *
+     * @param  string  $context  The context to open (optional).
      */
     #[On('open-media-modal')]
-    public function open(): void
+    public function open(string $context = ''): void
     {
-        $this->isOpen = true;
-        $this->resetFilters();
+        // Only open if context matches or if both are empty (backward compatibility)
+        if ($context === '' || $this->context === '' || $context === $this->context) {
+            $this->isOpen = true;
+            $this->resetFilters();
+        }
     }
 
     /**
@@ -316,8 +330,8 @@ class MediaModal extends Component
         // Get the actual media objects
         $media = Media::whereIn('id', $this->selectedMedia)->get();
 
-        // Emit event with selected media
-        $this->dispatch('media-selected', media: $media->toArray());
+        // Emit event with selected media and context
+        $this->dispatch('media-selected', media: $media->toArray(), context: $this->context);
 
         // Close the modal
         $this->close();
