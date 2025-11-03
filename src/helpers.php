@@ -1,71 +1,111 @@
 <?php
 
-use ArtisanPackUI\MediaLibrary\MediaLibrary;
+/**
+ * Media Library Helper Functions
+ *
+ * Global helper functions for media management.
+ *
+ * @since   1.0.0
+ *
+ * @package ArtisanPackUI\MediaLibrary
+ */
 
-if ( !function_exists( 'mediaLibrary' ) ) {
-	/**
-	 * Get the MediaLibrary instance.
-	 *
-	 * @return MediaLibrary
-	 */
-	function mediaLibrary()
-	{
-		return app( 'media-library' );
-	}
+use ArtisanPackUI\MediaLibrary\Managers\MediaManager;
+use ArtisanPackUI\MediaLibrary\Models\Media;
+use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
+use Illuminate\Http\UploadedFile;
+
+if ( ! function_exists( 'apRegisterImageSize' ) ) {
+    /**
+     * Register a custom image size.
+     *
+     * @since 1.0.0
+     *
+     * @param string $name   The name of the image size.
+     * @param int    $width  The maximum width in pixels.
+     * @param int    $height The maximum height in pixels.
+     * @param bool   $crop   Whether to crop to exact dimensions.
+     */
+    function apRegisterImageSize( string $name, int $width, int $height, bool $crop = false ): void
+    {
+        app( MediaManager::class )->registerImageSize( $name, $width, $height, $crop );
+    }
 }
 
-if ( !function_exists( 'a11yCSSVarBlackOrWhite' ) ) {
-	/**
-	 * Returns whether a text color should be black or white based on the background color.
-	 *
-	 * @param string $hexColor The hex code for the background color.
-	 * @return string
-	 * @since 1.0.0
-	 */
-	function a11yCSSVarBlackOrWhite( string $hexColor ): string
-	{
-		return mediaLibrary()->a11yCSSVarBlackOrWhite( $hexColor );
-	}
+if ( ! function_exists( 'apGetMedia' ) ) {
+    /**
+     * Get a media item by ID.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id The media ID.
+     * @return Media|null The media instance or null if not found.
+     */
+    function apGetMedia( int $id ): ?Media
+    {
+        return Media::find( $id );
+    }
 }
 
-if ( !function_exists( 'a11yGetContrastColor' ) ) {
-	/**
-	 * Returns whether a text color should be black or white based on the background color.
-	 *
-	 * @param string $hexColor The hex code for the background color.
-	 * @return string
-	 * @since 1.0.0
-	 */
-	function a11yGetContrastColor( string $hexColor ): string
-	{
-		return mediaLibrary()->a11yGetContrastColor( $hexColor );
-	}
+if ( ! function_exists( 'apGetMediaUrl' ) ) {
+    /**
+     * Get the URL for a media item.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $id   The media ID.
+     * @param string $size The image size (e.g., 'thumbnail', 'medium', 'large', 'full').
+     * @return string|null The media URL or null if not found.
+     */
+    function apGetMediaUrl( int $id, string $size = 'full' ): ?string
+    {
+        $media = apGetMedia( $id );
+
+        if ( ! $media ) {
+            return null;
+        }
+
+        return $media->isImage() ? $media->imageUrl( $size ) : $media->url();
+    }
 }
 
-if ( !function_exists( 'getToastDuration' ) ) {
-	/**
-	 * Gets the user's setting for how long the toast element should stay on the screen.
-	 *
-	 * @return float|int
-	 * @since 1.0.0
-	 */
-	function getToastDuration(): float|int
-	{
-		return mediaLibrary()->getToastDuration();
-	}
+if ( ! function_exists( 'apUploadMedia' ) ) {
+    /**
+     * Upload a media file.
+     *
+     * This function will be fully implemented in Phase 2 when MediaUploadService is created.
+     *
+     * @since 1.0.0
+     *
+     * @param UploadedFile         $file    The uploaded file.
+     * @param array<string, mixed> $options Additional options for the upload.
+     * @return Media The created media instance.
+     */
+    function apUploadMedia( UploadedFile $file, array $options = [] ): Media
+    {
+        return app( MediaUploadService::class )->upload( $file, $options );
+    }
 }
 
-if ( !function_exists( 'a11yCheckContrastColor' ) ) {
-	/**
-	 * Returns whether two given colors have the correct amount of contrast between them.
-	 *
-	 * @param string $firstHexColor  The first color to check.
-	 * @param string $secondHexColor The second color to check.
-	 * @return bool
-	 * @since 1.0.0
-	 */
-	function a11yCheckContrastColor( string $firstHexColor, string $secondHexColor ): bool
-	{
-		return mediaLibrary()->a11yCheckContrastColor( $firstHexColor, $secondHexColor );
-	}
+if ( ! function_exists( 'apDeleteMedia' ) ) {
+    /**
+     * Delete a media item and its files.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id The media ID.
+     * @return bool True if deleted successfully, false otherwise.
+     */
+    function apDeleteMedia( int $id ): bool
+    {
+        $media = apGetMedia( $id );
+
+        if ( ! $media ) {
+            return false;
+        }
+
+        $media->deleteFiles();
+
+        return $media->delete();
+    }
 }

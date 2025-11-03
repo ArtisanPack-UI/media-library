@@ -1,277 +1,181 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Media Library Configuration
+ * ArtisanPack UI - Media Library Configuration
  *
- * Configuration settings for the ArtisanPack UI Media Library package.
- * These settings control file storage, validation, security, and behavior
- * of media operations within the application.
+ * This configuration file defines settings for the Media Library package.
+ * Settings are merged into the main artisanpack.php config file under the
+ * 'media' key, following ArtisanPack UI package conventions.
  *
- * @link       https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-media-library
+ * After publishing, this file can be found at: config/artisanpack/media.php
  *
  * @package    ArtisanPackUI\MediaLibrary
- * @subpackage Config
+ *
  * @since      1.0.0
  */
-
 return [
     /*
     |--------------------------------------------------------------------------
-    | Storage Configuration
+    | User Model
     |--------------------------------------------------------------------------
     |
-    | These settings control where and how media files are stored.
+    | The user model to use for relationships (uploaded_by, created_by, etc.).
+    | Defaults to the cms-framework user model if available, otherwise App\Models\User.
     |
     */
-
-    /**
-     * The default storage disk to use for media files.
-     * 
-     * This should correspond to a disk configured in config/filesystems.php
-     * Common values: 'public', 'local', 's3'
-     *
-     * @since 1.0.0
-     */
-    'disk' => env('MEDIA_DISK', 'public'),
-
-    /**
-     * The base directory for media file storage.
-     * 
-     * Files will be stored in a year/month structure under this directory.
-     * Example: media/2024/08/filename.jpg
-     *
-     * @since 1.0.0
-     */
-    'directory' => env('MEDIA_DIRECTORY', 'media'),
-
-    /**
-     * Whether to organize files by date (year/month structure).
-     *
-     * @since 1.0.0
-     */
-    'organize_by_date' => env('MEDIA_ORGANIZE_BY_DATE', true),
+    'user_model' => config('artisanpack.cms-framework.user_model', 'App\Models\User'),
 
     /*
     |--------------------------------------------------------------------------
-    | File Validation
+    | Default Storage Disk
     |--------------------------------------------------------------------------
     |
-    | These settings control what types of files can be uploaded and their
-    | size limits.
+    | The default disk to use for media uploads.
     |
     */
+    'disk' => env('MEDIA_DISK', 'public'),
 
-    /**
-     * Maximum file size allowed for uploads (in bytes).
-     * 
-     * Default: 10MB (10 * 1024 * 1024)
-     *
-     * @since 1.0.0
-     */
-    'max_file_size' => env('MEDIA_MAX_FILE_SIZE', 10485760),
-
-    /**
-     * Allowed MIME types for file uploads.
-     * 
-     * Common image types are included by default.
-     * Add or remove types as needed for your application.
-     *
-     * @since 1.0.0
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Allowed File Types
+    |--------------------------------------------------------------------------
+    |
+    | Define which file types can be uploaded. Use MIME types.
+    |
+    */
     'allowed_mime_types' => [
         // Images
         'image/jpeg',
-        'image/jpg', 
+        'image/jpg',
         'image/png',
         'image/gif',
         'image/webp',
+        'image/avif',
         'image/svg+xml',
-        
-        // Documents  
+
+        // Documents
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'text/plain',
-        'text/csv',
-        
-        // Archives
-        'application/zip',
-        'application/x-rar-compressed',
-        
+
+        // Videos
+        'video/mp4',
+        'video/mpeg',
+        'video/quicktime',
+        'video/webm',
+
         // Audio
         'audio/mpeg',
         'audio/wav',
         'audio/ogg',
-        
-        // Video
-        'video/mp4',
-        'video/quicktime',
-        'video/x-msvideo',
-    ],
-
-    /**
-     * Allowed file extensions for uploads.
-     * 
-     * This provides an additional layer of validation beyond MIME types.
-     *
-     * @since 1.0.0
-     */
-    'allowed_extensions' => [
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
-        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv',
-        'zip', 'rar',
-        'mp3', 'wav', 'ogg',
-        'mp4', 'mov', 'avi',
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Image Processing
+    | Maximum File Size
     |--------------------------------------------------------------------------
     |
-    | Settings for automatic image processing and optimization.
+    | Maximum file size in kilobytes. Default: 10MB
     |
     */
+    'max_file_size' => env('MEDIA_MAX_FILE_SIZE', 10240),
 
-    /**
-     * Whether to automatically generate thumbnails for images.
-     *
-     * @since 1.0.0
-     */
-    'generate_thumbnails' => env('MEDIA_GENERATE_THUMBNAILS', true),
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Path Format
+    |--------------------------------------------------------------------------
+    |
+    | Path format for uploaded files. Available variables:
+    | {year} - 4 digit year
+    | {month} - 2 digit month
+    | {day} - 2 digit day
+    | {user_id} - Uploading user's ID
+    |
+    */
+    'upload_path_format' => env('MEDIA_UPLOAD_PATH_FORMAT', '{year}/{month}'),
 
-    /**
-     * Thumbnail sizes to generate.
-     * 
-     * Each key represents a size name, and the value is [width, height].
-     * Set height to null to maintain aspect ratio.
-     *
-     * @since 1.0.0
-     */
-    'thumbnail_sizes' => [
-        'thumb' => [150, 150],
-        'medium' => [300, null],
-        'large' => [800, null],
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Modern Image Formats
+    |--------------------------------------------------------------------------
+    |
+    | Automatically convert uploaded images to modern formats (WebP/AVIF)
+    | while keeping the original file.
+    |
+    */
+    'enable_modern_formats' => env('MEDIA_ENABLE_MODERN_FORMATS', true),
 
-    /**
-     * Default image quality for processed images (1-100).
-     *
-     * @since 1.0.0
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Modern Image Format
+    |--------------------------------------------------------------------------
+    |
+    | Which modern format to use: 'webp' or 'avif'
+    |
+    */
+    'modern_format' => env('MEDIA_MODERN_FORMAT', 'webp'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Quality
+    |--------------------------------------------------------------------------
+    |
+    | Quality for image compression (1-100). Higher is better quality.
+    |
+    */
     'image_quality' => env('MEDIA_IMAGE_QUALITY', 85),
 
     /*
     |--------------------------------------------------------------------------
-    | Security Settings
+    | Enable Thumbnails
     |--------------------------------------------------------------------------
     |
-    | Security-related configuration for media handling.
+    | Generate thumbnails for uploaded images.
     |
     */
+    'enable_thumbnails' => env('MEDIA_ENABLE_THUMBNAILS', true),
 
-    /**
-     * Whether to sanitize uploaded filenames.
-     * 
-     * Recommended to keep enabled for security.
-     *
-     * @since 1.0.0
-     */
-    'sanitize_filenames' => env('MEDIA_SANITIZE_FILENAMES', true),
-
-    /**
-     * Whether to scan uploaded files for malware (requires clamav or similar).
-     *
-     * @since 1.0.0
-     */
-    'scan_for_malware' => env('MEDIA_SCAN_MALWARE', false),
-
-    /**
-     * Characters to remove or replace in filenames during sanitization.
-     *
-     * @since 1.0.0
-     */
-    'filename_sanitization' => [
-        'remove' => [' ', '(', ')', '[', ']', '{', '}', '&', '@', '#', '%', '^'],
-        'replace' => ['_'],
+    /*
+    |--------------------------------------------------------------------------
+    | Image Sizes
+    |--------------------------------------------------------------------------
+    |
+    | Define image sizes to generate. Each size should have:
+    | - width: max width in pixels (null for no constraint)
+    | - height: max height in pixels (null for no constraint)
+    | - crop: whether to crop to exact dimensions
+    |
+    */
+    'image_sizes' => [
+        'thumbnail' => [
+            'width' => 150,
+            'height' => 150,
+            'crop' => true,
+        ],
+        'medium' => [
+            'width' => 300,
+            'height' => 300,
+            'crop' => false,
+        ],
+        'large' => [
+            'width' => 1024,
+            'height' => 1024,
+            'crop' => false,
+        ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Accessibility Settings  
+    | Custom Image Sizes
     |--------------------------------------------------------------------------
     |
-    | Configuration for accessibility features.
+    | Additional custom image sizes registered at runtime.
+    | This is populated via the registerImageSize helper.
     |
     */
-
-    /**
-     * Whether alt text is required for image uploads.
-     *
-     * @since 1.0.0
-     */
-    'require_alt_text' => env('MEDIA_REQUIRE_ALT_TEXT', true),
-
-    /**
-     * Whether to allow decorative images (images with empty alt text).
-     *
-     * @since 1.0.0
-     */
-    'allow_decorative' => env('MEDIA_ALLOW_DECORATIVE', true),
-
-    /**
-     * Maximum length for alt text.
-     *
-     * @since 1.0.0
-     */
-    'max_alt_text_length' => env('MEDIA_MAX_ALT_TEXT_LENGTH', 200),
-
-    /*
-    |--------------------------------------------------------------------------
-    | API Settings
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for API responses and pagination.
-    |
-    */
-
-    /**
-     * Default number of items per page for API responses.
-     *
-     * @since 1.0.0
-     */
-    'per_page_default' => env('MEDIA_PER_PAGE_DEFAULT', 15),
-
-    /**
-     * Maximum number of items per page allowed in API requests.
-     *
-     * @since 1.0.0
-     */
-    'per_page_max' => env('MEDIA_PER_PAGE_MAX', 100),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logging
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for media-related logging.
-    |
-    */
-
-    /**
-     * Whether to log media operations (uploads, updates, deletions).
-     *
-     * @since 1.0.0
-     */
-    'log_operations' => env('MEDIA_LOG_OPERATIONS', true),
-
-    /**
-     * Log level for media operations.
-     * 
-     * Available: 'debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'
-     *
-     * @since 1.0.0
-     */
-    'log_level' => env('MEDIA_LOG_LEVEL', 'info'),
+    'custom_image_sizes' => [],
 ];

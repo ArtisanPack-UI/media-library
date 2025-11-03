@@ -1,81 +1,71 @@
-# Installation Guide
+---
+title: Installation
+---
 
-This guide covers the complete installation and setup process for the ArtisanPack UI Media Library package.
+# Installation
 
-## Requirements
+This section covers everything you need to install and set up the ArtisanPack UI Media Library package in your Laravel application.
 
-- PHP 8.2 or higher
-- Laravel 12.0 or higher
-- Laravel Sanctum 4.1 or higher
+## Installation Guides
 
-## Installation Steps
+### [Installation Guide](./installation/installation.md)
 
-### 1. Install via Composer
+Complete step-by-step installation instructions including:
+- Installing via Composer
+- Publishing and running migrations
+- Creating storage links
+- Publishing configuration and views
+- Installing optional dependencies (FFmpeg)
+- Verifying the installation
+- Troubleshooting installation issues
+
+### [Requirements](./installation/requirements.md)
+
+Detailed system requirements including:
+- PHP version and extensions
+- Laravel version
+- Database requirements
+- Image processing libraries (GD/Imagick)
+- Video processing (FFmpeg)
+- Storage requirements
+- Cloud storage drivers
+- Production requirements
+- Environment check script
+
+### [Configuration](./installation/configuration.md)
+
+Complete configuration reference covering:
+- Storage settings (disk, file size, upload paths)
+- Image processing options
+- Modern format conversion (WebP/AVIF)
+- Image sizes and thumbnails
+- Allowed MIME types
+- User model configuration
+- Environment variables
+- Cloud storage setup (S3, GCS, Azure)
+- Performance optimization
+- Queue configuration
+
+## Quick Installation
+
+For a quick start:
 
 ```bash
+# Install package
 composer require artisanpack-ui/media-library
-```
 
-### 2. Publish and Run Migrations
-
-Publish the migration files and run them to set up the database tables:
-
-```bash
-php artisan vendor:publish --tag="media-library-migrations"
+# Run migrations
+php artisan vendor:publish --tag=media-migrations
 php artisan migrate
-```
 
-### 3. Publish Configuration (Optional)
-
-Optionally publish the configuration file to customize package settings:
-
-```bash
-php artisan vendor:publish --tag="media-library-config"
-```
-
-### 4. Service Provider Registration
-
-The service provider will be automatically registered via Laravel's package auto-discovery. If you need to register it manually, add it to your `config/app.php`:
-
-```php
-'providers' => [
-    // Other providers...
-    ArtisanPackUI\MediaLibrary\MediaLibraryServiceProvider::class,
-],
-```
-
-### 5. Laravel Sanctum Setup
-
-Ensure Laravel Sanctum is properly configured for API authentication:
-
-```bash
-php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
-php artisan migrate
+# Create storage link
+php artisan storage:link
 ```
 
 ## Next Steps
 
-After installation, you'll want to:
-
-1. [Configure the package](configuration.md) according to your needs
-2. Review the [usage examples](usage.md) to get started
-3. Explore the [API documentation](api.md) for endpoint details
-
-## Troubleshooting Installation
-
-### Common Installation Issues
-
-#### Permission Issues
-```bash
-chmod -R 755 storage/app/public
-php artisan storage:link
-```
-
-#### Missing Dependencies
-Make sure all required PHP extensions are installed:
-- `fileinfo`
-- `gd` or `imagick` (for image processing)
-- `json`
-
-#### Database Issues
-Verify your database configuration in `.env` and ensure the database exists before running migrations.
+After installation:
+- Review [Configuration](./installation/configuration.md) to customize settings
+- Learn about [Helper Functions](./usage/helper-functions.md) for basic usage
+- Set up [Permissions](./integration/permissions.md) for your roles
+- Check [Troubleshooting](./reference/troubleshooting.md) if you encounter issues

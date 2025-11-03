@@ -3,10 +3,11 @@
   "description": "Media library package for ArtisanPack UI",
   "type": "library",
   "license": "GPL-3.0-or-later",
+  "version": "1.0.0-beta1",
   "autoload": {
     "psr-4": {
       "ArtisanPackUI\\MediaLibrary\\": "src/",
-      "ArtisanPackUI\\MediaLibrary\\Database\\Factories\\": "src/Database/Factories/"
+      "ArtisanPackUI\\MediaLibrary\\Database\\Factories\\": "database/factories/"
     },
     "files": [
       "src/helpers.php"
@@ -27,17 +28,29 @@
     "php": "^8.2",
     "laravel/framework": "^12.0",
     "laravel/sanctum": "^4.1",
-    "illuminate/support": "^12.17.0"
+    "illuminate/support": "^12.17.0",
+    "artisanpack-ui/core": "^1.0",
+    "artisanpack-ui/accessibility": "@dev",
+    "artisanpack-ui/livewire-ui-components": "@dev",
+    "artisanpack-ui/security": "@dev",
+    "artisanpack-ui/hooks": "^1.1",
+    "intervention/image": "^3.0",
+    "php-ffmpeg/php-ffmpeg": "^1.0",
+    "livewire/livewire": "^3.6"
   },
   "require-dev": {
     "pestphp/pest": "^3.8",
     "pestphp/pest-plugin-laravel": "^3.1",
     "mockery/mockery": "^1.6",
-    "orchestra/testbench": "^10.0"
+    "orchestra/testbench": "^10.0",
+    "squizlabs/php_codesniffer": "^3.13",
+    "artisanpack-ui/code-style": "^1.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.1"
   },
   "config": {
     "allow-plugins": {
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   },
   "extra": {
@@ -49,5 +62,14 @@
         "MediaLibrary": "ArtisanPackUI\\MediaLibrary\\Facades\\MediaLibrary"
       }
     }
+  },
+  "scripts": {
+    "test": "vendor/bin/pest",
+    "test:coverage": "vendor/bin/pest --coverage",
+    "test:coverage-min": "vendor/bin/pest --coverage --min=80",
+    "test:unit": "vendor/bin/pest tests/Unit",
+    "test:feature": "vendor/bin/pest tests/Feature",
+    "phpcs": "vendor/bin/phpcs",
+    "phpcs:fix": "vendor/bin/phpcbf"
   }
 }

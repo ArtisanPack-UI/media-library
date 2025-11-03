@@ -1,63 +1,33 @@
 <?php
-/**
- * Media Model
- *
- * Represents a media item in the database.
- *
- * @link       https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-media-library
- *
- * @package    ArtisanPackUI\MediaLibrary
- * @subpackage ArtisanPackUI\MediaLibrary\Models
- * @since      1.0.0
- */
 
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Auth\User;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 /**
- * Class Media
+ * Media model representing a single uploaded media item (image, video, audio, or document).
  *
- * Eloquent model for the 'media' table.
+ * Provides helpers for URLs, image sizes, file deletion, and query scopes by type/tag/folder.
  *
  * @since 1.0.0
- *
- * @property int    $id              The unique identifier for the media item.
- * @property string $file_name       The original file name of the media.
- * @property string $mime_type       The MIME type of the media file.
- * @property string $path            The storage path of the media file.
- * @property int    $size            The size of the media file in bytes.
- * @property string $alt_text        The alternative text for the media (important for
- *           accessibility).
- * @property bool   $is_decorative   Indicates if the image is purely decorative and thus has empty
- *           alt text.
- * @property string $caption         The caption for the media item.
- * @property array  $metadata        Additional metadata for the media, stored as JSON.
- * @property Carbon $created_at      The creation timestamp.
- * @property Carbon $updated_at      The last update timestamp.
  */
 class Media extends Model
 {
     use HasFactory;
-
-    /**
-     * The factory that should be used to instantiate the model.
-     *
-     * @since 1.0.0
-     * @var string
-     */
-    protected static $factory = MediaFactory::class;
+    use SoftDeletes;
 
     /**
      * The table associated with the model.
      *
      * @since 1.0.0
+     *
      * @var string
      */
     protected $table = 'media';
@@ -66,94 +36,402 @@ class Media extends Model
      * The attributes that are mass assignable.
      *
      * @since 1.0.0
-     * @var array<int, string>
+     *
+     * @var array<string>
      */
     protected $fillable = [
-        'user_id',
+        'title',
         'file_name',
+        'file_path',
+        'disk',
         'mime_type',
-        'path',
-        'size',
+        'file_size',
         'alt_text',
-        'is_decorative',
         'caption',
+        'description',
+        'width',
+        'height',
+        'duration',
+        'folder_id',
+        'uploaded_by',
         'metadata',
     ];
 
     /**
-     * The attributes that should be cast.
+     * Create a new factory instance for the model.
      *
      * @since 1.0.0
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'metadata'      => 'array',
-        'is_decorative' => 'boolean',
-    ];
-
-    /**
-     * Get the user that owns the media.
      *
-     * @since 1.0.0
-     * @return BelongsTo
+     * @return MediaFactory The model factory instance.
      */
-    public function user(): BelongsTo
+    protected static function newFactory(): MediaFactory
     {
-        return $this->belongsTo( User::class );
+        return MediaFactory::new();
     }
 
     /**
-     * Get the categories associated with the media.
+     * Get the user who uploaded this media.
      *
      * @since 1.0.0
-     * @return BelongsToMany
+     *
+     * @return BelongsTo The relationship to the uploader user model.
      */
-    public function mediaCategories(): BelongsToMany
+    public function uploadedBy(): BelongsTo
     {
-        // Using singular 'category_id' and 'media_id' as per Laravel conventions for pivot table column names.
-        return $this->belongsToMany( MediaCategory::class, 'media_media_category', 'media_id', 'category_id' );
+        return $this->belongsTo( config( 'artisanpack.media.user_model' ), 'uploaded_by' );
     }
 
     /**
-     * Get the tags associated with the media.
+     * Get the folder this media belongs to.
      *
      * @since 1.0.0
-     * @return BelongsToMany
+     *
+     * @return BelongsTo The relationship to the parent folder model.
      */
-    public function mediaTags(): BelongsToMany
+    public function folder(): BelongsTo
     {
-        // Using singular 'tag_id' and 'media_id' as per Laravel conventions for pivot table column names.
-        return $this->belongsToMany( MediaTag::class, 'media_media_tag', 'media_id', 'tag_id' );
+        return $this->belongsTo( MediaFolder::class, 'folder_id' );
     }
 
     /**
-     * Set the alt text. If the image is decorative, the alt text should be an empty string.
+     * Get the tags associated with this media.
      *
      * @since 1.0.0
-     * @param string $value The alt text to set.
-     * @return void
+     *
+     * @return BelongsToMany The many-to-many relationship to tags.
      */
-    public function setAltTextAttribute( string $value ): void
+    public function tags(): BelongsToMany
     {
-        // Always set the alt_text attribute to the provided value
-        // This allows tests to verify the value was set correctly
-        $this->attributes['alt_text'] = $value;
+        return $this->belongsToMany( MediaTag::class, 'media_taggables' );
     }
 
     /**
-     * Set the is_decorative attribute. If true, it also clears the alt_text.
+     * Display the image with proper escaping.
      *
      * @since 1.0.0
-     * @param bool $value Whether the image is decorative.
-     * @return void
+     *
+     * @param string               $size       The image size to display. Default 'full'.
+     * @param array<string, mixed> $attributes Additional HTML attributes.
+     * @return string The HTML img tag or empty string if not an image.
      */
-    public function setIsDecorativeAttribute( bool $value ): void
+    public function displayImage( string $size = 'full', array $attributes = [] ): string
     {
-        $this->attributes['is_decorative'] = $value;
-
-        // If the image is decorative, always clear the alt text
-        if ( true === $value ) {
-            $this->attributes['alt_text'] = '';
+        if ( ! $this->isImage() ) {
+            return '';
         }
+
+        $url = escAttr( $this->imageUrl( $size ) );
+        $alt = escAttr( $this->alt_text ?? $this->title ?? '' );
+
+        $attrString = '';
+        foreach ( $attributes as $key => $value ) {
+            $attrString .= ' ' . escAttr( $key ) . '="' . escAttr( $value ) . '"';
+        }
+
+        return '<img src="' . $url . '" alt="' . $alt . '"' . $attrString . ' />';
+    }
+
+    /**
+     * Check if media is an image.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if the media is an image, false otherwise.
+     */
+    public function isImage(): bool
+    {
+        return str_starts_with( $this->mime_type, 'image/' );
+    }
+
+    /**
+     * Get the URL for a specific image size.
+     *
+     * @since 1.0.0
+     *
+     * @param string $size The image size name. Default 'thumbnail'.
+     * @return string|null The image URL or null if not an image.
+     */
+    public function imageUrl( string $size = 'thumbnail' ): ?string
+    {
+        if ( ! $this->isImage() ) {
+            return null;
+        }
+
+        if ( $size === 'full' ) {
+            return $this->url();
+        }
+
+        // Generate path for the sized image
+        $pathInfo  = pathinfo( $this->file_path );
+        $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $size . '.' . $pathInfo['extension'];
+
+        if ( Storage::disk( $this->disk )->exists( $sizedPath ) ) {
+            return Storage::disk( $this->disk )->url( $sizedPath );
+        }
+
+        // Fallback to original if sized version doesn't exist
+        return $this->url();
+    }
+
+    /**
+     * Get the full URL to the media file.
+     *
+     * @since 1.0.0
+     *
+     * @return string The full URL to the media file.
+     */
+    public function url(): string
+    {
+        return Storage::disk( $this->disk )->url( $this->file_path );
+    }
+
+    /**
+     * Check if media is a video.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if the media is a video, false otherwise.
+     */
+    public function isVideo(): bool
+    {
+        return str_starts_with( $this->mime_type, 'video/' );
+    }
+
+    /**
+     * Check if media is audio.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if the media is audio, false otherwise.
+     */
+    public function isAudio(): bool
+    {
+        return str_starts_with( $this->mime_type, 'audio/' );
+    }
+
+    /**
+     * Check if media is a document.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if the media is a document, false otherwise.
+     */
+    public function isDocument(): bool
+    {
+        return str_starts_with( $this->mime_type, 'application/' );
+    }
+
+    /**
+     * Get human-readable file size.
+     *
+     * @since 1.0.0
+     *
+     * @return string The formatted file size (e.g., "1.5 MB").
+     */
+    public function humanFileSize(): string
+    {
+        $bytes = $this->file_size;
+        $units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
+
+        for ( $i = 0; $bytes > 1024 && ( count( $units ) - 1 ) > $i; $i++ ) {
+            $bytes /= 1024;
+        }
+
+        return round( $bytes, 2 ) . ' ' . $units[ $i ];
+    }
+
+    /**
+     * Get all generated image sizes for this media.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string> Array of size names and their URLs.
+     */
+    public function getImageSizes(): array
+    {
+        if ( ! $this->isImage() ) {
+            return [];
+        }
+
+        $sizes      = [];
+        $pathInfo   = pathinfo( $this->file_path );
+        $imageSizes = config( 'artisanpack.media.image_sizes', [] );
+
+        foreach ( $imageSizes as $sizeName => $config ) {
+            $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
+
+            if ( Storage::disk( $this->disk )->exists( $sizedPath ) ) {
+                $sizes[ $sizeName ] = Storage::disk( $this->disk )->url( $sizedPath );
+            }
+        }
+
+        return $sizes;
+    }
+
+    /**
+     * Delete all associated files and thumbnails.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if all files were deleted successfully, false otherwise.
+     */
+    public function deleteFiles(): bool
+    {
+        $storage = Storage::disk( $this->disk );
+        $deleted = true;
+
+        // Delete original file
+        if ( $storage->exists( $this->file_path ) ) {
+            $deleted = $storage->delete( $this->file_path ) && $deleted;
+        }
+
+        // Delete all generated sizes
+        if ( $this->isImage() ) {
+            $pathInfo   = pathinfo( $this->file_path );
+            $imageSizes = config( 'artisanpack.media.image_sizes', [] );
+
+            foreach ( $imageSizes as $sizeName => $config ) {
+                $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
+
+                if ( $storage->exists( $sizedPath ) ) {
+                    $deleted = $storage->delete( $sizedPath ) && $deleted;
+                }
+            }
+
+            // Delete modern format versions (WebP/AVIF)
+            $modernFormats = [ 'webp', 'avif' ];
+            foreach ( $modernFormats as $format ) {
+                $modernPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.' . $format;
+
+                if ( $storage->exists( $modernPath ) ) {
+                    $deleted = $storage->delete( $modernPath ) && $deleted;
+                }
+
+                // Delete sized modern formats
+                foreach ( $imageSizes as $sizeName => $config ) {
+                    $sizedModernPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $format;
+
+                    if ( $storage->exists( $sizedModernPath ) ) {
+                        $deleted = $storage->delete( $sizedModernPath ) && $deleted;
+                    }
+                }
+            }
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Scope a query to only include images.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query The query builder instance.
+     * @return Builder The modified query builder.
+     */
+    public function scopeImages( Builder $query ): Builder
+    {
+        return $query->where( 'mime_type', 'like', 'image/%' );
+    }
+
+    /**
+     * Scope a query to only include videos.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query The query builder instance.
+     * @return Builder The modified query builder.
+     */
+    public function scopeVideos( Builder $query ): Builder
+    {
+        return $query->where( 'mime_type', 'like', 'video/%' );
+    }
+
+    /**
+     * Scope a query to only include audio files.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query The query builder instance.
+     * @return Builder The modified query builder.
+     */
+    public function scopeAudios( Builder $query ): Builder
+    {
+        return $query->where( 'mime_type', 'like', 'audio/%' );
+    }
+
+    /**
+     * Scope a query to only include documents.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query The query builder instance.
+     * @return Builder The modified query builder.
+     */
+    public function scopeDocuments( Builder $query ): Builder
+    {
+        return $query->where( 'mime_type', 'like', 'application/%' );
+    }
+
+    /**
+     * Scope a query to only include media in a specific folder.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query    The query builder instance.
+     * @param int     $folderId The folder ID to filter by.
+     * @return Builder The modified query builder.
+     */
+    public function scopeInFolder( Builder $query, int $folderId ): Builder
+    {
+        return $query->where( 'folder_id', $folderId );
+    }
+
+    /**
+     * Scope a query to only include media with a specific tag.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query   The query builder instance.
+     * @param string  $tagSlug The tag slug to filter by.
+     * @return Builder The modified query builder.
+     */
+    public function scopeWithTag( Builder $query, string $tagSlug ): Builder
+    {
+        return $query->whereHas( 'tags', function ( $q ) use ( $tagSlug ) {
+            $q->where( 'slug', $tagSlug );
+        } );
+    }
+
+    /**
+     * Scope a query to only include media of a specific MIME type.
+     *
+     * @since 1.0.0
+     *
+     * @param Builder $query    The query builder instance.
+     * @param string  $mimeType The MIME type to filter by.
+     * @return Builder The modified query builder.
+     */
+    public function scopeByType( Builder $query, string $mimeType ): Builder
+    {
+        return $query->where( 'mime_type', $mimeType );
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string> Array of attribute names and their cast types.
+     */
+    protected function casts(): array
+    {
+        return [
+            'metadata'  => 'array',
+            'file_size' => 'integer',
+            'width'     => 'integer',
+            'height'    => 'integer',
+            'duration'  => 'integer',
+        ];
     }
 }
