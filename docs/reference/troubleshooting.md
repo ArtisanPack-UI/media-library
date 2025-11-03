@@ -13,6 +13,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** `composer require artisanpack-ui/media-library` fails
 
 **Solutions:**
+
 1. Clear Composer cache:
    ```bash
    composer clear-cache
@@ -31,6 +32,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** `php artisan migrate` fails with database errors
 
 **Solutions:**
+
 1. Check database connection in `.env`
 2. Ensure database user has CREATE TABLE permissions
 3. Check for existing tables with same names:
@@ -44,6 +46,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** `php artisan storage:link` fails or doesn't work
 
 **Solutions:**
+
 1. Check directory permissions:
    ```bash
    chmod -R 775 storage/
@@ -67,6 +70,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Files fail to upload with no error message
 
 **Solutions:**
+
 1. Check PHP upload limits in `php.ini`:
    ```ini
    upload_max_filesize = 20M
@@ -76,12 +80,12 @@ Common issues and solutions for the Media Library package.
    ```
 
 2. Check web server limits:
-   
+
    **Nginx:**
    ```nginx
    client_max_body_size 20M;
    ```
-   
+
    **Apache:**
    ```apache
    LimitRequestBody 20971520
@@ -94,6 +98,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Upload fails with permission error
 
 **Solutions:**
+
 1. Check storage directory permissions:
    ```bash
    chmod -R 775 storage/app/public
@@ -109,6 +114,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** File rejected as invalid type
 
 **Solutions:**
+
 1. Check allowed MIME types in configuration:
    ```php
    config('artisanpack.media.allowed_mime_types')
@@ -125,6 +131,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Images upload but thumbnails don't generate
 
 **Solutions:**
+
 1. Check if GD or Imagick is installed:
    ```bash
    php -m | grep -i gd
@@ -155,6 +162,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Modern format conversion doesn't work
 
 **Solutions:**
+
 1. Check WebP support:
    ```bash
    php -r "echo (imagetypes() & IMG_WEBP) ? 'Supported' : 'Not supported';"
@@ -180,6 +188,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Processed images are low quality
 
 **Solutions:**
+
 1. Increase quality setting in `.env`:
    ```env
    MEDIA_IMAGE_QUALITY=95
@@ -197,6 +206,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Videos upload but no thumbnails
 
 **Solutions:**
+
 1. Check if FFmpeg is installed:
    ```bash
    ffmpeg -version
@@ -228,6 +238,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Media files return 404 errors
 
 **Solutions:**
+
 1. Verify storage link exists:
    ```bash
    ls -la public/storage
@@ -255,6 +266,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** `<img>` tags show broken image icon
 
 **Solutions:**
+
 1. Check browser console for errors
 2. Verify URL is correct:
    ```php
@@ -270,6 +282,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Uploads take too long to process
 
 **Solutions:**
+
 1. Use queue for image processing:
    ```bash
    php artisan queue:work --queue=media
@@ -290,6 +303,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** PHP runs out of memory during processing
 
 **Solutions:**
+
 1. Increase memory limit:
    ```ini
    memory_limit = 512M
@@ -306,6 +320,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Cannot delete media due to foreign key constraint
 
 **Solutions:**
+
 1. Check for references in other tables:
    ```sql
    SELECT * FROM posts WHERE featured_image_id = 123;
@@ -320,6 +335,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Cannot create folder/tag due to duplicate slug
 
 **Solutions:**
+
 1. The system auto-generates unique slugs
 2. If error persists, manually specify a unique slug:
    ```php
@@ -336,6 +352,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** API requests return 401 error
 
 **Solutions:**
+
 1. Verify token is included in header:
    ```bash
    Authorization: Bearer YOUR_TOKEN
@@ -350,8 +367,9 @@ Common issues and solutions for the Media Library package.
 **Problem:** API upload returns validation error
 
 **Solutions:**
+
 1. Check Content-Type header:
-   ```
+   ```http
    Content-Type: multipart/form-data
    ```
 
@@ -366,6 +384,7 @@ Common issues and solutions for the Media Library package.
 **Problem:** Tests fail with "table not found" errors
 
 **Solutions:**
+
 1. Run migrations in test environment:
    ```bash
    php artisan migrate --env=testing
@@ -387,8 +406,8 @@ If these solutions don't resolve your issue:
 
 1. Check Laravel logs: `storage/logs/laravel.log`
 2. Enable debug mode temporarily: `APP_DEBUG=true`
-3. Search existing issues on GitHub
-4. Contact support: support@artisanpack.com
+3. Search existing issues on GitLab
+4. Contact support: [support@artisanpackui.dev](mailto:support@artisanpackui.dev)
 
 ## Next Steps
 

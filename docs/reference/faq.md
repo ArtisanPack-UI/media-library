@@ -11,6 +11,7 @@ Common questions about the Media Library package.
 ### What image formats are supported?
 
 The package supports:
+
 - **Images:** JPEG, PNG, GIF, WebP, AVIF, SVG
 - **Videos:** MP4, MPEG, QuickTime, WebM
 - **Audio:** MP3, WAV, OGG
@@ -21,6 +22,7 @@ See [Configuration](../installation/configuration.md) to customize allowed types
 ### Can I use cloud storage?
 
 Yes! The package supports any Laravel filesystem disk:
+
 - Amazon S3
 - Google Cloud Storage
 - Azure Blob Storage
@@ -36,6 +38,7 @@ The package requires Laravel 12.0 or higher. For Laravel 11, you would need to u
 ### Is FFmpeg required?
 
 No, FFmpeg is optional. It's only needed for:
+
 - Video thumbnail extraction
 - Audio waveform generation
 
@@ -46,6 +49,7 @@ Without FFmpeg, videos use a default thumbnail icon.
 ### Do I need to publish migrations?
 
 Yes, run:
+
 ```bash
 php artisan vendor:publish --tag=media-migrations
 php artisan migrate
@@ -102,6 +106,7 @@ Yes, implement ownership-based permissions. See [Permissions - Ownership-Based P
 ### How do I change the maximum file size?
 
 In `.env`:
+
 ```env
 MEDIA_MAX_FILE_SIZE=20480  # 20 MB
 ```
@@ -121,6 +126,7 @@ See [Customization - Custom Image Sizes](../integration/customization.md#custom-
 ### Can I disable thumbnail generation?
 
 Yes, in `.env`:
+
 ```env
 MEDIA_ENABLE_THUMBNAILS=false
 ```
@@ -128,6 +134,7 @@ MEDIA_ENABLE_THUMBNAILS=false
 ### How do I change the upload directory structure?
 
 In `.env`:
+
 ```env
 MEDIA_UPLOAD_PATH_FORMAT={year}/{month}/{day}
 # or
@@ -205,6 +212,7 @@ Yes! See [API Endpoints - Upload Media](../api/endpoints.md#upload-media).
 ### How are files validated?
 
 Files are validated by:
+
 - MIME type checking
 - File extension validation
 - Size limits
@@ -245,6 +253,7 @@ See [Troubleshooting - URL & Display Issues](./troubleshooting.md#url--display-i
 ### How do I enable debug mode?
 
 In `.env`:
+
 ```env
 APP_DEBUG=true
 LOG_LEVEL=debug
@@ -276,12 +285,13 @@ Yes, backup the storage disk and database. For S3, use S3 versioning and lifecyc
 
 1. Check this documentation
 2. Review [Troubleshooting Guide](./troubleshooting.md)
-3. Search GitHub issues
-4. Contact support: support@artisanpack.com
+3. Search GitLab issues
+4. Contact support: [support@artisanpackui.dev](mailto:support@artisanpackui.dev)
 
 ### How do I report a bug?
 
-Create an issue on GitHub with:
+Create an issue on GitLab with:
+
 - Laravel version
 - PHP version
 - Package version
@@ -290,7 +300,7 @@ Create an issue on GitHub with:
 
 ### Can I request features?
 
-Yes! Submit feature requests on GitHub or contact us directly.
+Yes! Submit feature requests on GitLab or contact us directly.
 
 ## Next Steps
 
