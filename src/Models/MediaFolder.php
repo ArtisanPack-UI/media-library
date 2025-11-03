@@ -1,0 +1,218 @@
+<?php
+
+namespace ArtisanPackUI\MediaLibrary\Models;
+
+use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFolderFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
+
+/**
+ * MediaFolder model representing hierarchical media folders.
+ *
+ * @since 1.0.0
+ */
+class MediaFolder extends Model
+{
+    use HasFactory;
+
+    /**
+     * The table associated with the model.
+     *
+     * @since 1.0.0
+     *
+     * @var string
+     */
+    protected $table = 'media_folders';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @since 1.0.0
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'parent_id',
+        'created_by',
+    ];
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaFolderFactory The model factory instance.
+     */
+    protected static function newFactory(): MediaFolderFactory
+    {
+        return MediaFolderFactory::new();
+    }
+
+    /**
+     * Parent folder relationship.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsTo The relationship to the parent folder.
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo( self::class, 'parent_id' );
+    }
+
+    /**
+     * Recursive children relationship.
+     *
+     * @since 1.0.0
+     *
+     * @return HasMany The relationship for eager-loading children recursively.
+     */
+    public function childrenRecursive(): HasMany
+    {
+        return $this->children()->with( 'childrenRecursive' );
+    }
+
+    /**
+     * Children folders relationship.
+     *
+     * @since 1.0.0
+     *
+     * @return HasMany The relationship to child folders.
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany( self::class, 'parent_id' );
+    }
+
+    /**
+     * Media items in this folder.
+     *
+     * @since 1.0.0
+     *
+     * @return HasMany The relationship to media items in this folder.
+     */
+    public function media(): HasMany
+    {
+        return $this->hasMany( Media::class, 'folder_id' );
+    }
+
+    /**
+     * Creator relationship.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsTo The relationship to the user who created this folder.
+     */
+    public function creator(): BelongsTo
+    {
+        $userModel = config( 'artisanpack.media.user_model' )
+            ? : config( 'artisanpack.cms-framework.user_model' )
+                ? : 'App\\Models\\User';
+
+        return $this->belongsTo( $userModel, 'created_by' );
+    }
+
+    /**
+     * Get full hierarchical path: parent/child/grandchild.
+     *
+     * @since 1.0.0
+     *
+     * @return string The full hierarchical path separated by slashes.
+     */
+    public function fullPath(): string
+    {
+        $ancestors = $this->ancestors()->pluck( 'name' )->toArray();
+        $parts     = array_map( static fn( string $name ): string => trim( $name ), $ancestors );
+        $parts[]   = $this->name;
+
+        return implode( '/', $parts );
+    }
+
+    /**
+     * Get all ancestor folders, ordered from root to direct parent.
+     *
+     * @since 1.0.0
+     *
+     * @return Collection<int, MediaFolder> Collection of ancestor folders.
+     */
+    public function ancestors(): Collection
+    {
+        $ancestors = collect();
+        $current   = $this->parent;
+
+        while ( $current !== null ) {
+            $ancestors->prepend( $current );
+            $current = $current->parent;
+        }
+
+        return $ancestors;
+    }
+
+    /**
+     * Get all descendant folders.
+     *
+     * @since 1.0.0
+     *
+     * @return Collection<int, MediaFolder> Collection of descendant folders.
+     */
+    public function descendants(): Collection
+    {
+        $descendants = collect();
+
+        $walk = function ( MediaFolder $folder ) use ( &$descendants, &$walk ): void {
+            foreach ( $folder->children as $child ) {
+                $descendants->push( $child );
+                $walk( $child );
+            }
+        };
+
+        $walk( $this->loadMissing( 'children' ) );
+
+        return $descendants;
+    }
+
+    /**
+     * Move folder to a new parent.
+     *
+     * @since 1.0.0
+     *
+     * @param int|null $parentId The ID of the new parent folder or null for root.
+     * @return bool True if the move was successful, false otherwise.
+     */
+    public function moveTo( ?int $parentId ): bool
+    {
+        if ( $parentId === null ) {
+            $this->parent_id = null;
+
+            return $this->save();
+        }
+
+        $newParent = self::find( $parentId );
+        if ( $newParent === null ) {
+            return false;
+        }
+
+        // Prevent circular references
+        if ( $this->id === $newParent->id ) {
+            return false;
+        }
+
+        $cursor = $newParent->parent;
+        while ( $cursor !== null ) {
+            if ( $cursor->id === $this->id ) {
+                return false;
+            }
+            $cursor = $cursor->parent;
+        }
+
+        $this->parent_id = $parentId;
+
+        return $this->save();
+    }
+}

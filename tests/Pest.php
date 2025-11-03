@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Pest PHP Testing Configuration
+ *
+ * Configures Pest PHP testing framework for the Media Library package.
+ *
+ * @since   1.0.0
+ *
+ * @package Tests
+ */
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -41,6 +51,13 @@ expect()->extend('toBeOne', function () {
 |
 */
 
+/**
+ * Example helper function.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
 function something()
 {
     // ..

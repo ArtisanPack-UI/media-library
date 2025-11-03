@@ -1,181 +1,214 @@
 <?php
-/**
- * Media Controller
- *
- * Handles HTTP requests for media management, including uploading, retrieving,
- * updating, and deleting media items. It interacts with the MediaManager
- * to perform the core logic.
- *
- * @link       https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-media-library
- *
- * @package    ArtisanPackUI\MediaLibrary
- * @subpackage ArtisanPackUI\MediaLibrary\Http\Controllers
- * @since      1.0.0
- */
 
 namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 
-use ArtisanPackUI\MediaLibrary\Features\Media\MediaManager;
-use ArtisanPackUI\MediaLibrary\Http\Requests\MediaRequest;
+use ArtisanPackUI\MediaLibrary\Http\Requests\MediaStoreRequest;
+use ArtisanPackUI\MediaLibrary\Http\Requests\MediaUpdateRequest;
+use ArtisanPackUI\MediaLibrary\Http\Resources\MediaResource;
+use ArtisanPackUI\MediaLibrary\Models\Media;
+use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 
 /**
- * Class MediaController
+ * Media Controller
  *
- * Controller for managing media resources via API.
+ * Handles API endpoints for media management including listing,
+ * uploading, updating, and deleting media items.
  *
- * @since 1.0.0
+ * @since   1.0.0
+ *
+ * @package ArtisanPackUI\MediaLibrary\Http\Controllers
  */
 class MediaController extends Controller
 {
-    /**
-     * The MediaManager instance.
-     *
-     * @since 1.0.0
-     * @var MediaManager
-     */
-    protected MediaManager $mediaManager;
+    use AuthorizesRequests;
 
     /**
-     * Constructor.
+     * Media upload service instance.
      *
      * @since 1.0.0
-     * @param MediaManager $mediaManager The media manager instance.
+     *
+     * @var MediaUploadService
      */
-    public function __construct( MediaManager $mediaManager )
+    protected MediaUploadService $uploadService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @since 1.0.0
+     *
+     * @param MediaUploadService $uploadService The media upload service.
+     */
+    public function __construct( MediaUploadService $uploadService )
     {
-        $this->mediaManager = $mediaManager;
+        $this->uploadService = $uploadService;
     }
 
     /**
-     * Display a listing of the media.
+     * Display a listing of media items.
+     *
+     * Supports filtering by folder_id, tag, type (mime_type), and search query.
      *
      * @since 1.0.0
-     * @param Request $request The incoming request.
-     * @return JsonResponse
+     *
+     * @param Request $request The HTTP request instance.
+     * @return AnonymousResourceCollection The paginated media collection.
      */
-    public function index( Request $request ): JsonResponse
+    public function index( Request $request ): AnonymousResourceCollection
     {
+        $this->authorize( 'viewAny', Media::class );
+
         $perPage = $request->input( 'per_page', 15 );
-        $media   = $this->mediaManager->all( $perPage );
+        $query   = Media::query()->with( [ 'folder', 'uploadedBy', 'tags' ] );
 
-        return response()->json( [ 'data' => $media ] );
+        // Filter by folder
+        if ( $request->filled( 'folder_id' ) ) {
+            $query->where( 'folder_id', $request->input( 'folder_id' ) );
+        }
+
+        // Filter by tag
+        if ( $request->filled( 'tag' ) ) {
+            $query->withTag( $request->input( 'tag' ) );
+        }
+
+        // Filter by type (mime_type)
+        if ( $request->filled( 'type' ) ) {
+            $type = $request->input( 'type' );
+            if ( $type === 'image' ) {
+                $query->images();
+            } elseif ( $type === 'video' ) {
+                $query->videos();
+            } elseif ( $type === 'audio' ) {
+                $query->audios();
+            } elseif ( $type === 'document' ) {
+                $query->documents();
+            } else {
+                $query->byType( $type );
+            }
+        }
+
+        // Search by title or file_name
+        if ( $request->filled( 'search' ) ) {
+            $search = $request->input( 'search' );
+            $query->where( function ( $q ) use ( $search ) {
+                $q->where( 'title', 'like', '%' . $search . '%' )
+                  ->orWhere( 'file_name', 'like', '%' . $search . '%' );
+            } );
+        }
+
+        // Sort by column and direction
+        $sortBy    = $request->input( 'sort_by', 'created_at' );
+        $sortOrder = $request->input( 'sort_order', 'desc' );
+        $query->orderBy( $sortBy, $sortOrder );
+
+        $media = $query->paginate( $perPage );
+
+        return MediaResource::collection( $media );
     }
 
     /**
-     * Store a newly created media item in storage.
-     *
-     * This method utilizes the MediaManager's upload method to handle
-     * file storage, database entry, and association with the authenticated user.
+     * Store a newly uploaded media item.
      *
      * @since 1.0.0
-     * @param MediaRequest $request The validated form request.
-     * @return JsonResponse
+     *
+     * @param MediaStoreRequest $request The validated store request.
+     * @return JsonResponse The created media resource.
      */
-    public function store( MediaRequest $request ): JsonResponse
+    public function store( MediaStoreRequest $request ): JsonResponse
     {
-        $file         = $request->file( 'file' );
-        $altText      = $request->input( 'alt_text' );
-        $caption      = $request->input( 'caption' ); // <-- Added caption
-        $isDecorative = $request->boolean( 'is_decorative' );
-        $metadata     = $request->input( 'metadata', [] );
-        $categories   = $request->input( 'media_categories', [] );
-        $tags         = $request->input( 'media_tags', [] );
+        $this->authorize( 'create', Media::class );
 
-        $media = $this->mediaManager->upload(
-            $file,
-            $altText,
-            $caption, // <-- Passed caption
-            $isDecorative,
-            $metadata
-        );
+        $file = $request->file( 'file' );
 
-        if ( ! $media ) {
-            return response()->json( [ 'message' => 'Media upload failed.' ], 500 );
-        }
+        $options = [
+            'title'       => $request->input( 'title' ),
+            'alt_text'    => $request->input( 'alt_text' ),
+            'caption'     => $request->input( 'caption' ),
+            'description' => $request->input( 'description' ),
+            'folder_id'   => $request->input( 'folder_id' ),
+            'tags'        => $request->input( 'tags' ),
+        ];
 
-        if ( ! empty( $categories ) ) {
-            $media->mediaCategories()->sync( $categories );
-        }
-        if ( ! empty( $tags ) ) {
-            $media->mediaTags()->sync( $tags );
-        }
+        $media = $this->uploadService->upload( $file, $options );
 
-        return response()->json( [ 'message' => 'Media uploaded successfully.', 'data' => $media ], 201 );
+        return ( new MediaResource( $media ) )
+            ->response()
+            ->setStatusCode( 201 );
     }
 
     /**
      * Display the specified media item.
      *
      * @since 1.0.0
-     * @param int $mediaId The ID of the media item.
-     * @return JsonResponse
+     *
+     * @param int $id The media ID.
+     * @return MediaResource The media resource.
      */
-    public function show( int $mediaId ): JsonResponse
+    public function show( int $id ): MediaResource
     {
-        $media = $this->mediaManager->get( $mediaId );
+        $media = Media::with( [ 'folder', 'uploadedBy', 'tags' ] )->findOrFail( $id );
 
-        if ( ! $media ) {
-            return response()->json( [ 'message' => 'Media not found.' ], 404 );
-        }
+        $this->authorize( 'view', $media );
 
-        return response()->json( [ 'data' => $media ] );
+        return new MediaResource( $media );
     }
 
     /**
-     * Update the specified media item in storage.
-     *
-     * This method utilizes the MediaManager's update method to handle
-     * updating media attributes and relationships.
+     * Update the specified media item's metadata.
      *
      * @since 1.0.0
-     * @param int          $mediaId The ID of the media item to update.
-     * @param MediaRequest $request The validated form request.
-     * @return JsonResponse
+     *
+     * @param MediaUpdateRequest $request The validated update request.
+     * @param int                $id      The media ID.
+     * @return MediaResource The updated media resource.
      */
-    public function update( MediaRequest $request, int $mediaId ): JsonResponse
+    public function update( MediaUpdateRequest $request, int $id ): MediaResource
     {
-        $updateData = $request->validated();
-        $categories = $request->input( 'media_categories', [] );
-        $tags       = $request->input( 'media_tags', [] );
+        $media = Media::findOrFail( $id );
 
-        $media = $this->mediaManager->update( $mediaId, $updateData );
+        $this->authorize( 'update', $media );
 
-        if ( ! $media ) {
-            return response()->json( [ 'message' => 'Media update failed or media not found.' ], 500 );
+        // Update basic fields
+        $media->update( $request->only( [
+                                            'title',
+                                            'alt_text',
+                                            'caption',
+                                            'description',
+                                            'folder_id',
+                                        ] ) );
+
+        // Sync tags if provided
+        if ( $request->has( 'tags' ) ) {
+            $tags = $request->input( 'tags', [] );
+            $media->tags()->sync( $tags );
         }
 
-        if ( $request->has( 'media_categories' ) ) {
-            $media->mediaCategories()->sync( $categories );
-        }
-        if ( $request->has( 'media_tags' ) ) {
-            $media->mediaTags()->sync( $tags );
-        }
+        $media->load( [ 'folder', 'uploadedBy', 'tags' ] );
 
-        return response()->json( [ 'message' => 'Media updated successfully.', 'data' => $media ] );
+        return new MediaResource( $media );
     }
 
     /**
-     * Remove the specified media item from storage.
+     * Remove the specified media item (soft delete).
      *
      * @since 1.0.0
-     * @param int $mediaId The ID of the media item to delete.
-     * @return JsonResponse
+     *
+     * @param int $id The media ID.
+     * @return Response No content response.
      */
-    public function destroy( int $mediaId ): JsonResponse
+    public function destroy( int $id ): Response
     {
-        $media = $this->mediaManager->get( $mediaId );
-        if ( ! $media || $media->user_id !== Auth::id() ) {
-            return response()->json( [ 'message' => 'Unauthorized to delete this media or media not found.' ], 403 );
-        }
+        $media = Media::findOrFail( $id );
 
-        if ( $this->mediaManager->delete( $mediaId ) ) {
-            return response()->json( [ 'message' => 'Media deleted successfully.' ], 204 );
-        }
+        $this->authorize( 'delete', $media );
 
-        return response()->json( [ 'message' => 'Media deletion failed.' ], 500 );
+        $media->delete();
+
+        return response()->noContent();
     }
 }

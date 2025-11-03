@@ -1,120 +1,99 @@
 # ArtisanPack UI Media Library
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/artisanpack-ui/media-library.svg?style=flat-square)](https://packagist.org/packages/artisanpack-ui/media-library)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/artisanpack-ui/media-library/run-tests?label=tests)](https://github.com/artisanpack-ui/media-library/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/artisanpack-ui/media-library/Check%20&%20fix%20styling?label=code%20style)](https://github.com/artisanpack-ui/media-library/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/artisanpack-ui/media-library.svg?style=flat-square)](https://packagist.org/packages/artisanpack-ui/media-library)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)]()
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue)]()
+[![Laravel Version](https://img.shields.io/badge/laravel-%3E%3D12.0-red)]()
 
-A comprehensive Laravel package for managing media files with support for categories, tags, accessibility features, and RESTful API endpoints. Built with Laravel 12+ and designed for modern web applications.
+A comprehensive media management package for Laravel applications with support for image processing, folder organization, tagging, and modern image format conversion (WebP/AVIF).
 
 ## Features
 
-- **File Upload Management**: Secure file uploads with validation and storage optimization
-- **Media Organization**: Categorize and tag media items for better organization
-- **Accessibility Support**: Built-in alt text, captions, and decorative image handling
-- **RESTful API**: Complete CRUD operations via API endpoints
-- **Authentication Integration**: Laravel Sanctum authentication support
-- **Policy-Based Authorization**: Granular permissions for media operations
-- **Performance Optimized**: Efficient database queries and memory usage
-- **Comprehensive Testing**: Full test coverage with feature and performance tests
+- 📁 **Hierarchical Folder Organization** - Organize media into nested folders
+- 🏷️ **Tag Management** - Tag media items for easy categorization
+- 🖼️ **Image Processing** - Automatic thumbnail generation in multiple sizes
+- 🚀 **Modern Image Formats** - Automatic conversion to WebP and AVIF
+- 📦 **Storage Abstraction** - Support for multiple storage backends via Laravel's filesystem
+- 🎬 **Video Support** - Video thumbnail extraction using FFmpeg (optional)
+- 🔍 **Advanced Search & Filtering** - Search by name, filter by type, folder, or tag
+- 🎯 **Drag & Drop Upload** - Modern upload interface with progress tracking
+- 🖱️ **Media Modal Component** - Single/multi-select modal for choosing media with context support
+- 🔐 **Permission-based Access Control** - Granular capability-based permissions
+- 🎨 **Publishable Views** - Customize all Blade views to match your design
+- 🧪 **Comprehensive Test Coverage** - Over 100 tests with 90%+ coverage
 
 ## Requirements
 
 - PHP 8.2 or higher
 - Laravel 12.0 or higher
-- Laravel Sanctum 4.1 or higher
+- Intervention Image 3.0 for image processing
+- FFmpeg (optional, for video thumbnail extraction)
 
-## Quick Installation
+## Installation
+
+Install via Composer:
 
 ```bash
-# Install the package
 composer require artisanpack-ui/media-library
+```
 
-# Publish and run migrations
-php artisan vendor:publish --tag="media-library-migrations"
-php artisan migrate
+## Quick Start
 
-# Publish configuration (optional)
-php artisan vendor:publish --tag="media-library-config"
+```php
+// Upload media
+$media = apUploadMedia($file, [
+    'title' => 'My Image',
+    'alt_text' => 'Alt text for accessibility',
+    'folder_id' => 1,
+]);
+
+// Get media URL
+$url = apGetMediaUrl($mediaId, 'thumbnail');
+
+// Display image
+$media = apGetMedia($mediaId);
+echo $media->displayImage('large', ['class' => 'img-fluid']);
 ```
 
 ## Documentation
 
-📚 **[Complete Documentation](docs/)**
+📚 **[Complete Documentation](docs/home.md)**
 
-- **[Installation Guide](docs/installation.md)** - Detailed installation and setup instructions
-- **[Configuration](docs/configuration.md)** - Configuration options and environment setup
-- **[Usage Guide](docs/usage.md)** - Comprehensive usage examples and tutorials
-- **[API Documentation](docs/api.md)** - Complete REST API reference
-- **[Migration Guide](docs/migration.md)** - Migrating from other media libraries
-- **[Testing](docs/testing.md)** - Testing strategies and examples
-- **[Performance & Troubleshooting](docs/performance.md)** - Optimization and common issues
-- **[Contributing](docs/contributing.md)** - Development and contribution guidelines
+- **[Getting Started](docs/getting-started.md)** - Quick start guide
+- **[Installation](docs/installation/installation.md)** - Detailed installation instructions
+- **[Configuration](docs/installation/configuration.md)** - All configuration options
+- **[Helper Functions](docs/usage/helper-functions.md)** - Common usage patterns
+- **[Working with Models](docs/usage/models.md)** - Advanced model usage
+- **[Livewire Components](docs/usage/livewire-components.md)** - UI component guide
+- **[API Reference](docs/api/endpoints.md)** - Complete API documentation
+- **[CMS Integration](docs/integration/cms-module.md)** - Digital Shopfront CMS setup
+- **[Permissions](docs/integration/permissions.md)** - Access control guide
+- **[Customization](docs/integration/customization.md)** - Customization options
+- **[Troubleshooting](docs/reference/troubleshooting.md)** - Common issues and solutions
+- **[FAQ](docs/reference/faq.md)** - Frequently asked questions
 
-## Quick Start
+## Testing
 
-### Basic Usage
+Run the test suite:
 
-```php
-use ArtisanPackUI\MediaLibrary\Features\Media\MediaManager;
-
-// Upload a file
-$media = app(MediaManager::class)->upload(
-    file: $request->file('upload'),
-    altText: 'Description of the image',
-    caption: 'Optional caption'
-);
-
-// Retrieve media
-$mediaItems = Media::with(['mediaCategories', 'mediaTags'])
-    ->where('user_id', auth()->id())
-    ->paginate(15);
+```bash
+composer test
 ```
-
-### API Endpoints
-
-```http
-# Upload media
-POST /api/media/items
-
-# List media
-GET /api/media/items
-
-# Get single media
-GET /api/media/items/{id}
-
-# Update media
-PUT /api/media/items/{id}
-
-# Delete media  
-DELETE /api/media/items/{id}
-```
-
-For detailed API documentation, see **[API Reference](docs/api.md)**.
 
 ## Contributing
 
-We welcome contributions! Please see **[Contributing Guide](docs/contributing.md)** for details on:
-
-- Development setup
-- Code style guidelines
-- Testing requirements
-- Submission process
+Contributions are welcome! Please ensure all tests pass and code follows ArtisanPack UI Code Standards.
 
 ## Security
 
-If you discover a security vulnerability, please send an email to security@artisanpack.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability, please send an email to security@artisanpack.com.
 
 ## Credits
 
 - [Jacob Martella](https://github.com/jacobmartella)
-- [All Contributors](../../contributors)
+- Intervention Image for image processing
+- PHP-FFMpeg for video processing
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Changelog
-
-Please see **[CHANGELOG.md](CHANGELOG.md)** for more information on what has changed recently.
+This package is proprietary software developed by ArtisanPack UI.
 

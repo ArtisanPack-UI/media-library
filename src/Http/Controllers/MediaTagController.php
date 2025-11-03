@@ -2,72 +2,206 @@
 
 namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 
-use ArtisanPackUI\MediaLibrary\Http\Requests\MediaTagRequest;
-use ArtisanPackUI\MediaLibrary\Http\Resources\MediaTagResource;
+use ArtisanPackUI\MediaLibrary\Http\Requests\MediaTagStoreRequest;
+use ArtisanPackUI\MediaLibrary\Http\Requests\MediaTagUpdateRequest;
 use ArtisanPackUI\MediaLibrary\Models\MediaTag;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 
-class MediaTagController
+/**
+ * Media Tag Controller
+ *
+ * Handles API endpoints for media tag management including listing,
+ * creating, updating, deleting, and attaching tags to media.
+ *
+ * @since   1.0.0
+ *
+ * @package ArtisanPackUI\MediaLibrary\Http\Controllers
+ */
+class MediaTagController extends Controller
 {
-	use AuthorizesRequests;
+    use AuthorizesRequests;
 
-	public function index()
-	{
-		$this->authorize( 'viewAny', MediaTag::class );
+    /**
+     * Display a listing of media tags.
+     *
+     * Returns all tags with media count.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request The HTTP request instance.
+     * @return JsonResponse The tags collection.
+     */
+    public function index( Request $request ): JsonResponse
+    {
+        $tags = MediaTag::query()
+                        ->withCount( 'media' )
+                        ->orderBy( 'name', 'asc' )
+                        ->get();
 
-		return MediaTagResource::collection( MediaTag::all() );
-	}
+        return response()->json( [
+                                     'data' => $tags,
+                                 ] );
+    }
 
-	public function store( MediaTagRequest $request )
-	{
-		$this->authorize( 'create', MediaTag::class );
+    /**
+     * Store a newly created tag.
+     *
+     * @since 1.0.0
+     *
+     * @param MediaTagStoreRequest $request The validated request.
+     * @return JsonResponse The created tag.
+     */
+    public function store( MediaTagStoreRequest $request ): JsonResponse
+    {
+        $data = $request->validated();
 
-		return new MediaTagResource( MediaTag::create( $request->validated() ) );
-	}
+        // Generate slug from name
+        $data['slug'] = Str::slug( $data['name'] );
 
-	public function show( MediaTag $mediaTag )
-	{
-		$this->authorize( 'view', $mediaTag );
+        // Ensure unique slug
+        $originalSlug = $data['slug'];
+        $counter      = 1;
+        while ( MediaTag::where( 'slug', $data['slug'] )->exists() ) {
+            $data['slug'] = $originalSlug . '-' . $counter;
+            $counter++;
+        }
 
-		return new MediaTagResource( $mediaTag );
-	}
+        $tag = MediaTag::create( $data );
 
-	/**
-	 * Update the specified media tag in storage.
-	 *
-	 * @since 1.0.0
-	 * @param MediaTag        $mediaTag The MediaTag instance resolved by route model binding.
-	 * @param MediaTagRequest $request  The validated form request.
-	 * @return JsonResponse
-	 */
-	public function update( MediaTagRequest $request, MediaTag $mediaTag ): JsonResponse // Route Model Binding here
-	{
-		// REMOVE: $request->setResolvedMediaTag( $mediaTag ); // THIS CALL IS NO LONGER VALID
+        return response()->json( [
+                                     'data' => $tag->loadCount( 'media' ),
+                                                                                                                                                                                                                                                                                              'message' => 'Tag created successfully',
+                                 ], 201 );
+    }
 
-		$validatedData = $request->validated();
-		$mediaTag->update( $validatedData );
+    /**
+     * Display the specified tag.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id The tag ID.
+     * @return JsonResponse The tag data.
+     */
+    public function show( int $id ): JsonResponse
+    {
+        $tag = MediaTag::withCount( 'media' )->findOrFail( $id );
 
-		return response()->json( [ 'message' => 'Media tag updated successfully.', 'data' => $mediaTag ] );
-	}
+        return response()->json( [
+                                     'data' => $tag,
+                                 ] );
+    }
 
-	/**
-	 * Remove the specified media tag from storage.
-	 *
-	 * @since 1.0.0
-	 * @param MediaTag        $mediaTag The MediaTag instance resolved by route model binding.
-	 * @param MediaTagRequest $request  The validated form request.
-	 * @return JsonResponse
-	 */
-	public function destroy( MediaTagRequest $request, MediaTag $mediaTag ): JsonResponse // Route Model Binding here
-	{
-		// REMOVE: $request->setResolvedMediaTag( $mediaTag ); // THIS CALL IS NO LONGER VALID
+    /**
+     * Update the specified tag.
+     *
+     * @since 1.0.0
+     *
+     * @param MediaTagUpdateRequest $request The validated request.
+     * @param int                   $id      The tag ID.
+     * @return JsonResponse The updated tag.
+     */
+    public function update( MediaTagUpdateRequest $request, int $id ): JsonResponse
+    {
+        $tag  = MediaTag::findOrFail( $id );
+        $data = $request->validated();
 
-		if ( $mediaTag->delete() ) {
-			return response()->json( [ 'message' => 'Media tag deleted successfully.' ], 204 );
-		}
+        // Update slug if name changed
+        if ( isset( $data['name'] ) && $data['name'] !== $tag->name ) {
+            $data['slug'] = Str::slug( $data['name'] );
 
-		return response()->json( [ 'message' => 'Media tag deletion failed.' ], 500 );
-	}
+            // Ensure unique slug
+            $originalSlug = $data['slug'];
+            $counter      = 1;
+            while ( MediaTag::where( 'slug', $data['slug'] )->where( 'id', '!=', $id )->exists() ) {
+                $data['slug'] = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+        }
+
+        $tag->update( $data );
+
+        return response()->json( [
+                                     'data'    => $tag->loadCount( 'media' ),
+                                     'message' => 'Tag updated successfully',
+                                 ] );
+    }
+
+    /**
+     * Remove the specified tag.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id The tag ID.
+     * @return Response The response with no content.
+     */
+    public function destroy( int $id ): Response
+    {
+        $tag = MediaTag::findOrFail( $id );
+
+        // Detach all media before deleting
+        $tag->media()->detach();
+
+        $tag->delete();
+
+        return response()->noContent();
+    }
+
+    /**
+     * Detach a tag from multiple media items.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request The HTTP request instance.
+     * @param int     $id      The tag ID.
+     * @return JsonResponse The result.
+     */
+    public function detach( Request $request, int $id ): JsonResponse
+    {
+        $request->validate( [
+                                'media_ids'   => [ 'required', 'array' ],
+                                'media_ids.*' => [ 'exists:media,id' ],
+                            ] );
+
+        $tag      = MediaTag::findOrFail( $id );
+        $mediaIds = $request->input( 'media_ids' );
+
+        // Detach specified media
+        $tag->media()->detach( $mediaIds );
+
+        return response()->json( [
+                                     'message' => 'Tag detached from media successfully',
+                                 ] );
+    }
+
+    /**
+     * Attach a tag to multiple media items.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request The HTTP request instance.
+     * @param int     $id      The tag ID.
+     * @return JsonResponse The result.
+     */
+    public function attach( Request $request, int $id ): JsonResponse
+    {
+        $request->validate( [
+                                'media_ids'   => [ 'required', 'array' ],
+                                'media_ids.*' => [ 'exists:media,id' ],
+                            ] );
+
+        $tag      = MediaTag::findOrFail( $id );
+        $mediaIds = $request->input( 'media_ids' );
+
+        // Attach without duplicates
+        $tag->media()->syncWithoutDetaching( $mediaIds );
+
+        return response()->json( [
+                                     'message' => 'Tag attached to media successfully',
+                                 ] );
+    }
 }
