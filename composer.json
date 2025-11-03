@@ -3,6 +3,7 @@
   "description": "Media library package for ArtisanPack UI",
   "type": "library",
   "license": "GPL-3.0-or-later",
+  "version": "1.0.0-beta1",
   "autoload": {
     "psr-4": {
       "ArtisanPackUI\\MediaLibrary\\": "src/",
