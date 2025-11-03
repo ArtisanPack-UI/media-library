@@ -48,9 +48,9 @@ tests:
   image: php:8.2
   before_script:
     - apt-get update -yqq
-    - apt-get install -yqq libpng-dev libjpeg-dev libfreetype6-dev
+    - apt-get install -yqq libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev
     - apt-get install -yqq libsqlite3-dev
-    - docker-php-ext-configure gd --with-freetype --with-jpeg
+    - docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp
     - docker-php-ext-install gd pdo_sqlite
   script:
     - ./vendor/bin/pest --ci
