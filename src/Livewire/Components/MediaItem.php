@@ -22,16 +22,22 @@ class MediaItem extends Component
 
     /**
      * The media item to display.
+     *
+     * @since 1.0.0
      */
     public Media $media;
 
     /**
      * Whether the item is selected.
+     *
+     * @since 1.0.0
      */
     public bool $selected = false;
 
     /**
      * Whether bulk select mode is active.
+     *
+     * @since 1.0.0
      */
     public bool $bulkSelectMode = false;
 
@@ -40,14 +46,14 @@ class MediaItem extends Component
      *
      * @since 1.0.0
      *
-     * @param  Media  $media  The media item to display.
-     * @param  bool  $selected  Whether the item is selected.
-     * @param  bool  $bulkSelectMode  Whether bulk select mode is active.
+     * @param Media $media          The media item to display.
+     * @param bool  $selected       Whether the item is selected.
+     * @param bool  $bulkSelectMode Whether bulk select mode is active.
      */
-    public function mount(Media $media, bool $selected = false, bool $bulkSelectMode = false): void
+    public function mount( Media $media, bool $selected = false, bool $bulkSelectMode = false ): void
     {
-        $this->media = $media;
-        $this->selected = $selected;
+        $this->media          = $media;
+        $this->selected       = $selected;
         $this->bulkSelectMode = $bulkSelectMode;
     }
 
@@ -59,7 +65,7 @@ class MediaItem extends Component
     public function toggleSelect(): void
     {
         $this->selected = ! $this->selected;
-        $this->dispatch('media-selected', mediaId: $this->media->id, selected: $this->selected);
+        $this->dispatch( 'media-selected', mediaId: $this->media->id, selected: $this->selected );
     }
 
     /**
@@ -69,8 +75,8 @@ class MediaItem extends Component
      */
     public function delete(): void
     {
-        if (! auth()->user()->can('delete', $this->media)) {
-            $this->error(__('You do not have permission to delete this media'));
+        if ( ! auth()->user()->can( 'delete', $this->media ) ) {
+            $this->error( __( 'You do not have permission to delete this media' ) );
 
             return;
         }
@@ -78,8 +84,8 @@ class MediaItem extends Component
         $this->media->deleteFiles();
         $this->media->delete();
 
-        $this->success(__('Media deleted successfully'));
-        $this->dispatch('media-updated');
+        $this->success( __( 'Media deleted successfully' ) );
+        $this->dispatch( 'media-updated' );
     }
 
     /**
@@ -89,8 +95,8 @@ class MediaItem extends Component
      */
     public function copyUrl(): void
     {
-        $this->dispatch('copy-to-clipboard', url: $this->media->url());
-        $this->success(__('URL copied to clipboard'));
+        $this->dispatch( 'copy-to-clipboard', url: $this->media->url() );
+        $this->success( __( 'URL copied to clipboard' ) );
     }
 
     /**
@@ -100,16 +106,18 @@ class MediaItem extends Component
      */
     public function download(): void
     {
-        $this->dispatch('download-file', url: $this->media->url(), filename: $this->media->file_name);
+        $this->dispatch( 'download-file', url: $this->media->url(), filename: $this->media->file_name );
     }
 
     /**
-     * Render the component.
+     * Renders the component.
      *
      * @since 1.0.0
+     *
+     * @return View The component view.
      */
     public function render(): View
     {
-        return view('media::livewire.components.media-item');
+        return view( 'media::livewire.components.media-item' );
     }
 }

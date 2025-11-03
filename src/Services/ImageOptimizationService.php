@@ -21,11 +21,17 @@ class ImageOptimizationService
 {
     /**
      * Intervention Image manager instance.
+     *
+     * @since 1.0.0
+     *
+     * @var ImageManager
      */
     protected ImageManager $imageManager;
 
     /**
-     * Create a new image optimization service instance.
+     * Creates a new image optimization service instance.
+     *
+     * @since 1.0.0
      */
     public function __construct()
     {
@@ -34,165 +40,179 @@ class ImageOptimizationService
     }
 
     /**
-     * Create an Intervention Image manager with the best available driver.
+     * Creates an Intervention Image manager with the best available driver.
+     *
+     * @since 1.0.0
      *
      * @return ImageManager The image manager instance.
      */
     protected function createImageManager(): ImageManager
     {
         // Prefer Imagick over GD if available
-        if (extension_loaded('imagick')) {
-            return new ImageManager(new ImagickDriver);
+        if ( extension_loaded( 'imagick' ) ) {
+            return new ImageManager( new ImagickDriver );
         }
 
-        return new ImageManager(new GdDriver);
+        return new ImageManager( new GdDriver );
     }
 
     /**
-     * Optimize an image file.
+     * Resizes an image file.
      *
-     * @param  string  $path  The image file path.
-     * @param  array<string, mixed>  $options  Options for optimization (quality, strip_metadata).
-     * @return bool True if optimization successful, false otherwise.
-     */
-    public function optimize(string $path, array $options = []): bool
-    {
-        try {
-            $quality = $options['quality'] ?? 85;
-            $stripMetadata = $options['strip_metadata'] ?? true;
-
-            // Load the image
-            $image = $this->imageManager->read($path);
-
-            // Determine format based on file extension
-            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-
-            // Encode with quality and save back to the same path
-            $encoded = match ($extension) {
-                'jpg', 'jpeg' => $image->toJpeg($quality),
-                'png' => $image->toPng(),
-                'webp' => $image->toWebp($quality),
-                'avif' => $image->toAvif($quality),
-                'gif' => $image->toGif(),
-                default => null,
-            };
-
-            if ($encoded === null) {
-                return false;
-            }
-
-            // Write the optimized image back to the file
-            file_put_contents($path, (string) $encoded);
-
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Resize an image file.
+     * @since 1.0.0
      *
-     * @param  string  $path  The image file path.
-     * @param  int|null  $width  The target width (null for auto).
-     * @param  int|null  $height  The target height (null for auto).
-     * @param  bool  $crop  Whether to crop to exact dimensions.
+     * @param string   $path   The image file path.
+     * @param int|null $width  The target width (null for auto).
+     * @param int|null $height The target height (null for auto).
+     * @param bool     $crop   Whether to crop to exact dimensions.
+     *
      * @return bool True if resize successful, false otherwise.
      */
-    public function resize(string $path, ?int $width = null, ?int $height = null, bool $crop = false): bool
+    public function resize( string $path, ?int $width = null, ?int $height = null, bool $crop = false ): bool
     {
         try {
             // Load the image
-            $image = $this->imageManager->read($path);
+            $image = $this->imageManager->read( $path );
 
             // Resize based on options
-            if ($crop && $width !== null && $height !== null) {
+            if ( $crop && $width !== null && $height !== null ) {
                 // Crop to exact dimensions
-                $image->cover($width, $height);
-            } elseif ($width !== null || $height !== null) {
+                $image->cover( $width, $height );
+            } elseif ( $width !== null || $height !== null ) {
                 // Scale maintaining aspect ratio
-                $image->scale($width, $height);
+                $image->scale( $width, $height );
             }
 
             // Determine format and save
-            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-            $quality = config('artisanpack.media.image_quality', 85);
+            $extension = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
+            $quality   = config( 'artisanpack.media.image_quality', 85 );
 
-            $encoded = match ($extension) {
-                'jpg', 'jpeg' => $image->toJpeg($quality),
+            $encoded = match ( $extension ) {
+                'jpg', 'jpeg' => $image->toJpeg( $quality ),
                 'png' => $image->toPng(),
-                'webp' => $image->toWebp($quality),
-                'avif' => $image->toAvif($quality),
+                'webp' => $image->toWebp( $quality ),
+                'avif' => $image->toAvif( $quality ),
                 'gif' => $image->toGif(),
                 default => null,
             };
 
-            if ($encoded === null) {
+            if ( $encoded === null ) {
                 return false;
             }
 
             // Write the resized image back to the file
-            file_put_contents($path, (string) $encoded);
+            file_put_contents( $path, (string)$encoded );
 
             return true;
-        } catch (Exception $e) {
+        } catch ( Exception $e ) {
             return false;
         }
     }
 
     /**
-     * Convert an image to a different format.
+     * Converts an image to a different format.
      *
-     * @param  string  $path  The source image file path.
-     * @param  string  $format  The target format (jpg, png, webp, avif, gif).
+     * @since 1.0.0
+     *
+     * @param string $path   The source image file path.
+     * @param string $format The target format (jpg, png, webp, avif, gif).
+     *
      * @return string|null The path to the converted image or null on failure.
      */
-    public function convert(string $path, string $format): ?string
+    public function convert( string $path, string $format ): ?string
     {
         try {
             // Load the image
-            $image = $this->imageManager->read($path);
+            $image = $this->imageManager->read( $path );
 
             // Generate new filename with target format
-            $pathInfo = pathinfo($path);
-            $newFilename = $pathInfo['filename'].'.'.$format;
-            $newPath = $pathInfo['dirname'].'/'.$newFilename;
+            $pathInfo    = pathinfo( $path );
+            $newFilename = $pathInfo['filename'] . '.' . $format;
+            $newPath     = $pathInfo['dirname'] . '/' . $newFilename;
 
             // Get quality setting
-            $quality = config('artisanpack.media.image_quality', 85);
+            $quality = config( 'artisanpack.media.image_quality', 85 );
 
             // Encode to the target format
-            $encoded = match ($format) {
-                'jpg', 'jpeg' => $image->toJpeg($quality),
+            $encoded = match ( $format ) {
+                'jpg', 'jpeg' => $image->toJpeg( $quality ),
                 'png' => $image->toPng(),
-                'webp' => $image->toWebp($quality),
-                'avif' => $image->toAvif($quality),
+                'webp' => $image->toWebp( $quality ),
+                'avif' => $image->toAvif( $quality ),
                 'gif' => $image->toGif(),
                 default => null,
             };
 
-            if ($encoded === null) {
+            if ( $encoded === null ) {
                 return null;
             }
 
             // Write the converted image
-            file_put_contents($newPath, (string) $encoded);
+            file_put_contents( $newPath, (string)$encoded );
 
             return $newPath;
-        } catch (Exception $e) {
+        } catch ( Exception $e ) {
             return null;
         }
     }
 
     /**
-     * Compress an image file.
+     * Compresses an image file.
      *
-     * @param  string  $path  The image file path.
-     * @param  int  $quality  The quality setting (1-100).
+     * @since 1.0.0
+     *
+     * @param string $path    The image file path.
+     * @param int    $quality The quality setting (1-100).
+     *
      * @return bool True if compression successful, false otherwise.
      */
-    public function compress(string $path, int $quality = 85): bool
+    public function compress( string $path, int $quality = 85 ): bool
     {
-        return $this->optimize($path, ['quality' => $quality]);
+        return $this->optimize( $path, [ 'quality' => $quality ] );
+    }
+
+    /**
+     * Optimizes an image file.
+     *
+     * @since 1.0.0
+     *
+     * @param string               $path    The image file path.
+     * @param array<string, mixed> $options Options for optimization (quality, strip_metadata).
+     *
+     * @return bool True if optimization successful, false otherwise.
+     */
+    public function optimize( string $path, array $options = [] ): bool
+    {
+        try {
+            $quality       = $options['quality'] ?? 85;
+            $stripMetadata = $options['strip_metadata'] ?? true;
+
+            // Load the image
+            $image = $this->imageManager->read( $path );
+
+            // Determine format based on file extension
+            $extension = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
+
+            // Encode with quality and save back to the same path
+            $encoded = match ( $extension ) {
+                'jpg', 'jpeg' => $image->toJpeg( $quality ),
+                'png' => $image->toPng(),
+                'webp' => $image->toWebp( $quality ),
+                'avif' => $image->toAvif( $quality ),
+                'gif' => $image->toGif(),
+                default => null,
+            };
+
+            if ( $encoded === null ) {
+                return false;
+            }
+
+            // Write the optimized image back to the file
+            file_put_contents( $path, (string)$encoded );
+
+            return true;
+        } catch ( Exception $e ) {
+            return false;
+        }
     }
 }

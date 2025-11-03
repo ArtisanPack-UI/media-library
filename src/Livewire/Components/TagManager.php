@@ -53,8 +53,8 @@ class TagManager extends Component
      * @var array<string, mixed>
      */
     public array $form = [
-        'name' => '',
-        'slug' => '',
+        'name'        => '',
+        'slug'        => '',
         'description' => '',
     ];
 
@@ -82,7 +82,7 @@ class TagManager extends Component
      */
     public function loadTags(): void
     {
-        $this->tags = MediaTag::orderBy('name')->get();
+        $this->tags = MediaTag::orderBy( 'name' )->get();
     }
 
     /**
@@ -90,7 +90,7 @@ class TagManager extends Component
      *
      * @since 1.0.0
      */
-    #[On('open-tag-manager')]
+    #[On( 'open-tag-manager' )]
     public function open(): void
     {
         $this->isOpen = true;
@@ -115,11 +115,11 @@ class TagManager extends Component
      */
     public function resetForm(): void
     {
-        $this->isEditing = false;
+        $this->isEditing  = false;
         $this->editingTag = null;
-        $this->form = [
-            'name' => '',
-            'slug' => '',
+        $this->form       = [
+            'name'        => '',
+            'slug'        => '',
             'description' => '',
         ];
         $this->resetValidation();
@@ -130,16 +130,16 @@ class TagManager extends Component
      *
      * @since 1.0.0
      *
-     * @param  int  $tagId  The tag ID to edit.
+     * @param int $tagId The tag ID to edit.
      */
-    public function edit(int $tagId): void
+    public function edit( int $tagId ): void
     {
-        $this->editingTag = MediaTag::findOrFail($tagId);
-        $this->isEditing = true;
+        $this->editingTag = MediaTag::findOrFail( $tagId );
+        $this->isEditing  = true;
 
         $this->form = [
-            'name' => $this->editingTag->name,
-            'slug' => $this->editingTag->slug,
+            'name'        => $this->editingTag->name,
+            'slug'        => $this->editingTag->slug,
             'description' => $this->editingTag->description ?? '',
         ];
     }
@@ -161,8 +161,8 @@ class TagManager extends Component
      */
     public function updatedFormName(): void
     {
-        if (! $this->isEditing) {
-            $this->form['slug'] = Str::slug($this->form['name']);
+        if ( ! $this->isEditing ) {
+            $this->form['slug'] = Str::slug( $this->form['name'] );
         }
     }
 
@@ -174,48 +174,48 @@ class TagManager extends Component
     public function save(): void
     {
         $rules = [
-            'form.name' => ['required', 'string', 'max:255'],
-            'form.slug' => ['required', 'string', 'max:255'],
-            'form.description' => ['nullable', 'string'],
+            'form.name'        => [ 'required', 'string', 'max:255' ],
+            'form.slug'        => [ 'required', 'string', 'max:255' ],
+            'form.description' => [ 'nullable', 'string' ],
         ];
 
         // Add unique validation for slug, excluding current tag if editing
-        if ($this->isEditing && $this->editingTag) {
-            $rules['form.slug'][] = 'unique:media_tags,slug,'.$this->editingTag->id;
+        if ( $this->isEditing && $this->editingTag ) {
+            $rules['form.slug'][] = 'unique:media_tags,slug,' . $this->editingTag->id;
         } else {
             $rules['form.slug'][] = 'unique:media_tags,slug';
         }
 
-        $validated = $this->validate($rules);
+        $validated = $this->validate( $rules );
 
         try {
-            if ($this->isEditing && $this->editingTag) {
+            if ( $this->isEditing && $this->editingTag ) {
                 // Update existing tag
-                $this->editingTag->update([
-                    'name' => $this->form['name'],
-                    'slug' => $this->form['slug'],
-                    'description' => $this->form['description'],
-                ]);
+                $this->editingTag->update( [
+                                               'name'        => $this->form['name'],
+                                               'slug'        => $this->form['slug'],
+                                               'description' => $this->form['description'],
+                                           ] );
 
-                $this->success(__('Tag updated successfully'));
+                $this->success( __( 'Tag updated successfully' ) );
             } else {
                 // Create new tag
-                MediaTag::create([
-                    'name' => $this->form['name'],
-                    'slug' => $this->form['slug'],
-                    'description' => $this->form['description'],
-                ]);
+                MediaTag::create( [
+                                      'name'        => $this->form['name'],
+                                      'slug'        => $this->form['slug'],
+                                      'description' => $this->form['description'],
+                                  ] );
 
-                $this->success(__('Tag created successfully'));
+                $this->success( __( 'Tag created successfully' ) );
             }
 
             $this->resetForm();
             $this->loadTags();
 
             // Notify other components to refresh
-            $this->dispatch('tags-updated');
-        } catch (Exception $e) {
-            $this->error(__('Failed to save tag: :error', ['error' => $e->getMessage()]));
+            $this->dispatch( 'tags-updated' );
+        } catch ( Exception $e ) {
+            $this->error( __( 'Failed to save tag: :error', [ 'error' => $e->getMessage() ] ) );
         }
     }
 
@@ -224,35 +224,37 @@ class TagManager extends Component
      *
      * @since 1.0.0
      *
-     * @param  int  $tagId  The tag ID to delete.
+     * @param int $tagId The tag ID to delete.
      */
-    public function delete(int $tagId): void
+    public function delete( int $tagId ): void
     {
         try {
-            $tag = MediaTag::findOrFail($tagId);
+            $tag = MediaTag::findOrFail( $tagId );
 
             // Detach from all media items before deleting
             $tag->media()->detach();
 
             $tag->delete();
 
-            $this->success(__('Tag deleted successfully'));
+            $this->success( __( 'Tag deleted successfully' ) );
             $this->loadTags();
 
             // Notify other components to refresh
-            $this->dispatch('tags-updated');
-        } catch (Exception $e) {
-            $this->error(__('Failed to delete tag: :error', ['error' => $e->getMessage()]));
+            $this->dispatch( 'tags-updated' );
+        } catch ( Exception $e ) {
+            $this->error( __( 'Failed to delete tag: :error', [ 'error' => $e->getMessage() ] ) );
         }
     }
 
     /**
-     * Render the component.
+     * Renders the component.
      *
      * @since 1.0.0
+     *
+     * @return View The component view.
      */
     public function render(): View
     {
-        return view('media::livewire.components.tag-manager');
+        return view( 'media::livewire.components.tag-manager' );
     }
 }

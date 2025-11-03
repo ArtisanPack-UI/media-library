@@ -5,12 +5,24 @@ namespace Tests;
 use ArtisanPackUI\MediaLibrary\MediaLibraryServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
+/**
+ * Base Test Case
+ *
+ * Provides base functionality for all package tests.
+ *
+ * @since   1.0.0
+ *
+ * @package Tests
+ */
 abstract class TestCase extends BaseTestCase
 {
     /**
-     * Get package providers.
+     * Gets package providers.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @since 1.0.0
+     *
+     * @param  \Illuminate\Foundation\Application  $app  The application instance.
+     * @return array<int, class-string> Array of service provider class names.
      */
     protected function getPackageProviders($app): array
     {
@@ -21,9 +33,12 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Define environment setup.
+     * Defines environment setup.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @since 1.0.0
+     *
+     * @param  \Illuminate\Foundation\Application  $app  The application instance.
+     * @return void
      */
     protected function defineEnvironment($app): void
     {
@@ -56,7 +71,11 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Define database migrations.
+     * Defines database migrations.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     protected function defineDatabaseMigrations(): void
     {

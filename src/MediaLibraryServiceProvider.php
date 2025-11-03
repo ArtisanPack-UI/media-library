@@ -10,6 +10,7 @@ use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaModal;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\TagManager;
+use ArtisanPackUI\MediaLibrary\Managers\MediaManager;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Policies\MediaPolicy;
 use ArtisanPackUI\MediaLibrary\Services\ImageOptimizationService;
@@ -52,6 +53,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         );
 
         // Register services as singletons
+        $this->app->singleton(MediaManager::class);
         $this->app->singleton(MediaStorageService::class);
         $this->app->singleton(VideoProcessingService::class);
         $this->app->singleton(ImageOptimizationService::class);

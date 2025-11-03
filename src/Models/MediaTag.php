@@ -19,12 +19,16 @@ class MediaTag extends Model
     /**
      * The table associated with the model.
      *
+     * @since 1.0.0
+     *
      * @var string
      */
     protected $table = 'media_tags';
 
     /**
      * The attributes that are mass assignable.
+     *
+     * @since 1.0.0
      *
      * @var array<string>
      */
@@ -48,12 +52,16 @@ class MediaTag extends Model
 
     /**
      * Get count of media items with this tag.
+     *
+     * @since 1.0.0
+     *
+     * @return int The number of media items with this tag.
      */
     public function mediaCount(): int
     {
         // Use eager-loaded aggregate if available to avoid an extra query
-        if (isset($this->attributes['media_count'])) {
-            return (int) $this->attributes['media_count'];
+        if ( isset( $this->attributes['media_count'] ) ) {
+            return (int)$this->attributes['media_count'];
         }
 
         return $this->media()->count();
@@ -61,9 +69,13 @@ class MediaTag extends Model
 
     /**
      * Get all media items with this tag.
+     *
+     * @since 1.0.0
+     *
+     * @return BelongsToMany The many-to-many relationship to media items.
      */
     public function media(): BelongsToMany
     {
-        return $this->belongsToMany(Media::class, 'media_taggables');
+        return $this->belongsToMany( Media::class, 'media_taggables' );
     }
 }

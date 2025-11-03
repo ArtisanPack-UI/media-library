@@ -19,7 +19,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Runs the migrations.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -35,7 +39,11 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Reverses the migrations.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     public function down(): void
     {

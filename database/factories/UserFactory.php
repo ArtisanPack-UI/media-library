@@ -23,14 +23,18 @@ class UserFactory extends Factory
     /**
      * The name of the factory's corresponding model.
      *
-     * @var string
+     * @since 1.0.0
+     *
+     * @var class-string<\ArtisanPackUI\MediaLibrary\Models\User>
      */
     protected $model = User::class;
 
     /**
-     * Define the model's default state.
+     * Defines the model's default state.
      *
-     * @return array<string, mixed>
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The default model attributes.
      */
     public function definition(): array
     {
@@ -44,7 +48,11 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indicates that the model's email address should be unverified.
+     *
+     * @since 1.0.0
+     *
+     * @return static The factory instance.
      */
     public function unverified(): static
     {

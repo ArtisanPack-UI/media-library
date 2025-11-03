@@ -54,10 +54,10 @@ class FolderManager extends Component
      * @var array<string, mixed>
      */
     public array $form = [
-        'name' => '',
-        'slug' => '',
+        'name'        => '',
+        'slug'        => '',
         'description' => '',
-        'parent_id' => null,
+        'parent_id'   => null,
     ];
 
     /**
@@ -84,9 +84,9 @@ class FolderManager extends Component
      */
     public function loadFolders(): void
     {
-        $this->folders = MediaFolder::with(['parent', 'children', 'creator'])
-            ->orderBy('name')
-            ->get();
+        $this->folders = MediaFolder::with( [ 'parent', 'children', 'creator' ] )
+                                    ->orderBy( 'name' )
+                                    ->get();
     }
 
     /**
@@ -100,31 +100,31 @@ class FolderManager extends Component
     public function parentFolderOptions(): array
     {
         $options = [
-            ['key' => '', 'label' => __('No Parent (Root Level)')],
+            [ 'key' => '', 'label' => __( 'No Parent (Root Level)' ) ],
         ];
 
-        foreach ($this->folders as $folder) {
+        foreach ( $this->folders as $folder ) {
             // Skip the folder being edited and its children
-            if ($this->isEditing && $this->editingFolder && $folder->id === $this->editingFolder->id) {
+            if ( $this->isEditing && $this->editingFolder && $folder->id === $this->editingFolder->id ) {
                 continue;
             }
 
             $options[] = [
-                'key' => $folder->id,
+                'key'   => $folder->id,
                 'label' => $folder->name,
             ];
 
             // Add children with indentation
-            if ($folder->children->isNotEmpty()) {
-                foreach ($folder->children as $child) {
+            if ( $folder->children->isNotEmpty() ) {
+                foreach ( $folder->children as $child ) {
                     // Skip the folder being edited
-                    if ($this->isEditing && $this->editingFolder && $child->id === $this->editingFolder->id) {
+                    if ( $this->isEditing && $this->editingFolder && $child->id === $this->editingFolder->id ) {
                         continue;
                     }
 
                     $options[] = [
-                        'key' => $child->id,
-                        'label' => '-- '.$child->name,
+                        'key'   => $child->id,
+                        'label' => '-- ' . $child->name,
                     ];
                 }
             }
@@ -138,7 +138,7 @@ class FolderManager extends Component
      *
      * @since 1.0.0
      */
-    #[On('open-folder-manager')]
+    #[On( 'open-folder-manager' )]
     public function open(): void
     {
         $this->isOpen = true;
@@ -163,13 +163,13 @@ class FolderManager extends Component
      */
     public function resetForm(): void
     {
-        $this->isEditing = false;
+        $this->isEditing     = false;
         $this->editingFolder = null;
-        $this->form = [
-            'name' => '',
-            'slug' => '',
+        $this->form          = [
+            'name'        => '',
+            'slug'        => '',
             'description' => '',
-            'parent_id' => null,
+            'parent_id'   => null,
         ];
         $this->resetValidation();
     }
@@ -179,18 +179,18 @@ class FolderManager extends Component
      *
      * @since 1.0.0
      *
-     * @param  int  $folderId  The folder ID to edit.
+     * @param int $folderId The folder ID to edit.
      */
-    public function edit(int $folderId): void
+    public function edit( int $folderId ): void
     {
-        $this->editingFolder = MediaFolder::findOrFail($folderId);
-        $this->isEditing = true;
+        $this->editingFolder = MediaFolder::findOrFail( $folderId );
+        $this->isEditing     = true;
 
         $this->form = [
-            'name' => $this->editingFolder->name,
-            'slug' => $this->editingFolder->slug,
+            'name'        => $this->editingFolder->name,
+            'slug'        => $this->editingFolder->slug,
             'description' => $this->editingFolder->description ?? '',
-            'parent_id' => $this->editingFolder->parent_id,
+            'parent_id'   => $this->editingFolder->parent_id,
         ];
     }
 
@@ -211,8 +211,8 @@ class FolderManager extends Component
      */
     public function updatedFormName(): void
     {
-        if (! $this->isEditing) {
-            $this->form['slug'] = Str::slug($this->form['name']);
+        if ( ! $this->isEditing ) {
+            $this->form['slug'] = Str::slug( $this->form['name'] );
         }
     }
 
@@ -224,52 +224,52 @@ class FolderManager extends Component
     public function save(): void
     {
         $rules = [
-            'form.name' => ['required', 'string', 'max:255'],
-            'form.slug' => ['required', 'string', 'max:255'],
-            'form.description' => ['nullable', 'string'],
-            'form.parent_id' => ['nullable', 'exists:media_folders,id'],
+            'form.name'        => [ 'required', 'string', 'max:255' ],
+            'form.slug'        => [ 'required', 'string', 'max:255' ],
+            'form.description' => [ 'nullable', 'string' ],
+            'form.parent_id'   => [ 'nullable', 'exists:media_folders,id' ],
         ];
 
         // Add unique validation for slug, excluding current folder if editing
-        if ($this->isEditing && $this->editingFolder) {
-            $rules['form.slug'][] = 'unique:media_folders,slug,'.$this->editingFolder->id;
+        if ( $this->isEditing && $this->editingFolder ) {
+            $rules['form.slug'][] = 'unique:media_folders,slug,' . $this->editingFolder->id;
         } else {
             $rules['form.slug'][] = 'unique:media_folders,slug';
         }
 
-        $validated = $this->validate($rules);
+        $validated = $this->validate( $rules );
 
         try {
-            if ($this->isEditing && $this->editingFolder) {
+            if ( $this->isEditing && $this->editingFolder ) {
                 // Update existing folder
-                $this->editingFolder->update([
-                    'name' => $this->form['name'],
-                    'slug' => $this->form['slug'],
-                    'description' => $this->form['description'],
-                    'parent_id' => $this->form['parent_id'],
-                ]);
+                $this->editingFolder->update( [
+                                                  'name'        => $this->form['name'],
+                                                  'slug'        => $this->form['slug'],
+                                                  'description' => $this->form['description'],
+                                                  'parent_id'   => $this->form['parent_id'],
+                                              ] );
 
-                $this->success(__('Folder updated successfully'));
+                $this->success( __( 'Folder updated successfully' ) );
             } else {
                 // Create new folder
-                MediaFolder::create([
-                    'name' => $this->form['name'],
-                    'slug' => $this->form['slug'],
-                    'description' => $this->form['description'],
-                    'parent_id' => $this->form['parent_id'],
-                    'created_by' => auth()->id(),
-                ]);
+                MediaFolder::create( [
+                                         'name'        => $this->form['name'],
+                                         'slug'        => $this->form['slug'],
+                                         'description' => $this->form['description'],
+                                         'parent_id'   => $this->form['parent_id'],
+                                         'created_by'  => auth()->id(),
+                                     ] );
 
-                $this->success(__('Folder created successfully'));
+                $this->success( __( 'Folder created successfully' ) );
             }
 
             $this->resetForm();
             $this->loadFolders();
 
             // Notify other components to refresh
-            $this->dispatch('folders-updated');
-        } catch (Exception $e) {
-            $this->error(__('Failed to save folder: :error', ['error' => $e->getMessage()]));
+            $this->dispatch( 'folders-updated' );
+        } catch ( Exception $e ) {
+            $this->error( __( 'Failed to save folder: :error', [ 'error' => $e->getMessage() ] ) );
         }
     }
 
@@ -278,46 +278,48 @@ class FolderManager extends Component
      *
      * @since 1.0.0
      *
-     * @param  int  $folderId  The folder ID to delete.
+     * @param int $folderId The folder ID to delete.
      */
-    public function delete(int $folderId): void
+    public function delete( int $folderId ): void
     {
         try {
-            $folder = MediaFolder::findOrFail($folderId);
+            $folder = MediaFolder::findOrFail( $folderId );
 
             // Check if folder has children
-            if ($folder->children()->exists()) {
-                $this->error(__('Cannot delete folder with subfolders. Please delete or move subfolders first.'));
+            if ( $folder->children()->exists() ) {
+                $this->error( __( 'Cannot delete folder with subfolders. Please delete or move subfolders first.' ) );
 
                 return;
             }
 
             // Check if folder has media
-            if ($folder->media()->exists()) {
-                $this->error(__('Cannot delete folder with media items. Please delete or move media first.'));
+            if ( $folder->media()->exists() ) {
+                $this->error( __( 'Cannot delete folder with media items. Please delete or move media first.' ) );
 
                 return;
             }
 
             $folder->delete();
 
-            $this->success(__('Folder deleted successfully'));
+            $this->success( __( 'Folder deleted successfully' ) );
             $this->loadFolders();
 
             // Notify other components to refresh
-            $this->dispatch('folders-updated');
-        } catch (Exception $e) {
-            $this->error(__('Failed to delete folder: :error', ['error' => $e->getMessage()]));
+            $this->dispatch( 'folders-updated' );
+        } catch ( Exception $e ) {
+            $this->error( __( 'Failed to delete folder: :error', [ 'error' => $e->getMessage() ] ) );
         }
     }
 
     /**
-     * Render the component.
+     * Renders the component.
      *
      * @since 1.0.0
+     *
+     * @return View The component view.
      */
     public function render(): View
     {
-        return view('media::livewire.components.folder-manager');
+        return view( 'media::livewire.components.folder-manager' );
     }
 }

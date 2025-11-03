@@ -6,10 +6,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Create Media Folders Table Migration
+ *
+ * Creates the media_folders table for organizing media files into folders.
+ *
+ * @since 1.0.0
+ *
+ * @package ArtisanPackUI\MediaLibrary\Database\Migrations
+ */
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Runs the migrations.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -29,7 +42,11 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Reverses the migrations.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     public function down(): void
     {

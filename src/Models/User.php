@@ -26,6 +26,8 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
+     * @since 1.0.0
+     *
      * @var array<string>
      */
     protected $fillable = [
@@ -37,6 +39,8 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
+     * @since 1.0.0
+     *
      * @var array<string>
      */
     protected $hidden = [
@@ -46,6 +50,10 @@ class User extends Authenticatable
 
     /**
      * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return UserFactory The model factory instance.
      */
     protected static function newFactory()
     {
@@ -55,13 +63,15 @@ class User extends Authenticatable
     /**
      * Get the attributes that should be cast.
      *
-     * @return array<string, string>
+     * @since 1.0.0
+     *
+     * @return array<string, string> Array of attribute names and their cast types.
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 }

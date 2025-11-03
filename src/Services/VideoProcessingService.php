@@ -22,89 +22,108 @@ class VideoProcessingService
 {
     /**
      * Media storage service instance.
+     *
+     * @since 1.0.0
+     *
+     * @var MediaStorageService
      */
     protected MediaStorageService $storageService;
 
     /**
      * FFMpeg instance.
+     *
+     * @since 1.0.0
+     *
+     * @var FFMpeg|null
      */
     protected ?FFMpeg $ffmpeg = null;
 
     /**
      * FFProbe instance.
+     *
+     * @since 1.0.0
+     *
+     * @var FFProbe|null
      */
     protected ?FFProbe $ffprobe = null;
 
     /**
-     * Create a new video processing service instance.
+     * Creates a new video processing service instance.
      *
-     * @param  MediaStorageService  $storageService  The storage service instance.
+     * @since 1.0.0
+     *
+     * @param MediaStorageService $storageService The storage service instance.
      */
-    public function __construct(MediaStorageService $storageService)
+    public function __construct( MediaStorageService $storageService )
     {
         $this->storageService = $storageService;
 
         // Initialize FFMpeg if available
-        if (class_exists(FFMpeg::class)) {
+        if ( class_exists( FFMpeg::class ) ) {
             try {
-                $this->ffmpeg = FFMpeg::create();
+                $this->ffmpeg  = FFMpeg::create();
                 $this->ffprobe = FFProbe::create();
-            } catch (Exception $e) {
+            } catch ( Exception $e ) {
                 // FFmpeg not available on system
             }
         }
     }
 
     /**
-     * Extract a thumbnail from a video at a specific time.
+     * Extracts a thumbnail from a video at a specific time.
      *
-     * @param  Media  $media  The media instance.
-     * @param  int  $atSecond  The second at which to extract the thumbnail.
+     * @since 1.0.0
+     *
+     * @param Media $media    The media instance.
+     * @param int   $atSecond The second at which to extract the thumbnail.
+     *
      * @return string|null The path to the generated thumbnail or null on failure.
      */
-    public function extractThumbnail(Media $media, int $atSecond = 1): ?string
+    public function extractThumbnail( Media $media, int $atSecond = 1 ): ?string
     {
-        if (! $this->isAvailable()) {
+        if ( ! $this->isAvailable() ) {
             return null;
         }
 
         try {
-            $videoPath = $this->storageService->path($media->file_path, $media->disk);
-            $video = $this->ffmpeg->open($videoPath);
+            $videoPath = $this->storageService->path( $media->file_path, $media->disk );
+            $video     = $this->ffmpeg->open( $videoPath );
 
             // Generate thumbnail filename
-            $pathInfo = pathinfo($media->file_path);
-            $thumbnailName = $pathInfo['filename'].'-thumbnail.jpg';
-            $thumbnailPath = $pathInfo['dirname'].'/'.$thumbnailName;
+            $pathInfo      = pathinfo( $media->file_path );
+            $thumbnailName = $pathInfo['filename'] . '-thumbnail.jpg';
+            $thumbnailPath = $pathInfo['dirname'] . '/' . $thumbnailName;
 
             // Create temp file for thumbnail
-            $tempThumbPath = sys_get_temp_dir().'/'.uniqid().'-thumbnail.jpg';
+            $tempThumbPath = sys_get_temp_dir() . '/' . uniqid() . '-thumbnail.jpg';
 
             // Extract frame
-            $frame = $video->frame(TimeCode::fromSeconds($atSecond));
-            $frame->save($tempThumbPath);
+            $frame = $video->frame( TimeCode::fromSeconds( $atSecond ) );
+            $frame->save( $tempThumbPath );
 
             // Upload to storage
-            if (file_exists($tempThumbPath)) {
-                $contents = file_get_contents($tempThumbPath);
-                if ($contents !== false) {
-                    $this->storageService->put($thumbnailPath, $contents, $media->disk);
+            if ( file_exists( $tempThumbPath ) ) {
+                $contents = file_get_contents( $tempThumbPath );
+                if ( $contents !== false ) {
+                    $this->storageService->put( $thumbnailPath, $contents, $media->disk );
                 }
 
                 // Clean up temp file
-                unlink($tempThumbPath);
+                unlink( $tempThumbPath );
 
                 return $thumbnailPath;
             }
 
             return null;
-        } catch (Exception $e) {
+        } catch ( Exception $e ) {
             return null;
         }
     }
 
     /**
-     * Check if FFmpeg is available.
+     * Checks if FFmpeg is available.
+     *
+     * @since 1.0.0
      *
      * @return bool True if FFmpeg is available, false otherwise.
      */
@@ -114,24 +133,27 @@ class VideoProcessingService
     }
 
     /**
-     * Extract metadata from a video file.
+     * Extracts metadata from a video file.
      *
-     * @param  string  $path  The video file path.
-     * @param  string  $disk  The storage disk.
+     * @since 1.0.0
+     *
+     * @param string $path The video file path.
+     * @param string $disk The storage disk.
+     *
      * @return array<string, mixed> The extracted metadata.
      */
-    public function extractMetadata(string $path, string $disk): array
+    public function extractMetadata( string $path, string $disk ): array
     {
-        if (! $this->isAvailable()) {
+        if ( ! $this->isAvailable() ) {
             return [];
         }
 
         try {
-            $videoPath = $this->storageService->path($path, $disk);
+            $videoPath = $this->storageService->path( $path, $disk );
 
             // Get video dimensions
             $videoStream = $this->ffprobe
-                ->streams($videoPath)
+                ->streams( $videoPath )
                 ->videos()
                 ->first();
 
@@ -139,71 +161,74 @@ class VideoProcessingService
 
             // Get duration
             $duration = $this->ffprobe
-                ->format($videoPath)
-                ->get('duration');
+                ->format( $videoPath )
+                ->get( 'duration' );
 
             return [
-                'width' => $dimensions !== null ? $dimensions->getWidth() : null,
-                'height' => $dimensions !== null ? $dimensions->getHeight() : null,
-                'duration' => $duration !== null ? (int) round((float) $duration) : null,
+                'width'    => $dimensions !== null ? $dimensions->getWidth() : null,
+                'height'   => $dimensions !== null ? $dimensions->getHeight() : null,
+                'duration' => $duration !== null ? (int)round( (float)$duration ) : null,
             ];
-        } catch (Exception $e) {
+        } catch ( Exception $e ) {
             return [];
         }
     }
 
     /**
-     * Generate multiple preview images from a video.
+     * Generates multiple preview images from a video.
      *
-     * @param  Media  $media  The media instance.
-     * @param  int  $count  The number of preview images to generate.
+     * @since 1.0.0
+     *
+     * @param Media $media The media instance.
+     * @param int   $count The number of preview images to generate.
+     *
      * @return array<string> Array of generated preview image paths.
      */
-    public function generatePreviewImages(Media $media, int $count = 3): array
+    public function generatePreviewImages( Media $media, int $count = 3 ): array
     {
-        if (! $this->isAvailable() || $media->duration === null) {
+        if ( ! $this->isAvailable() || $media->duration === null ) {
             return [];
         }
 
         $previews = [];
 
         try {
-            $videoPath = $this->storageService->path($media->file_path, $media->disk);
-            $video = $this->ffmpeg->open($videoPath);
+            $videoPath = $this->storageService->path( $media->file_path, $media->disk );
+            $video     = $this->ffmpeg->open( $videoPath );
 
             // Calculate time intervals
-            $interval = $media->duration / ($count + 1);
+            $interval = $media->duration / ( $count + 1 );
 
-            for ($i = 1; $count >= $i; $i++) {
-                $second = (int) round($interval * $i);
+            for ( $i = 1; $count >= $i; $i++ ) {
+                $second = (int)round( $interval * $i );
 
                 // Generate preview filename
-                $pathInfo = pathinfo($media->file_path);
-                $previewName = $pathInfo['filename'].'-preview-'.$i.'.jpg';
-                $previewPath = $pathInfo['dirname'].'/'.$previewName;
+                $pathInfo    = pathinfo( $media->file_path );
+                $previewName = $pathInfo['filename'] . '-preview-' . $i . '.jpg';
+                $previewPath = $pathInfo['dirname'] . '/' . $previewName;
 
                 // Create temp file
-                $tempPath = sys_get_temp_dir().'/'.uniqid().'-preview-'.$i.'.jpg';
+                $tempPath = sys_get_temp_dir() . '/' . uniqid() . '-preview-' . $i . '.jpg';
 
                 // Extract frame
-                $frame = $video->frame(TimeCode::fromSeconds($second));
-                $frame->save($tempPath);
+                $frame = $video->frame( TimeCode::fromSeconds( $second ) );
+                $frame->save( $tempPath );
 
                 // Upload to storage
-                if (file_exists($tempPath)) {
-                    $contents = file_get_contents($tempPath);
-                    if ($contents !== false) {
-                        $this->storageService->put($previewPath, $contents, $media->disk);
+                if ( file_exists( $tempPath ) ) {
+                    $contents = file_get_contents( $tempPath );
+                    if ( $contents !== false ) {
+                        $this->storageService->put( $previewPath, $contents, $media->disk );
                         $previews[] = $previewPath;
                     }
 
                     // Clean up temp file
-                    unlink($tempPath);
+                    unlink( $tempPath );
                 }
             }
 
             return $previews;
-        } catch (Exception $e) {
+        } catch ( Exception $e ) {
             return [];
         }
     }

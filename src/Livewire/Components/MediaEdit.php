@@ -41,11 +41,11 @@ class MediaEdit extends Component
      * @var array<string, mixed>
      */
     public array $form = [
-        'title' => '',
-        'alt_text' => '',
-        'caption' => '',
+        'title'       => '',
+        'alt_text'    => '',
+        'caption'     => '',
         'description' => '',
-        'folder_id' => null,
+        'folder_id'   => null,
     ];
 
     /**
@@ -69,23 +69,23 @@ class MediaEdit extends Component
      *
      * @since 1.0.0
      *
-     * @param  int  $mediaId  The media ID to edit.
+     * @param int $mediaId The media ID to edit.
      */
-    public function mount(int $mediaId): void
+    public function mount( int $mediaId ): void
     {
-        $this->media = Media::with(['folder', 'tags', 'uploadedBy'])->findOrFail($mediaId);
+        $this->media = Media::with( [ 'folder', 'tags', 'uploadedBy' ] )->findOrFail( $mediaId );
 
         // Populate form with existing data
         $this->form = [
-            'title' => $this->media->title ?? '',
-            'alt_text' => $this->media->alt_text ?? '',
-            'caption' => $this->media->caption ?? '',
+            'title'       => $this->media->title ?? '',
+            'alt_text'    => $this->media->alt_text ?? '',
+            'caption'     => $this->media->caption ?? '',
             'description' => $this->media->description ?? '',
-            'folder_id' => $this->media->folder_id,
+            'folder_id'   => $this->media->folder_id,
         ];
 
         // Load selected tags
-        $this->selectedTags = $this->media->tags->pluck('id')->toArray();
+        $this->selectedTags = $this->media->tags->pluck( 'id' )->toArray();
     }
 
     /**
@@ -98,7 +98,7 @@ class MediaEdit extends Component
     #[Computed]
     public function folders(): Collection
     {
-        return MediaFolder::orderBy('name')->get();
+        return MediaFolder::orderBy( 'name' )->get();
     }
 
     /**
@@ -111,35 +111,35 @@ class MediaEdit extends Component
         $this->isSaving = true;
 
         // Validate the form data
-        $validated = $this->validate([
-            'form.title' => ['nullable', 'string', 'max:255'],
-            'form.alt_text' => ['nullable', 'string', 'max:255'],
-            'form.caption' => ['nullable', 'string', 'max:1000'],
-            'form.description' => ['nullable', 'string', 'max:2000'],
-            'form.folder_id' => ['nullable', 'exists:media_folders,id'],
-            'selectedTags' => ['nullable', 'array'],
-            'selectedTags.*' => ['exists:media_tags,id'],
-        ]);
+        $validated = $this->validate( [
+                                          'form.title'       => [ 'nullable', 'string', 'max:255' ],
+                                          'form.alt_text'    => [ 'nullable', 'string', 'max:255' ],
+                                          'form.caption'     => [ 'nullable', 'string', 'max:1000' ],
+                                          'form.description' => [ 'nullable', 'string', 'max:2000' ],
+                                          'form.folder_id'   => [ 'nullable', 'exists:media_folders,id' ],
+                                          'selectedTags'     => [ 'nullable', 'array' ],
+                                          'selectedTags.*'   => [ 'exists:media_tags,id' ],
+                                      ] );
 
         try {
             // Update media metadata
-            $this->media->update([
-                'title' => $this->form['title'],
-                'alt_text' => $this->form['alt_text'],
-                'caption' => $this->form['caption'],
-                'description' => $this->form['description'],
-                'folder_id' => $this->form['folder_id'],
-            ]);
+            $this->media->update( [
+                                      'title'       => $this->form['title'],
+                                      'alt_text'    => $this->form['alt_text'],
+                                      'caption'     => $this->form['caption'],
+                                      'description' => $this->form['description'],
+                                      'folder_id'   => $this->form['folder_id'],
+                                  ] );
 
             // Sync tags
-            $this->media->tags()->sync($this->selectedTags);
+            $this->media->tags()->sync( $this->selectedTags );
 
-            $this->success(__('Media updated successfully'));
+            $this->success( __( 'Media updated successfully' ) );
 
             // Dispatch event to refresh media library if open
-            $this->dispatch('media-updated');
-        } catch (Exception $e) {
-            $this->error(__('Failed to update media: :error', ['error' => $e->getMessage()]));
+            $this->dispatch( 'media-updated' );
+        } catch ( Exception $e ) {
+            $this->error( __( 'Failed to update media: :error', [ 'error' => $e->getMessage() ] ) );
         } finally {
             $this->isSaving = false;
         }
@@ -155,7 +155,7 @@ class MediaEdit extends Component
     #[Computed]
     public function tags(): Collection
     {
-        return MediaTag::orderBy('name')->get();
+        return MediaTag::orderBy( 'name' )->get();
     }
 
     /**
@@ -168,25 +168,27 @@ class MediaEdit extends Component
         try {
             $this->media->delete();
 
-            $this->success(__('Media deleted successfully'));
+            $this->success( __( 'Media deleted successfully' ) );
 
             // Dispatch event to notify media library
-            $this->dispatch('media-updated');
+            $this->dispatch( 'media-updated' );
 
             // Redirect to media library
-            $this->redirect(route('admin.media'), navigate: true);
-        } catch (Exception $e) {
-            $this->error(__('Failed to delete media: :error', ['error' => $e->getMessage()]));
+            $this->redirect( route( 'admin.media' ), navigate: true );
+        } catch ( Exception $e ) {
+            $this->error( __( 'Failed to delete media: :error', [ 'error' => $e->getMessage() ] ) );
         }
     }
 
     /**
-     * Render the component.
+     * Renders the component.
      *
      * @since 1.0.0
+     *
+     * @return View The component view.
      */
     public function render(): View
     {
-        return view('media::livewire.pages.media-edit');
+        return view( 'media::livewire.pages.media-edit' );
     }
 }

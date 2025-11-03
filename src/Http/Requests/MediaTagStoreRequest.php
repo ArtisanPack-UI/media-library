@@ -16,7 +16,9 @@ use Illuminate\Foundation\Http\FormRequest;
 class MediaTagStoreRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determines if the user is authorized to make this request.
+     *
+     * @since 1.0.0
      *
      * @return bool True if authorized, false otherwise.
      */
@@ -26,20 +28,24 @@ class MediaTagStoreRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Gets the validation rules that apply to the request.
+     *
+     * @since 1.0.0
      *
      * @return array<string, mixed> The validation rules.
      */
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:media_tags,name'],
-            'description' => ['nullable', 'string'],
+            'name'        => [ 'required', 'string', 'max:255', 'unique:media_tags,name' ],
+            'description' => [ 'nullable', 'string' ],
         ];
     }
 
     /**
-     * Get custom error messages for validation rules.
+     * Gets custom error messages for validation rules.
+     *
+     * @since 1.0.0
      *
      * @return array<string, string> The custom error messages.
      */
@@ -47,8 +53,8 @@ class MediaTagStoreRequest extends FormRequest
     {
         return [
             'name.required' => 'Tag name is required.',
-            'name.max' => 'Tag name cannot exceed 255 characters.',
-            'name.unique' => 'A tag with this name already exists.',
+            'name.max'      => 'Tag name cannot exceed 255 characters.',
+            'name.unique'   => 'A tag with this name already exists.',
         ];
     }
 }

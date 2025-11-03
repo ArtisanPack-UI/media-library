@@ -17,7 +17,9 @@ use Illuminate\Validation\Rule;
 class MediaTagUpdateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determines if the user is authorized to make this request.
+     *
+     * @since 1.0.0
      *
      * @return bool True if authorized, false otherwise.
      */
@@ -27,28 +29,32 @@ class MediaTagUpdateRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Gets the validation rules that apply to the request.
+     *
+     * @since 1.0.0
      *
      * @return array<string, mixed> The validation rules.
      */
     public function rules(): array
     {
-        $tagId = $this->route('tag');
+        $tagId = $this->route( 'tag' );
 
         return [
-            'name' => [
+            'name'        => [
                 'sometimes',
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('media_tags', 'name')->ignore($tagId),
+                Rule::unique( 'media_tags', 'name' )->ignore( $tagId ),
             ],
-            'description' => ['nullable', 'string'],
+            'description' => [ 'nullable', 'string' ],
         ];
     }
 
     /**
-     * Get custom error messages for validation rules.
+     * Gets custom error messages for validation rules.
+     *
+     * @since 1.0.0
      *
      * @return array<string, string> The custom error messages.
      */
@@ -56,8 +62,8 @@ class MediaTagUpdateRequest extends FormRequest
     {
         return [
             'name.required' => 'Tag name is required.',
-            'name.max' => 'Tag name cannot exceed 255 characters.',
-            'name.unique' => 'A tag with this name already exists.',
+            'name.max'      => 'Tag name cannot exceed 255 characters.',
+            'name.unique'   => 'A tag with this name already exists.',
         ];
     }
 }
