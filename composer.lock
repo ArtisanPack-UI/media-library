@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "922caee149a78530c2e703731425712f",
+    "content-hash": "4907abb5c51e7f23f8dfeb6498548162",
     "packages": [
         {
             "name": "artisanpack-ui/accessibility",
-            "version": "1.1.1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-accessibility.git",
-                "reference": "5a3df62cf8d90d98cdda9d8864230cc4e0186366"
+                "reference": "afdfb5c76bce28712f584217bcb9aecc7bff120a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/jacob-martella-web-design%2Fartisanpack-ui%2Fartisanpack-ui-accessibility/repository/archive.zip?sha=5a3df62cf8d90d98cdda9d8864230cc4e0186366",
-                "reference": "5a3df62cf8d90d98cdda9d8864230cc4e0186366",
+                "url": "https://gitlab.com/api/v4/projects/jacob-martella-web-design%2Fartisanpack-ui%2Fartisanpack-ui-accessibility/repository/archive.zip?sha=afdfb5c76bce28712f584217bcb9aecc7bff120a",
+                "reference": "afdfb5c76bce28712f584217bcb9aecc7bff120a",
                 "shasum": ""
             },
             "require": {
@@ -29,6 +29,7 @@
                 "pestphp/pest": "^3.8",
                 "pestphp/pest-plugin-laravel": "^3.1"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -61,9 +62,9 @@
             "description": "A package for all accessibility functions for ArtisanPack UI.",
             "support": {
                 "issues": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-accessibility/-/issues",
-                "source": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-accessibility/-/tree/v1.1.1"
+                "source": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-accessibility/-/tree/main"
             },
-            "time": "2025-07-01T16:15:48+00:00"
+            "time": "2025-09-04T15:50:59+00:00"
         },
         {
             "name": "artisanpack-ui/core",
@@ -189,96 +190,39 @@
             "time": "2025-10-17T15:46:13+00:00"
         },
         {
-            "name": "artisanpack-ui/icons",
-            "version": "2.0.0",
+            "name": "artisanpack-ui/livewire-ui-components",
+            "version": "0.4.2",
             "source": {
                 "type": "git",
-                "url": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-icons.git",
-                "reference": "a3fef14f6fe3a33d591ef6f6844632beee6a4ed7"
+                "url": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/livewire-ui-components.git",
+                "reference": "ea7b9444a19a1946d2d7bcedc0c44677e84e98af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/jacob-martella-web-design%2Fartisanpack-ui%2Fartisanpack-ui-icons/repository/archive.zip?sha=a3fef14f6fe3a33d591ef6f6844632beee6a4ed7",
-                "reference": "a3fef14f6fe3a33d591ef6f6844632beee6a4ed7",
+                "url": "https://gitlab.com/api/v4/projects/jacob-martella-web-design%2Fartisanpack-ui%2Flivewire-ui-components/repository/archive.zip?sha=ea7b9444a19a1946d2d7bcedc0c44677e84e98af",
+                "reference": "ea7b9444a19a1946d2d7bcedc0c44677e84e98af",
                 "shasum": ""
             },
             "require": {
-                "blade-ui-kit/blade-icons": "^1.8",
-                "illuminate/support": "^12.0",
-                "php": "^8.2",
-                "tormjens/eventy": "^0.9.4"
-            },
-            "require-dev": {
-                "artisanpack-ui/code-style": "^1.0",
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^10.0",
-                "pestphp/pest": "^3.5",
-                "pestphp/pest-plugin-laravel": "^3.0",
-                "phpunit/phpunit": "^11.5",
-                "squizlabs/php_codesniffer": "^3.13"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "ArtisanPackUI\\Icons\\IconsServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "ArtisanPackUI\\Icons\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "description": "An extensibility layer for Blade Icons that enables flexible registration of custom SVG icon sets via config or events.",
-            "support": {
-                "issues": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-icons/-/issues",
-                "source": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-icons/-/tree/v2.0.0"
-            },
-            "time": "2025-10-06T19:35:16+00:00"
-        },
-        {
-            "name": "artisanpack-ui/livewire-ui-components",
-            "version": "0.6.0",
-            "dist": {
-                "type": "path",
-                "url": "../livewire-ui-components",
-                "reference": "30bff9b92198c768e05dd1cc3b0ffb7fc7b254f1"
-            },
-            "require": {
-                "artisanpack-ui/accessibility": "^1.1",
-                "artisanpack-ui/core": "^1.0",
-                "artisanpack-ui/icons": "^2.0",
-                "artisanpack-ui/security": "^1.0",
                 "blade-ui-kit/blade-heroicons": "^2.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "jfcherng/php-diff": "^6.15",
                 "laravel/prompts": "^0|^1",
-                "livewire/livewire": "^3.6",
-                "owenvoke/blade-fontawesome": "^2.9"
+                "livewire/livewire": "^3.6"
             },
             "require-dev": {
-                "artisanpack-ui/code-style": "^1.0",
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
-                "laravel/boost": "^1.0",
-                "mockery/mockery": "^1.6",
                 "orchestra/testbench": "^8|^9|^10",
-                "pestphp/pest": "^3.5",
-                "pestphp/pest-plugin-laravel": "^3.0",
-                "phpunit/phpunit": "^10|^11",
-                "squizlabs/php_codesniffer": "^3.13"
+                "phpunit/phpunit": "^10|^11"
             },
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "ArtisanPack\\LivewireUiComponents\\LivewireUiComponentsServiceProvider"
-                    ],
                     "aliases": {
                         "LivewireUiComponents": "ArtisanPack\\LivewireUiComponents\\Facades\\LivewireUiComponents"
-                    }
+                    },
+                    "providers": [
+                        "ArtisanPack\\LivewireUiComponents\\LivewireUiComponentsServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -286,16 +230,7 @@
                     "ArtisanPack\\LivewireUiComponents\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "ArtisanPack\\LivewireUiComponents\\Tests\\": "tests"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "pest"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -307,11 +242,11 @@
             ],
             "description": "A Livewire UI component library for the TALL stack, forked from MaryUI and adapted for the ArtisanPack UI ecosystem.",
             "keywords": [
+                "DaisyUI",
                 "alpinejs",
                 "blade",
                 "blade ui components",
                 "components",
-                "daisyUI",
                 "laravel",
                 "livewire",
                 "livewire 3",
@@ -328,22 +263,24 @@
                 "tallstackui",
                 "ui"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/livewire-ui-components/-/issues",
+                "source": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/livewire-ui-components/-/tree/v0.4.2"
+            },
+            "time": "2025-07-28T18:59:52+00:00"
         },
         {
             "name": "artisanpack-ui/security",
-            "version": "1.0.3",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-security.git",
-                "reference": "55292940cad93a5895486ad12cf58aa2feef8934"
+                "reference": "eba7857225886bafc75ef2719d189bfa4852f897"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/jacob-martella-web-design%2Fartisanpack-ui%2Fartisanpack-ui-security/repository/archive.zip?sha=55292940cad93a5895486ad12cf58aa2feef8934",
-                "reference": "55292940cad93a5895486ad12cf58aa2feef8934",
+                "url": "https://gitlab.com/api/v4/projects/jacob-martella-web-design%2Fartisanpack-ui%2Fartisanpack-ui-security/repository/archive.zip?sha=eba7857225886bafc75ef2719d189bfa4852f897",
+                "reference": "eba7857225886bafc75ef2719d189bfa4852f897",
                 "shasum": ""
             },
             "require": {
@@ -356,6 +293,7 @@
                 "pestphp/pest": "^3.8",
                 "pestphp/pest-plugin-laravel": "^3.1"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -389,9 +327,9 @@
             "description": "Provides escaping and sanitation functions to provide security for Digital Shopfront CMS.",
             "support": {
                 "issues": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-security/-/issues",
-                "source": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-security/-/tree/v1.0.3"
+                "source": "https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-security/-/tree/main"
             },
-            "time": "2025-05-14T16:45:20+00:00"
+            "time": "2025-09-05T14:27:45+00:00"
         },
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -916,29 +854,28 @@
         },
         {
             "name": "dragonmantank/cron-expression",
-            "version": "v3.4.0",
+            "version": "v3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dragonmantank/cron-expression.git",
-                "reference": "8c784d071debd117328803d86b2097615b457500"
+                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/8c784d071debd117328803d86b2097615b457500",
-                "reference": "8c784d071debd117328803d86b2097615b457500",
+                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/d61a8a9604ec1f8c3d150d09db6ce98b32675013",
+                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2|^8.0",
-                "webmozart/assert": "^1.0"
+                "php": "^8.2|^8.3|^8.4|^8.5"
             },
             "replace": {
                 "mtdowling/cron-expression": "^1.0"
             },
             "require-dev": {
-                "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^1.0",
-                "phpunit/phpunit": "^7.0|^8.0|^9.0"
+                "phpstan/extension-installer": "^1.4.3",
+                "phpstan/phpstan": "^1.12.32|^2.1.31",
+                "phpunit/phpunit": "^8.5.48|^9.0"
             },
             "type": "library",
             "extra": {
@@ -969,7 +906,7 @@
             ],
             "support": {
                 "issues": "https://github.com/dragonmantank/cron-expression/issues",
-                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.4.0"
+                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.6.0"
             },
             "funding": [
                 {
@@ -977,7 +914,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-09T13:47:03+00:00"
+            "time": "2025-10-31T18:51:33+00:00"
         },
         {
             "name": "egulias/email-validator",
@@ -2081,16 +2018,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.36.0",
+            "version": "v12.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "5247c8f4139e5266cd42bbe13de131604becd7e1"
+                "reference": "cad110d7685fbab990a6bb8184d0cfd847d7c4d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/5247c8f4139e5266cd42bbe13de131604becd7e1",
-                "reference": "5247c8f4139e5266cd42bbe13de131604becd7e1",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/cad110d7685fbab990a6bb8184d0cfd847d7c4d8",
+                "reference": "cad110d7685fbab990a6bb8184d0cfd847d7c4d8",
                 "shasum": ""
             },
             "require": {
@@ -2296,7 +2233,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2025-10-28T15:13:16+00:00"
+            "time": "2025-10-29T14:20:57+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -2423,32 +2360,32 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v1.3.7",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "4f48ade902b94323ca3be7646db16209ec76be3d"
+                "reference": "038ce42edee619599a1debb7e81d7b3759492819"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/4f48ade902b94323ca3be7646db16209ec76be3d",
-                "reference": "4f48ade902b94323ca3be7646db16209ec76be3d",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/038ce42edee619599a1debb7e81d7b3759492819",
+                "reference": "038ce42edee619599a1debb7e81d7b3759492819",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3|^8.0"
+                "php": "^8.1"
             },
             "require-dev": {
-                "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
-                "nesbot/carbon": "^2.61|^3.0",
-                "pestphp/pest": "^1.21.3",
-                "phpstan/phpstan": "^1.8.2",
-                "symfony/var-dumper": "^5.4.11|^6.2.0|^7.0.0"
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nesbot/carbon": "^2.67|^3.0",
+                "pestphp/pest": "^2.36|^3.0",
+                "phpstan/phpstan": "^2.0",
+                "symfony/var-dumper": "^6.2.0|^7.0.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.x-dev"
+                    "dev-master": "2.x-dev"
                 }
             },
             "autoload": {
@@ -2480,7 +2417,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2024-11-14T18:34:49+00:00"
+            "time": "2025-10-09T13:42:30+00:00"
         },
         {
             "name": "league/commonmark",
@@ -3319,25 +3256,25 @@
         },
         {
             "name": "nette/schema",
-            "version": "v1.3.2",
+            "version": "v1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/schema.git",
-                "reference": "da801d52f0354f70a638673c4a0f04e16529431d"
+                "reference": "2befc2f42d7c715fd9d95efc31b1081e5d765004"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/schema/zipball/da801d52f0354f70a638673c4a0f04e16529431d",
-                "reference": "da801d52f0354f70a638673c4a0f04e16529431d",
+                "url": "https://api.github.com/repos/nette/schema/zipball/2befc2f42d7c715fd9d95efc31b1081e5d765004",
+                "reference": "2befc2f42d7c715fd9d95efc31b1081e5d765004",
                 "shasum": ""
             },
             "require": {
                 "nette/utils": "^4.0",
-                "php": "8.1 - 8.4"
+                "php": "8.1 - 8.5"
             },
             "require-dev": {
                 "nette/tester": "^2.5.2",
-                "phpstan/phpstan-nette": "^1.0",
+                "phpstan/phpstan-nette": "^2.0@stable",
                 "tracy/tracy": "^2.8"
             },
             "type": "library",
@@ -3347,6 +3284,9 @@
                 }
             },
             "autoload": {
+                "psr-4": {
+                    "Nette\\": "src"
+                },
                 "classmap": [
                     "src/"
                 ]
@@ -3375,9 +3315,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/schema/issues",
-                "source": "https://github.com/nette/schema/tree/v1.3.2"
+                "source": "https://github.com/nette/schema/tree/v1.3.3"
             },
-            "time": "2024-10-06T23:10:23+00:00"
+            "time": "2025-10-30T22:57:59+00:00"
         },
         {
             "name": "nette/utils",
@@ -3554,66 +3494,6 @@
                 }
             ],
             "time": "2025-10-18T11:10:27+00:00"
-        },
-        {
-            "name": "owenvoke/blade-fontawesome",
-            "version": "v2.9.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/owenvoke/blade-fontawesome.git",
-                "reference": "94dcd0c78f43f8234b0d9c76c903ecd288b8b0d1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/owenvoke/blade-fontawesome/zipball/94dcd0c78f43f8234b0d9c76c903ecd288b8b0d1",
-                "reference": "94dcd0c78f43f8234b0d9c76c903ecd288b8b0d1",
-                "shasum": ""
-            },
-            "require": {
-                "blade-ui-kit/blade-icons": "^1.5",
-                "illuminate/support": "^10.34|^11.0|^12.0",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "laravel/pint": "^1.13",
-                "orchestra/testbench": "^8.12|^9.0|^10.0",
-                "pestphp/pest": "^2.26|^3.7",
-                "phpstan/phpstan": "^1.10|^2.1",
-                "symfony/var-dumper": "^6.3|^7.2"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "OwenVoke\\BladeFontAwesome\\BladeFontAwesomeServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "OwenVoke\\BladeFontAwesome\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "A package to easily make use of Font Awesome in your Laravel Blade views",
-            "support": {
-                "issues": "https://github.com/owenvoke/blade-fontawesome/issues",
-                "source": "https://github.com/owenvoke/blade-fontawesome/tree/v2.9.1"
-            },
-            "funding": [
-                {
-                    "url": "https://ecologi.com/owenvoke?gift-trees",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/owenvoke",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-03-28T16:03:42+00:00"
         },
         {
             "name": "php-ffmpeg/php-ffmpeg",
@@ -7291,79 +7171,6 @@
             "time": "2024-12-21T16:25:41+00:00"
         },
         {
-            "name": "tormjens/eventy",
-            "version": "0.9.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tormjens/eventy.git",
-                "reference": "6e3e6ca413e665703b6a7252145f8e051a3ef206"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tormjens/eventy/zipball/6e3e6ca413e665703b6a7252145f8e051a3ef206",
-                "reference": "6e3e6ca413e665703b6a7252145f8e051a3ef206",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": ">=5.3",
-                "laravel/serializable-closure": "^1.3",
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "php-coveralls/php-coveralls": "^2.1",
-                "phpunit/phpunit": "^10.3"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Eventy": "TorMorten\\Eventy\\Facades\\Events"
-                    },
-                    "providers": [
-                        "TorMorten\\Eventy\\EventServiceProvider",
-                        "TorMorten\\Eventy\\EventBladeServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
-                "psr-4": {
-                    "TorMorten\\Eventy\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Tor Morten Jensen",
-                    "homepage": "https://tormorten.no"
-                }
-            ],
-            "description": "The WordPress filter/action system in Laravel",
-            "homepage": "https://github.com/tormjens/eventy",
-            "keywords": [
-                "HOOK",
-                "action",
-                "actions",
-                "event",
-                "events",
-                "filter",
-                "filters",
-                "hooks",
-                "laravel",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/tormjens/eventy/issues",
-                "source": "https://github.com/tormjens/eventy/tree/0.9.4"
-            },
-            "time": "2024-04-01T17:09:07+00:00"
-        },
-        {
             "name": "vlucas/phpdotenv",
             "version": "v5.6.2",
             "source": {
@@ -7520,64 +7327,6 @@
                 }
             ],
             "time": "2024-11-21T01:49:47+00:00"
-        },
-        {
-            "name": "webmozart/assert",
-            "version": "1.12.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/webmozarts/assert.git",
-                "reference": "541057574806f942c94662b817a50f63f7345360"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/541057574806f942c94662b817a50f63f7345360",
-                "reference": "541057574806f942c94662b817a50f63f7345360",
-                "shasum": ""
-            },
-            "require": {
-                "ext-ctype": "*",
-                "ext-date": "*",
-                "ext-filter": "*",
-                "php": "^7.2 || ^8.0"
-            },
-            "suggest": {
-                "ext-intl": "",
-                "ext-simplexml": "",
-                "ext-spl": ""
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.10-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Webmozart\\Assert\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@gmail.com"
-                }
-            ],
-            "description": "Assertions to validate method input/output with nice error messages.",
-            "keywords": [
-                "assert",
-                "check",
-                "validate"
-            ],
-            "support": {
-                "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/1.12.0"
-            },
-            "time": "2025-10-20T12:43:39+00:00"
         }
     ],
     "packages-dev": [
@@ -11673,6 +11422,64 @@
                 }
             ],
             "time": "2024-03-03T12:36:25+00:00"
+        },
+        {
+            "name": "webmozart/assert",
+            "version": "1.12.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozarts/assert.git",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9be6926d8b485f55b9229203f962b51ed377ba68",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-date": "*",
+                "ext-filter": "*",
+                "php": "^7.2 || ^8.0"
+            },
+            "suggest": {
+                "ext-intl": "",
+                "ext-simplexml": "",
+                "ext-spl": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.10-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webmozart\\Assert\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                }
+            ],
+            "description": "Assertions to validate method input/output with nice error messages.",
+            "keywords": [
+                "assert",
+                "check",
+                "validate"
+            ],
+            "support": {
+                "issues": "https://github.com/webmozarts/assert/issues",
+                "source": "https://github.com/webmozarts/assert/tree/1.12.1"
+            },
+            "time": "2025-10-29T15:56:20+00:00"
         }
     ],
     "aliases": [],

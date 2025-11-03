@@ -71,11 +71,5 @@
     "test:feature": "vendor/bin/pest tests/Feature",
     "phpcs": "vendor/bin/phpcs",
     "phpcs:fix": "vendor/bin/phpcbf"
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../livewire-ui-components"
-    }
-  ]
+  }
 }
