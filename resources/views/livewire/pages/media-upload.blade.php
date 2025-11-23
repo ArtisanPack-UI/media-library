@@ -200,8 +200,6 @@
 					wire:model="folderId"
 					:label="__('Folder')"
 					:options="$this->folders"
-					option-value="key"
-					option-label="label"
 				/>
 
 				<x-artisanpack-input
