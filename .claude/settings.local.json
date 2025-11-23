@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:developer.wordpress.org)"
+      "WebFetch(domain:developer.wordpress.org)",
+      "Bash(mkdir:*)",
+      "Bash(composer require:*)",
+      "Bash(composer show:*)",
+      "Bash(composer update:*)"
     ],
     "deny": [],
     "ask": []
