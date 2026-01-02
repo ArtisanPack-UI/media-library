@@ -19,6 +19,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.0] - 2026-01-02
+
+### Added
+
+- Comprehensive Livewire component test suite with 150+ test cases covering all 8 components:
+  - MediaUpload tests for file upload, validation, and progress tracking
+  - MediaModal tests for selection modes, filtering, and context handling
+  - MediaLibrary tests for filtering, sorting, and bulk operations
+  - FolderManager tests for folder CRUD and hierarchy management
+  - TagManager tests for tag CRUD operations
+  - MediaEdit tests for metadata editing and tag syncing
+  - MediaGrid tests for display modes and selection handling
+  - MediaItem tests for individual media actions
+- API endpoint tests for folder move and tag attach/detach operations
+- Full test coverage for circular reference prevention in folder moves
+
+### Changed
+
+- Promoted from beta to stable release
+- All core features now have comprehensive test coverage
+
+### Fixed
+
+- Improved test isolation with proper Storage and Gate mocking
+
 ## [1.0.0-beta2] - 2025-11-23
 
 ### Added

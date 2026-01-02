@@ -4,6 +4,8 @@ namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 /**
@@ -12,19 +14,16 @@ use Livewire\Component;
  * Displays media items in a grid or list layout.
  *
  * @since   1.0.0
- *
- * @package ArtisanPackUI\MediaLibrary\Livewire\Components
  */
 class MediaGrid extends Component
 {
     /**
-     * Media items to display.
+     * Media items to display (stored as Collection for serialization).
      *
      * @since 1.0.0
-     *
-     * @var LengthAwarePaginator
      */
-    public $media;
+    #[Locked]
+    public Collection $mediaItems;
 
     /**
      * View mode (grid or list).
@@ -54,17 +53,18 @@ class MediaGrid extends Component
      *
      * @since 1.0.0
      *
-     * @param LengthAwarePaginator $media          The media items to display.
-     * @param string               $viewMode       The view mode (grid or list).
-     * @param bool                 $bulkSelectMode Whether bulk select mode is active.
-     * @param array<int>           $selectedMedia  Selected media IDs.
+     * @param  LengthAwarePaginator|Collection  $media  The media items to display.
+     * @param  string  $viewMode  The view mode (grid or list).
+     * @param  bool  $bulkSelectMode  Whether bulk select mode is active.
+     * @param  array<int>  $selectedMedia  Selected media IDs.
      */
-    public function mount( $media, string $viewMode = 'grid', bool $bulkSelectMode = false, array $selectedMedia = [] ): void
+    public function mount($media, string $viewMode = 'grid', bool $bulkSelectMode = false, array $selectedMedia = []): void
     {
-        $this->media          = $media;
-        $this->viewMode       = $viewMode;
+        // Convert paginator to collection for storage, preserving items
+        $this->mediaItems = $media instanceof LengthAwarePaginator ? collect($media->items()) : collect($media);
+        $this->viewMode = $viewMode;
         $this->bulkSelectMode = $bulkSelectMode;
-        $this->selectedMedia  = $selectedMedia;
+        $this->selectedMedia = $selectedMedia;
     }
 
     /**
@@ -72,18 +72,18 @@ class MediaGrid extends Component
      *
      * @since 1.0.0
      *
-     * @param int $mediaId The media ID to toggle.
+     * @param  int  $mediaId  The media ID to toggle.
      */
-    public function toggleSelection( int $mediaId ): void
+    public function toggleSelection(int $mediaId): void
     {
-        if ( in_array( $mediaId, $this->selectedMedia, true ) ) {
-            $this->selectedMedia = array_values( array_diff( $this->selectedMedia, [ $mediaId ] ) );
+        if (in_array($mediaId, $this->selectedMedia, true)) {
+            $this->selectedMedia = array_values(array_diff($this->selectedMedia, [$mediaId]));
         } else {
             $this->selectedMedia[] = $mediaId;
         }
 
         // Dispatch event to parent component
-        $this->dispatch( 'selection-changed', selectedMedia: $this->selectedMedia );
+        $this->dispatch('selection-changed', selectedMedia: $this->selectedMedia);
     }
 
     /**
@@ -95,6 +95,8 @@ class MediaGrid extends Component
      */
     public function render(): View
     {
-        return view( 'media::livewire.components.media-grid' );
+        return view('media::livewire.components.media-grid', [
+            'media' => $this->mediaItems,
+        ]);
     }
 }
