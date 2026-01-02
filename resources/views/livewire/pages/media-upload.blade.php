@@ -199,7 +199,7 @@
 				<x-artisanpack-select
 					wire:model="folderId"
 					:label="__('Folder')"
-					:options="$folderOptions"
+					:options="$this->folderOptions"
 					option-value="key"
 					option-label="label"
 				/>
