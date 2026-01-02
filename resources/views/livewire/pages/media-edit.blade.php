@@ -69,8 +69,9 @@
 					@if($media->uploadedBy)
 						<div class="flex justify-between">
 							<span class="text-zinc-600 dark:text-zinc-400">{{ __('Uploaded By:') }}</span>
-							<span
-								class="font-medium text-zinc-900 dark:text-white">{{ $media->uploadedBy->name() }}</span>
+							<span class="font-medium text-zinc-900 dark:text-white">
+								{{ method_exists($media->uploadedBy, 'name') ? $media->uploadedBy->name() : $media->uploadedBy->name }}
+							</span>
 						</div>
 					@endif
 				</div>
