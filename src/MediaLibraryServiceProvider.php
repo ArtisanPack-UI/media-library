@@ -8,6 +8,7 @@ use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaItem;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaModal;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaPicker;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaStatistics;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\TagManager;
@@ -19,6 +20,8 @@ use ArtisanPackUI\MediaLibrary\Services\MediaProcessingService;
 use ArtisanPackUI\MediaLibrary\Services\MediaStorageService;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
 use ArtisanPackUI\MediaLibrary\Services\VideoProcessingService;
+use ArtisanPackUI\MediaLibrary\View\Components\MediaPickerButton;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -77,6 +80,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->registerPolicies();
         $this->registerRoutes();
         $this->registerLivewireComponents();
+        $this->registerBladeComponents();
     }
 
     /**
@@ -172,8 +176,19 @@ class MediaLibraryServiceProvider extends ServiceProvider
         Livewire::component('media::media-grid', MediaGrid::class);
         Livewire::component('media::media-item', MediaItem::class);
         Livewire::component('media::media-modal', MediaModal::class);
+        Livewire::component('media::media-picker', MediaPicker::class);
         Livewire::component('media::folder-manager', FolderManager::class);
         Livewire::component('media::tag-manager', TagManager::class);
         Livewire::component('media::media-statistics', MediaStatistics::class);
+    }
+
+    /**
+     * Register Blade components.
+     *
+     * @since 1.1.0
+     */
+    protected function registerBladeComponents(): void
+    {
+        Blade::component('media-picker-button', MediaPickerButton::class);
     }
 }
