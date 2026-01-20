@@ -42,6 +42,36 @@
 				@endif
 			</x-artisanpack-button>
 
+			{{-- Export Dropdown --}}
+			<x-artisanpack-dropdown>
+				<x-slot:trigger>
+					<x-artisanpack-button variant="outline" size="sm">
+						<x-artisanpack-icon name="fas.download" class="mr-2"/>
+						{{ __('Export') }}
+						<x-artisanpack-icon name="fas.chevron-down" class="ml-2"/>
+					</x-artisanpack-button>
+				</x-slot:trigger>
+
+				<x-artisanpack-menu-item wire:click="exportTableToCsv">
+					<x-artisanpack-icon name="fas.file-csv" class="mr-2"/>
+					{{ __('Export to CSV') }}
+				</x-artisanpack-menu-item>
+
+				@if($this->canExportXlsx())
+					<x-artisanpack-menu-item wire:click="exportTableToXlsx">
+						<x-artisanpack-icon name="fas.file-excel" class="mr-2"/>
+						{{ __('Export to XLSX') }}
+					</x-artisanpack-menu-item>
+				@endif
+
+				@if(\ArtisanPack\LivewireUiComponents\Support\TableExporter::supportsPdf())
+					<x-artisanpack-menu-item wire:click="handleTableExport('pdf')">
+						<x-artisanpack-icon name="fas.file-pdf" class="mr-2"/>
+						{{ __('Export to PDF') }}
+					</x-artisanpack-menu-item>
+				@endif
+			</x-artisanpack-dropdown>
+
 			<x-artisanpack-button
 				@click="$dispatch('open-folder-manager')"
 				type="button"
