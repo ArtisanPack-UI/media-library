@@ -42,7 +42,7 @@
 
 					{{-- Hover Actions --}}
 					<div
-						class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-8 flex gap-2 justify-center opacity-0 hover:opacity-100 transition-opacity group-hover:opacity-100">
+						class="absolute bottom-0 left-0 right-0 glass-frosted bg-zinc-900/60 dark:bg-zinc-950/70 backdrop-blur-md backdrop-saturate-150 border-t border-white/10 p-4 flex gap-2 justify-center opacity-0 hover:opacity-100 transition-opacity group-hover:opacity-100">
 						<x-artisanpack-button
 							wire:click.stop="copyUrl"
 							:title="__('Copy URL')"

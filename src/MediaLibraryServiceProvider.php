@@ -8,6 +8,7 @@ use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaItem;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaModal;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaStatistics;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\TagManager;
 use ArtisanPackUI\MediaLibrary\Managers\MediaManager;
@@ -32,8 +33,6 @@ use Livewire\Livewire;
  * package conventions.
  *
  * @since   1.0.0
- *
- * @package ArtisanPackUI\MediaLibrary
  */
 class MediaLibraryServiceProvider extends ServiceProvider
 {
@@ -175,5 +174,6 @@ class MediaLibraryServiceProvider extends ServiceProvider
         Livewire::component('media::media-modal', MediaModal::class);
         Livewire::component('media::folder-manager', FolderManager::class);
         Livewire::component('media::tag-manager', TagManager::class);
+        Livewire::component('media::media-statistics', MediaStatistics::class);
     }
 }

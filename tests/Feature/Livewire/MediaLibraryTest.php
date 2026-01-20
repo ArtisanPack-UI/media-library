@@ -534,4 +534,138 @@ class MediaLibraryTest extends TestCase
         expect($component->get('sortOrderOptions'))->toBeArray();
         expect(count($component->get('sortOrderOptions')))->toBe(2);
     }
+
+    /**
+     * Test getTableExportData returns correct structure.
+     *
+     * @since 1.1.0
+     */
+    public function test_get_table_export_data_returns_correct_structure(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class);
+
+        $exportData = $component->instance()->getTableExportData();
+
+        expect($exportData)->toBeArray();
+        expect($exportData)->toHaveKeys(['headers', 'rows', 'filename']);
+        expect($exportData['headers'])->toBeArray();
+        expect($exportData['rows'])->toBeArray();
+        expect(count($exportData['rows']))->toBe(3);
+        expect($exportData['filename'])->toStartWith('media-export-');
+    }
+
+    /**
+     * Test getTableExportData has correct headers.
+     *
+     * @since 1.1.0
+     */
+    public function test_get_table_export_data_has_correct_headers(): void
+    {
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class);
+
+        $exportData = $component->instance()->getTableExportData();
+
+        $headerKeys = array_column($exportData['headers'], 'key');
+        expect($headerKeys)->toContain('id');
+        expect($headerKeys)->toContain('title');
+        expect($headerKeys)->toContain('file_name');
+        expect($headerKeys)->toContain('mime_type');
+        expect($headerKeys)->toContain('file_size');
+        expect($headerKeys)->toContain('folder');
+        expect($headerKeys)->toContain('created_at');
+    }
+
+    /**
+     * Test getTableExportData respects search filter.
+     *
+     * @since 1.1.0
+     */
+    public function test_get_table_export_data_respects_search_filter(): void
+    {
+        Media::factory()->uploadedBy($this->user)->create(['title' => 'Searchable']);
+        Media::factory()->uploadedBy($this->user)->create(['title' => 'Other']);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class)
+            ->set('search', 'Searchable');
+
+        $exportData = $component->instance()->getTableExportData();
+
+        expect(count($exportData['rows']))->toBe(1);
+        expect($exportData['rows'][0]['title'])->toBe('Searchable');
+    }
+
+    /**
+     * Test getTableExportData respects folder filter.
+     *
+     * @since 1.1.0
+     */
+    public function test_get_table_export_data_respects_folder_filter(): void
+    {
+        $folder = MediaFolder::factory()->createdBy($this->user)->create();
+
+        Media::factory()->uploadedBy($this->user)->inFolder($folder)->count(2)->create();
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class)
+            ->set('folderId', $folder->id);
+
+        $exportData = $component->instance()->getTableExportData();
+
+        expect(count($exportData['rows']))->toBe(2);
+    }
+
+    /**
+     * Test getTableExportData respects type filter.
+     *
+     * @since 1.1.0
+     */
+    public function test_get_table_export_data_respects_type_filter(): void
+    {
+        Media::factory()->uploadedBy($this->user)->image()->count(2)->create();
+        Media::factory()->uploadedBy($this->user)->video()->count(3)->create();
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class)
+            ->set('type', 'image');
+
+        $exportData = $component->instance()->getTableExportData();
+
+        expect(count($exportData['rows']))->toBe(2);
+    }
+
+    /**
+     * Test export to CSV returns response.
+     *
+     * @since 1.1.0
+     */
+    public function test_export_to_csv_returns_response(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(2)->create();
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class);
+
+        $response = $component->instance()->exportTableToCsv();
+
+        expect($response)->not()->toBeNull();
+    }
+
+    /**
+     * Test can export xlsx returns correct value.
+     *
+     * @since 1.1.0
+     */
+    public function test_can_export_xlsx_returns_boolean(): void
+    {
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaLibrary::class);
+
+        expect($component->instance()->canExportXlsx())->toBeBool();
+    }
 }
