@@ -10,6 +10,7 @@
  * @package ArtisanPackUI\MediaLibrary
  */
 
+use ArtisanPackUI\MediaLibrary\Helpers\LivewireHelper;
 use ArtisanPackUI\MediaLibrary\Managers\MediaManager;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
@@ -107,5 +108,61 @@ if ( ! function_exists( 'apDeleteMedia' ) ) {
         $media->deleteFiles();
 
         return $media->delete();
+    }
+}
+
+if ( ! function_exists( 'apLivewireVersion' ) ) {
+    /**
+     * Get the installed Livewire version string.
+     *
+     * @since 1.1.0
+     *
+     * @return string The Livewire version string.
+     */
+    function apLivewireVersion(): string
+    {
+        return LivewireHelper::version();
+    }
+}
+
+if ( ! function_exists( 'apIsLivewire4' ) ) {
+    /**
+     * Check if Livewire 4.x is installed.
+     *
+     * @since 1.1.0
+     *
+     * @return bool True if Livewire 4.x or higher is installed.
+     */
+    function apIsLivewire4(): bool
+    {
+        return LivewireHelper::isLivewire4();
+    }
+}
+
+if ( ! function_exists( 'apIsLivewire3' ) ) {
+    /**
+     * Check if Livewire 3.x is installed.
+     *
+     * @since 1.1.0
+     *
+     * @return bool True if Livewire 3.x is installed.
+     */
+    function apIsLivewire3(): bool
+    {
+        return LivewireHelper::isLivewire3();
+    }
+}
+
+if ( ! function_exists( 'apSupportsLivewireStreaming' ) ) {
+    /**
+     * Check if the installed Livewire version supports streaming.
+     *
+     * @since 1.1.0
+     *
+     * @return bool True if streaming is supported (Livewire 4.x+).
+     */
+    function apSupportsLivewireStreaming(): bool
+    {
+        return LivewireHelper::supportsStreaming();
     }
 }
