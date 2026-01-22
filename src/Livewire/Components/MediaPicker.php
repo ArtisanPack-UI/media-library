@@ -94,6 +94,13 @@ class MediaPicker extends Component
     public string $context = '';
 
     /**
+     * Currently focused media index for keyboard navigation.
+     *
+     * @since 1.1.0
+     */
+    public int $focusedIndex = -1;
+
+    /**
      * Mount the component.
      *
      * @since 1.1.0
@@ -329,6 +336,7 @@ class MediaPicker extends Component
         $this->isOpen = false;
         $this->selectedMedia = [];
         $this->loadedCount = $this->loadCount;
+        $this->focusedIndex = -1;
         $this->resetFilters();
         $this->dispatch('media-picker-closed', context: $this->context);
     }
@@ -423,6 +431,153 @@ class MediaPicker extends Component
         // Refresh the media list
         unset($this->media);
         unset($this->totalCount);
+    }
+
+    /**
+     * Handle keyboard navigation - move focus to next item.
+     *
+     * @since 1.1.0
+     */
+    public function focusNext(): void
+    {
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $this->focusedIndex = ($this->focusedIndex + 1) % $mediaCount;
+    }
+
+    /**
+     * Handle keyboard navigation - move focus to previous item.
+     *
+     * @since 1.1.0
+     */
+    public function focusPrevious(): void
+    {
+        if ($this->focusedIndex < 0) {
+            return;
+        }
+
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $this->focusedIndex = $this->focusedIndex <= 0
+            ? $mediaCount - 1
+            : $this->focusedIndex - 1;
+    }
+
+    /**
+     * Handle keyboard navigation - move focus down one row.
+     *
+     * @since 1.1.0
+     *
+     * @param  int  $columnsPerRow  Number of columns in the grid.
+     */
+    public function focusDown(int $columnsPerRow = 5): void
+    {
+        if ($this->focusedIndex < 0) {
+            return;
+        }
+
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $newIndex = $this->focusedIndex + $columnsPerRow;
+
+        $this->focusedIndex = $newIndex < $mediaCount
+            ? $newIndex
+            : $this->focusedIndex;
+    }
+
+    /**
+     * Handle keyboard navigation - move focus up one row.
+     *
+     * @since 1.1.0
+     *
+     * @param  int  $columnsPerRow  Number of columns in the grid.
+     */
+    public function focusUp(int $columnsPerRow = 5): void
+    {
+        if ($this->focusedIndex < 0) {
+            return;
+        }
+
+        $newIndex = $this->focusedIndex - $columnsPerRow;
+
+        $this->focusedIndex = $newIndex >= 0
+            ? $newIndex
+            : $this->focusedIndex;
+    }
+
+    /**
+     * Handle keyboard navigation - move focus to first item.
+     *
+     * @since 1.1.0
+     */
+    public function focusFirst(): void
+    {
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $this->focusedIndex = 0;
+    }
+
+    /**
+     * Handle keyboard navigation - move focus to last item.
+     *
+     * @since 1.1.0
+     */
+    public function focusLast(): void
+    {
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $this->focusedIndex = $mediaCount - 1;
+    }
+
+    /**
+     * Select the currently focused media item.
+     *
+     * @since 1.1.0
+     */
+    public function selectFocused(): void
+    {
+        if ($this->focusedIndex < 0) {
+            return;
+        }
+
+        $mediaItems = $this->media;
+
+        if ($this->focusedIndex >= $mediaItems->count()) {
+            return;
+        }
+
+        $mediaItem = $mediaItems->values()[$this->focusedIndex];
+        $this->toggleSelect($mediaItem->id);
+    }
+
+    /**
+     * Reset focus index.
+     *
+     * @since 1.1.0
+     */
+    public function resetFocus(): void
+    {
+        $this->focusedIndex = -1;
     }
 
     /**

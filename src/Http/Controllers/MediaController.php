@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Media Controller
@@ -210,5 +212,24 @@ class MediaController extends Controller
         $media->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Download the specified media item.
+     *
+     * Files are publicly accessible in storage, so no auth is required.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id The media ID.
+     * @return StreamedResponse The file download response.
+     */
+    public function download( int $id ): StreamedResponse
+    {
+        $media = Media::findOrFail( $id );
+
+        $disk = $media->disk ?? config( 'artisanpack.media.disk', 'public' );
+
+        return Storage::disk( $disk )->download( $media->file_path, $media->file_name );
     }
 }

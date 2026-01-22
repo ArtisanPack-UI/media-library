@@ -102,6 +102,9 @@ class MediaItem extends Component
     /**
      * Download the media file.
      *
+     * Dispatches a download-file event with the media URL and filename
+     * for the frontend to handle the download.
+     *
      * @since 1.0.0
      */
     public function download(): void

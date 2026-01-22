@@ -2,6 +2,35 @@
 	x-data="{
 		isDragging: false,
 		focusedIndex: @entangle('focusedIndex'),
+		previouslyFocused: null,
+
+		init() {
+			// Watch for modal open/close to manage focus
+			this.$watch('$wire.isOpen', (isOpen) => {
+				if (isOpen) {
+					// Store the previously focused element
+					this.previouslyFocused = document.activeElement;
+
+					// Focus first focusable element after modal opens
+					this.$nextTick(() => {
+						const firstFocusable = this.$root.querySelector(
+							'button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])'
+						);
+						if (firstFocusable) {
+							firstFocusable.focus();
+						}
+					});
+				} else {
+					// Restore focus to previously focused element
+					if (this.previouslyFocused && typeof this.previouslyFocused.focus === 'function') {
+						this.$nextTick(() => {
+							this.previouslyFocused.focus();
+							this.previouslyFocused = null;
+						});
+					}
+				}
+			});
+		},
 
 		handleKeydown(event) {
 			if (!$wire.isOpen) return;
@@ -33,6 +62,22 @@
 				if (this.focusedIndex >= 0) {
 					$wire.selectFocused();
 				}
+				return;
+			}
+
+			// Home to go to first item
+			if (event.key === 'Home' && !event.target.matches('input, textarea, select')) {
+				event.preventDefault();
+				$wire.focusFirst();
+				this.scrollToFocused();
+				return;
+			}
+
+			// End to go to last item
+			if (event.key === 'End' && !event.target.matches('input, textarea, select')) {
+				event.preventDefault();
+				$wire.focusLast();
+				this.scrollToFocused();
 				return;
 			}
 
@@ -79,9 +124,10 @@
 
 		scrollToFocused() {
 			this.$nextTick(() => {
-				const focused = this.$root.querySelector('[data-focused=\"true\"]');
+				const focused = this.$root.querySelector(`[data-focused='true']`);
 				if (focused) {
 					focused.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					focused.focus();
 				}
 			});
 		},
@@ -302,16 +348,20 @@
 					@if (!$inlineMode)
 						<div class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
 							<x-artisanpack-icon name="fas.keyboard" class="w-3 h-3 inline-block mr-1"/>
-							{{ __('Use arrow keys to navigate, Space/Enter to select') }}
+							{{ __('Use arrow keys to navigate, Space/Enter to select, Home/End for first/last') }}
 						</div>
 					@endif
 
 					{{-- Media Grid --}}
-					<div @class([
-						'grid gap-4 mb-5',
-						'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' => !$inlineMode,
-						'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-3' => $inlineMode,
-					])>
+					<div
+						@class([
+							'grid gap-4 mb-5',
+							'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' => !$inlineMode,
+							'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-3' => $inlineMode,
+						])
+						role="grid"
+						aria-label="{{ __('Media items') }}"
+					>
 						@forelse ($this->media as $index => $mediaItem)
 							@php
 								$isFocused = $focusedIndex === $index;
@@ -320,20 +370,19 @@
 							<div
 								wire:key="modal-media-{{ $mediaItem->id }}"
 								wire:click="toggleSelect({{ $mediaItem->id }})"
-								tabindex="0"
-								role="button"
-								aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
+								tabindex="{{ $isFocused || ($focusedIndex === -1 && $loop->first) ? '0' : '-1' }}"
+								role="gridcell"
+								aria-selected="{{ $isSelected ? 'true' : 'false' }}"
+								aria-label="{{ $mediaItem->title ?? $mediaItem->file_name }} - {{ $mediaItem->humanFileSize() }}{{ $isSelected ? ' - ' . __('Selected') : '' }}"
 								data-index="{{ $index }}"
 								data-focused="{{ $isFocused ? 'true' : 'false' }}"
 								@class([
-									'relative cursor-pointer rounded-lg overflow-hidden transition-all',
+									'relative cursor-pointer rounded-lg overflow-hidden transition-all focus:outline-none',
 									'border-2 hover:shadow-md',
 									'border-primary bg-primary/10' => $isSelected,
-									'ring-2 ring-offset-2 ring-primary' => $isFocused && !$isSelected,
+									'ring-2 ring-offset-2 ring-primary dark:ring-offset-zinc-800' => $isFocused && !$isSelected,
 									'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-500' => !$isSelected && !$isFocused,
 								])
-								@keydown.enter="$wire.toggleSelect({{ $mediaItem->id }})"
-								@keydown.space.prevent="$wire.toggleSelect({{ $mediaItem->id }})"
 								@focus="$wire.set('focusedIndex', {{ $index }})"
 							>
 								{{-- Selection Indicator --}}

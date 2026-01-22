@@ -1,18 +1,34 @@
 <div class="media-upload-container space-y-6 mx-auto">
-	{{-- Header --}}
-	<div class="flex items-center justify-between">
-		<x-artisanpack-heading level="1">{{ __('Upload Media') }}</x-artisanpack-heading>
-		<x-artisanpack-button :href="route('admin.media')" variant="outline" size="sm">
-			<x-artisanpack-icon name="fas.arrow-left" class="mr-2"/>
-			{{ __('Back to Library') }}
-		</x-artisanpack-button>
+	{{-- Screen Reader Upload Progress Announcements --}}
+	<div
+		aria-live="polite"
+		aria-atomic="true"
+		class="sr-only"
+		role="status"
+	>
+		@if($isUploading)
+			{{ __('Uploading :current of :total files. :progress percent complete.', ['current' => $uploadedCount, 'total' => $totalFiles, 'progress' => $uploadProgress]) }}
+		@endif
 	</div>
+
+	{{-- Header (only shown in standalone mode, not when embedded in modal) --}}
+	@if(!isset($embedded) || !$embedded)
+		<div class="flex items-center justify-between">
+			<x-artisanpack-heading level="1">{{ __('Upload Media') }}</x-artisanpack-heading>
+			@if(Route::has('admin.media'))
+				<x-artisanpack-button :href="route('admin.media')" variant="outline" size="sm">
+					<x-artisanpack-icon name="fas.arrow-left" class="mr-2"/>
+					{{ __('Back to Library') }}
+				</x-artisanpack-button>
+			@endif
+		</div>
+	@endif
 
 	{{-- Upload Form --}}
 	<x-artisanpack-card>
 		{{-- Drag and Drop Zone --}}
 		<div
-			class="border-2 border-dashed rounded-lg p-12 text-center transition-all"
+			class="border-2 border-dashed rounded-lg p-12 text-center transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
 			:class="{
 				'border-primary bg-primary/5': isDragging,
 				'border-success bg-success/5': {{ $this->totalFilesCount > 0 ? 'true' : 'false' }},
@@ -23,6 +39,13 @@
 				dragCounter: 0,
 				openFilePicker() {
 					this.$refs.fileInput.click();
+				},
+				handleKeydown(e) {
+					// Handle Enter or Space to open file picker
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						this.openFilePicker();
+					}
 				},
 				handleDragEnter(e) {
 					e.preventDefault();
@@ -63,6 +86,10 @@
 					);
 				}
 			}"
+			tabindex="0"
+			role="button"
+			aria-label="{{ __('Drop files here or press Enter to browse') }}"
+			x-on:keydown="handleKeydown($event)"
 			x-on:dragenter="handleDragEnter($event)"
 			x-on:dragover.prevent
 			x-on:dragleave="handleDragLeave($event)"
@@ -141,9 +168,10 @@
 								wire:click="removeFile({{ $index }})"
 								variant="error"
 								size="sm"
-								:title="__('Remove')"
+								aria-label="{{ __('Remove :filename', ['filename' => $fileName]) }}"
 							>
-								<x-artisanpack-icon name="fas.times"/>
+								<x-artisanpack-icon name="fas.times" aria-hidden="true"/>
+								<span class="sr-only">{{ __('Remove') }}</span>
 							</x-artisanpack-button>
 						</div>
 					@endforeach
@@ -178,12 +206,13 @@
 							</div>
 
 							<x-artisanpack-button
-								wire:click="removeFile({{ $index }})"
+								wire:click="removeDroppedFile({{ $index }})"
 								variant="error"
 								size="sm"
-								:title="__('Remove')"
+								aria-label="{{ __('Remove :filename', ['filename' => $fileName]) }}"
 							>
-								<x-artisanpack-icon name="fas.times"/>
+								<x-artisanpack-icon name="fas.times" aria-hidden="true"/>
+								<span class="sr-only">{{ __('Remove') }}</span>
 							</x-artisanpack-button>
 						</div>
 					@endforeach
@@ -332,7 +361,7 @@
 					}
 				}"
 				@if($this->isStreamingEnabled())
-					x-init="initProgressObserver(); $cleanup(() => destroyProgressObserver())"
+					x-init="initProgressObserver(); typeof $cleanup === 'function' && $cleanup(() => destroyProgressObserver())"
 				@else
 					x-init="updateFromServer()"
 					x-effect="updateFromServer()"
@@ -473,7 +502,7 @@
 						}
 					}
 				}"
-				x-init="initErrorObserver(); $cleanup(() => destroyErrorObserver())"
+				x-init="initErrorObserver(); typeof $cleanup === 'function' && $cleanup(() => destroyErrorObserver())"
 			>
 				{{-- Hidden stream target --}}
 				<div wire:stream="upload-errors" x-ref="errorStream" class="hidden"></div>
@@ -525,9 +554,11 @@
 							<p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $media->humanFileSize() }}</p>
 						</div>
 
-						<x-artisanpack-button :href="route('admin.media.edit', $media->id)" variant="outline" size="sm">
-							{{ __('Edit') }}
-						</x-artisanpack-button>
+						@if(Route::has('admin.media.edit'))
+							<x-artisanpack-button :href="route('admin.media.edit', $media->id)" variant="outline" size="sm">
+								{{ __('Edit') }}
+							</x-artisanpack-button>
+						@endif
 					</div>
 				@endforeach
 			</div>
@@ -536,9 +567,9 @@
 
 	{{-- Upload Errors --}}
 	@if(count($uploadErrors) > 0)
-		<x-artisanpack-alert variant="error">
+		<x-artisanpack-alert variant="error" role="alert">
 			<x-artisanpack-heading level="3" class="mb-2">{{ __('Upload Errors') }}</x-artisanpack-heading>
-			<ul class="list-disc list-inside space-y-1">
+			<ul class="list-disc list-inside space-y-1" aria-label="{{ __('List of upload errors') }}">
 				@foreach($uploadErrors as $error)
 					<li>{{ $error }}</li>
 				@endforeach

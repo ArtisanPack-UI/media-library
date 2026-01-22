@@ -153,6 +153,14 @@ class MediaLibraryServiceProvider extends ServiceProvider
         Route::middleware('api')
             ->prefix('api')
             ->group(__DIR__.'/routes/api.php');
+
+        // Register web route for media downloads (no auth required since files are public)
+        Route::middleware(['web'])
+            ->get('media/{id}/download', [
+                \ArtisanPackUI\MediaLibrary\Http\Controllers\MediaController::class,
+                'download',
+            ])
+            ->name('media.download');
     }
 
     /**

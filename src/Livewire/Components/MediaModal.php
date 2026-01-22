@@ -458,13 +458,16 @@ class MediaModal extends Component
         // Get the actual media objects
         $media = Media::whereIn('id', $this->selectedMedia)->get();
 
+        // Store count before close() clears the selection
+        $selectedCount = count($this->selectedMedia);
+
         // Emit event with selected media and context
         $this->dispatch('media-selected', media: $media->toArray(), context: $this->context);
 
         // Close the modal
         $this->close();
 
-        $this->success(__(':count media item(s) selected', ['count' => count($this->selectedMedia)]));
+        $this->success(__(':count media item(s) selected', ['count' => $selectedCount]));
     }
 
     /**
@@ -609,6 +612,38 @@ class MediaModal extends Component
     }
 
     /**
+     * Handle keyboard navigation - move focus to first item.
+     *
+     * @since 1.1.0
+     */
+    public function focusFirst(): void
+    {
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $this->focusedIndex = 0;
+    }
+
+    /**
+     * Handle keyboard navigation - move focus to last item.
+     *
+     * @since 1.1.0
+     */
+    public function focusLast(): void
+    {
+        $mediaCount = $this->media->count();
+
+        if ($mediaCount === 0) {
+            return;
+        }
+
+        $this->focusedIndex = $mediaCount - 1;
+    }
+
+    /**
      * Select the currently focused media item.
      *
      * @since 1.1.0
@@ -667,6 +702,35 @@ class MediaModal extends Component
     public function updatedTypeFilter(): void
     {
         $this->resetPage();
+    }
+
+    /**
+     * Return data for JSON serialization.
+     *
+     * This method is called by Alpine/Livewire integration when serializing
+     * component data. Required to prevent "toJSON method not found" errors.
+     *
+     * @since 1.1.0
+     *
+     * @return array<string, mixed>
+     */
+    public function toJSON(): array
+    {
+        return [
+            'isOpen' => $this->isOpen,
+            'multiSelect' => $this->multiSelect,
+            'maxSelections' => $this->maxSelections,
+            'selectedMedia' => $this->selectedMedia,
+            'activeTab' => $this->activeTab,
+            'search' => $this->search,
+            'folderId' => $this->folderId,
+            'typeFilter' => $this->typeFilter,
+            'context' => $this->context,
+            'inlineMode' => $this->inlineMode,
+            'quickUploadSelect' => $this->quickUploadSelect,
+            'focusedIndex' => $this->focusedIndex,
+            'lastUploadedMediaId' => $this->lastUploadedMediaId,
+        ];
     }
 
     /**

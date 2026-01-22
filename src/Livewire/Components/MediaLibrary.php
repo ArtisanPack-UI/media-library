@@ -109,6 +109,13 @@ class MediaLibrary extends Component
     public int $perPage = 24;
 
     /**
+     * Announcement message for screen readers.
+     *
+     * @since 1.1.0
+     */
+    public string $announcement = '';
+
+    /**
      * Available media type filter options.
      *
      * @since 1.0.0
@@ -370,6 +377,18 @@ class MediaLibrary extends Component
     }
 
     /**
+     * Announce a message for screen readers.
+     *
+     * @since 1.1.0
+     *
+     * @param  string  $message  The message to announce.
+     */
+    protected function announce(string $message): void
+    {
+        $this->announcement = $message;
+    }
+
+    /**
      * Toggle view mode between grid and list.
      *
      * @since 1.0.0
@@ -378,6 +397,7 @@ class MediaLibrary extends Component
     {
         $this->viewMode = $this->viewMode === 'grid' ? 'list' : 'grid';
         session(['media.viewMode' => $this->viewMode]);
+        $this->announce($this->viewMode === 'grid' ? __('Switched to grid view') : __('Switched to list view'));
     }
 
     /**
@@ -391,6 +411,7 @@ class MediaLibrary extends Component
         if (! $this->bulkSelectMode) {
             $this->selectedMedia = [];
         }
+        $this->announce($this->bulkSelectMode ? __('Bulk selection mode enabled') : __('Bulk selection mode disabled'));
     }
 
     /**
@@ -401,6 +422,7 @@ class MediaLibrary extends Component
     public function selectAll(): void
     {
         $this->selectedMedia = $this->media->pluck('id')->toArray();
+        $this->announce(__(':count items selected', ['count' => count($this->selectedMedia)]));
     }
 
     /**
@@ -411,6 +433,7 @@ class MediaLibrary extends Component
     public function deselectAll(): void
     {
         $this->selectedMedia = [];
+        $this->announce(__('All items deselected'));
     }
 
     /**
@@ -503,6 +526,7 @@ class MediaLibrary extends Component
         } else {
             $this->selectedMedia = array_values(array_diff($this->selectedMedia, [$mediaId]));
         }
+        $this->announce(__(':count items selected', ['count' => count($this->selectedMedia)]));
     }
 
     /**

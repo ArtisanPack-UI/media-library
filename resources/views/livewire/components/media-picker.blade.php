@@ -1,10 +1,101 @@
 <div
 	x-data="{
+		focusedIndex: @entangle('focusedIndex'),
+
 		handleKeydown(event) {
-			if (event.key === 'Escape' && $wire.isOpen) {
+			if (!$wire.isOpen) return;
+
+			// Escape to close
+			if (event.key === 'Escape') {
 				event.preventDefault();
 				$wire.close();
+				return;
 			}
+
+			// Only handle navigation keys when focused on the grid area
+			const gridArea = this.$root.querySelector('[role=grid]');
+			if (!gridArea || !gridArea.contains(event.target)) {
+				// Allow navigation if target is a gridcell
+				if (!event.target.closest('[role=gridcell]')) return;
+			}
+
+			// Enter to toggle selection on focused item
+			if (event.key === 'Enter' && !event.target.matches('input, textarea, select')) {
+				event.preventDefault();
+				if (this.focusedIndex >= 0) {
+					$wire.selectFocused();
+				}
+				return;
+			}
+
+			// Space to toggle selection on focused item
+			if (event.key === ' ' && !event.target.matches('input, textarea, select')) {
+				event.preventDefault();
+				if (this.focusedIndex >= 0) {
+					$wire.selectFocused();
+				}
+				return;
+			}
+
+			// Home to go to first item
+			if (event.key === 'Home') {
+				event.preventDefault();
+				$wire.focusFirst();
+				this.scrollToFocused();
+				return;
+			}
+
+			// End to go to last item
+			if (event.key === 'End') {
+				event.preventDefault();
+				$wire.focusLast();
+				this.scrollToFocused();
+				return;
+			}
+
+			// Arrow key navigation
+			const columnsPerRow = this.getColumnsPerRow();
+
+			switch (event.key) {
+				case 'ArrowRight':
+					event.preventDefault();
+					$wire.focusNext();
+					this.scrollToFocused();
+					break;
+				case 'ArrowLeft':
+					event.preventDefault();
+					$wire.focusPrevious();
+					this.scrollToFocused();
+					break;
+				case 'ArrowDown':
+					event.preventDefault();
+					$wire.focusDown(columnsPerRow);
+					this.scrollToFocused();
+					break;
+				case 'ArrowUp':
+					event.preventDefault();
+					$wire.focusUp(columnsPerRow);
+					this.scrollToFocused();
+					break;
+			}
+		},
+
+		getColumnsPerRow() {
+			const width = window.innerWidth;
+			if (width >= 1024) return 5;
+			if (width >= 768) return 4;
+			if (width >= 640) return 3;
+			return 2;
+		},
+
+		scrollToFocused() {
+			this.$nextTick(() => {
+				const focused = this.$root.querySelector(`[data-focused='true']`);
+				if (focused) {
+					focused.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					focused.focus();
+				}
+			});
 		}
 	}"
 	@keydown.window="handleKeydown($event)"
@@ -108,6 +199,12 @@
 				</div>
 			@endif
 
+			{{-- Keyboard Navigation Hint --}}
+			<div class="px-4 pt-2 text-xs text-zinc-500 dark:text-zinc-400">
+				<x-artisanpack-icon name="fas.keyboard" class="w-3 h-3 inline-block mr-1"/>
+				{{ __('Use arrow keys to navigate, Space/Enter to select, Home/End for first/last') }}
+			</div>
+
 			{{-- Media Grid with Infinite Scroll --}}
 			<div
 				class="p-4 max-h-[400px] overflow-y-auto"
@@ -129,22 +226,33 @@
 				}"
 				x-init="observe()"
 			>
-				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-					@forelse ($this->media as $mediaItem)
+				<div
+					class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
+					role="grid"
+					aria-label="{{ __('Media items') }}"
+				>
+					@forelse ($this->media as $index => $mediaItem)
+						@php
+							$isFocused = $focusedIndex === $index;
+							$isSelected = in_array($mediaItem->id, $selectedMedia, true);
+						@endphp
 						<div
 							wire:key="picker-media-{{ $mediaItem->id }}"
 							wire:click="toggleSelect({{ $mediaItem->id }})"
-							tabindex="0"
-							role="button"
-							aria-pressed="{{ in_array($mediaItem->id, $selectedMedia, true) ? 'true' : 'false' }}"
+							tabindex="{{ $isFocused || ($focusedIndex === -1 && $loop->first) ? '0' : '-1' }}"
+							role="gridcell"
+							aria-selected="{{ $isSelected ? 'true' : 'false' }}"
+							aria-label="{{ $mediaItem->title ?? $mediaItem->file_name }} - {{ $mediaItem->humanFileSize() }}{{ $isSelected ? ' - ' . __('Selected') : '' }}"
+							data-index="{{ $index }}"
+							data-focused="{{ $isFocused ? 'true' : 'false' }}"
 							@class([
-								'relative cursor-pointer rounded-lg overflow-hidden transition-all',
+								'relative cursor-pointer rounded-lg overflow-hidden transition-all focus:outline-none',
 								'border-2 hover:shadow-md',
-								'border-primary bg-primary/10' => in_array($mediaItem->id, $selectedMedia, true),
-								'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-500' => !in_array($mediaItem->id, $selectedMedia, true),
+								'border-primary bg-primary/10' => $isSelected,
+								'ring-2 ring-offset-2 ring-primary dark:ring-offset-zinc-800' => $isFocused && !$isSelected,
+								'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-500' => !$isSelected && !$isFocused,
 							])
-							@keydown.enter="$wire.toggleSelect({{ $mediaItem->id }})"
-							@keydown.space.prevent="$wire.toggleSelect({{ $mediaItem->id }})"
+							@focus="$wire.set('focusedIndex', {{ $index }})"
 						>
 							{{-- Selection Indicator --}}
 							@if (in_array($mediaItem->id, $selectedMedia, true))

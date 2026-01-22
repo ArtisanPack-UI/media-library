@@ -29,6 +29,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Guest Uploads
+    |--------------------------------------------------------------------------
+    |
+    | Allow uploads by non-authenticated users (guests). When enabled,
+    | the uploaded_by field will use the guest_user_id if set, or null otherwise.
+    |
+    | WARNING: Enabling guest uploads may have security implications.
+    | Consider implementing rate limiting and file validation.
+    |
+    */
+    'allow_guest_uploads' => env('MEDIA_ALLOW_GUEST_UPLOADS', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Guest User ID
+    |--------------------------------------------------------------------------
+    |
+    | When guest uploads are enabled, this user ID will be used as the
+    | uploaded_by value. Set to null to allow null uploaded_by values.
+    | You might want to create a "System" or "Guest" user for this purpose.
+    |
+    */
+    'guest_user_id' => env('MEDIA_GUEST_USER_ID', null),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Storage Disk
     |--------------------------------------------------------------------------
     |

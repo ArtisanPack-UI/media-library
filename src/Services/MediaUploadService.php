@@ -91,7 +91,7 @@ class MediaUploadService
                                     'height'      => $metadata['height'] ?? null,
                                     'duration'    => $metadata['duration'] ?? null,
                                     'folder_id'   => $options['folder_id'] ?? null,
-                                    'uploaded_by' => $options['uploaded_by'] ?? Auth::id(),
+                                    'uploaded_by' => $this->resolveUploadedBy( $options ),
                                     'metadata'    => $metadata['additional'] ?? null,
                                 ] );
 
@@ -101,6 +101,49 @@ class MediaUploadService
         }
 
         return $media;
+    }
+
+    /**
+     * Resolve the uploaded_by user ID based on authentication and config.
+     *
+     * This method determines the appropriate user ID for the uploaded_by field:
+     * 1. If explicitly provided in options, use that value
+     * 2. If user is authenticated, use their ID
+     * 3. If guest uploads are allowed, use the configured guest_user_id (or null)
+     * 4. If guest uploads are not allowed and user is not authenticated, throw an exception
+     *
+     * @param  array<string, mixed>  $options  Upload options that may contain 'uploaded_by'.
+     *
+     * @return int|null The user ID or null for guest uploads.
+     *
+     * @throws \RuntimeException If guest uploads are not allowed and user is not authenticated.
+     *
+     * @since 1.1.0
+     */
+    protected function resolveUploadedBy( array $options ): ?int
+    {
+        // If explicitly provided, use that value
+        if ( isset( $options['uploaded_by'] ) ) {
+            return $options['uploaded_by'];
+        }
+
+        // If user is authenticated, use their ID
+        $userId = Auth::id();
+        if ( null !== $userId ) {
+            return $userId;
+        }
+
+        // User is not authenticated - check if guest uploads are allowed
+        $allowGuestUploads = config( 'artisanpack.media.allow_guest_uploads', false );
+
+        if ( ! $allowGuestUploads ) {
+            throw new \RuntimeException(
+                __( 'Authentication required. Guest uploads are not enabled. Set MEDIA_ALLOW_GUEST_UPLOADS=true in your .env file to allow guest uploads.' )
+            );
+        }
+
+        // Guest uploads are allowed - return the configured guest user ID (may be null)
+        return config( 'artisanpack.media.guest_user_id' );
     }
 
     /**

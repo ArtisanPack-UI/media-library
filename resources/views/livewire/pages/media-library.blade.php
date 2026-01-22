@@ -1,4 +1,14 @@
 <div class="media-library-container space-y-6">
+	{{-- Screen Reader Announcements --}}
+	<div
+		aria-live="polite"
+		aria-atomic="true"
+		class="sr-only"
+		role="status"
+	>
+		{{ $announcement }}
+	</div>
+
 	{{-- Header --}}
 	<div class="flex items-center justify-between">
 		<div class="flex-1">
@@ -20,12 +30,15 @@
 				type="button"
 				variant="ghost"
 				size="sm"
-				:title="__('Toggle View')"
+				aria-label="{{ $viewMode === 'grid' ? __('Switch to list view') : __('Switch to grid view') }}"
+				aria-pressed="{{ $viewMode === 'list' ? 'true' : 'false' }}"
 			>
 				@if($viewMode === 'grid')
-					<x-artisanpack-icon name="fas.list"/>
+					<x-artisanpack-icon name="fas.list" aria-hidden="true"/>
+					<span class="sr-only">{{ __('List view') }}</span>
 				@else
-					<x-artisanpack-icon name="fas.th"/>
+					<x-artisanpack-icon name="fas.th" aria-hidden="true"/>
+					<span class="sr-only">{{ __('Grid view') }}</span>
 				@endif
 			</x-artisanpack-button>
 
@@ -34,6 +47,7 @@
 				type="button"
 				variant="ghost"
 				size="sm"
+				aria-pressed="{{ $bulkSelectMode ? 'true' : 'false' }}"
 			>
 				@if($bulkSelectMode)
 					{{ __('Cancel Selection') }}
@@ -92,14 +106,16 @@
 				{{ __('Manage Tags') }}
 			</x-artisanpack-button>
 
-			<x-artisanpack-button
-				:href="route('admin.media.add')"
-				variant="primary"
-				size="sm"
-			>
-				<x-artisanpack-icon name="fas.upload" class="mr-2"/>
-				{{ __('Upload Media') }}
-			</x-artisanpack-button>
+			@if(Route::has('admin.media.add'))
+				<x-artisanpack-button
+					:href="route('admin.media.add')"
+					variant="primary"
+					size="sm"
+				>
+					<x-artisanpack-icon name="fas.upload" class="mr-2"/>
+					{{ __('Upload Media') }}
+				</x-artisanpack-button>
+			@endif
 		</div>
 	</div>
 
@@ -231,8 +247,14 @@
 	@endif
 
 	{{-- Loading State --}}
-	<div wire:loading class="flex items-center justify-center py-12">
-		<x-artisanpack-loading class="w-8 h-8"/>
+	<div
+		wire:loading
+		class="flex items-center justify-center py-12"
+		role="status"
+		aria-busy="true"
+		aria-label="{{ __('Loading media') }}"
+	>
+		<x-artisanpack-loading class="w-8 h-8" aria-hidden="true"/>
 		<span class="ml-2">{{ __('Loading...') }}</span>
 	</div>
 
@@ -251,10 +273,12 @@
 					</x-artisanpack-button>
 				@else
 					<p class="text-zinc-600 dark:text-zinc-400 mb-4">{{ __('Upload your first media file to get started') }}</p>
-					<x-artisanpack-button :href="route('admin.media.add')" variant="primary">
-						<x-artisanpack-icon name="fas.upload" class="mr-2"/>
-						{{ __('Upload Media') }}
-					</x-artisanpack-button>
+					@if(Route::has('admin.media.add'))
+						<x-artisanpack-button :href="route('admin.media.add')" variant="primary">
+							<x-artisanpack-icon name="fas.upload" class="mr-2"/>
+							{{ __('Upload Media') }}
+						</x-artisanpack-button>
+					@endif
 				@endif
 			</x-artisanpack-card>
 		@else
@@ -267,8 +291,7 @@
 						:media="$item"
 						:selected="in_array($item->id, $selectedMedia)"
 						:bulkSelectMode="$bulkSelectMode"
-						:key="'media-item-container-'.$item->id"
-						:wire:key="'media-item-container-'.$item->id"
+						:key="'media-item-'.$item->id.'-'.($bulkSelectMode ? 'bulk' : 'normal')"
 					/>
 				@endforeach
 			</div>
@@ -279,4 +302,32 @@
 			</div>
 		@endif
 	</div>
+
+	<script>
+		document.addEventListener('livewire:init', () => {
+			// Listen for copy-to-clipboard event from any component
+			Livewire.on('copy-to-clipboard', (event) => {
+				const url = event.url || event[0]?.url;
+				if (url && navigator.clipboard) {
+					navigator.clipboard.writeText(url).catch(err => {
+						console.error('Failed to copy URL:', err);
+					});
+				}
+			});
+
+			// Listen for download-file event from any component
+			Livewire.on('download-file', (event) => {
+				const url = event.url || event[0]?.url;
+				const filename = event.filename || event[0]?.filename;
+				if (url) {
+					const link = document.createElement('a');
+					link.href = url;
+					link.download = filename || 'download';
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}
+			});
+		});
+	</script>
 </div>

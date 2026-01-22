@@ -33,6 +33,17 @@ class Media extends Model
     protected $table = 'media';
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @since 1.1.0
+     *
+     * @var array<string>
+     */
+    protected $appends = [
+        'url',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @since 1.0.0
@@ -183,6 +194,18 @@ class Media extends Model
     public function url(): string
     {
         return Storage::disk( $this->disk )->url( $this->file_path );
+    }
+
+    /**
+     * Get the URL attribute for array/JSON serialization.
+     *
+     * @since 1.1.0
+     *
+     * @return string The full URL to the media file.
+     */
+    public function getUrlAttribute(): string
+    {
+        return $this->url();
     }
 
     /**

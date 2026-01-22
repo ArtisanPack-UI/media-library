@@ -246,15 +246,17 @@
 				</div>
 
 				{{-- Actions --}}
-				<div class="flex-shrink-0">
-					<x-artisanpack-button
-						:href="route('admin.media.edit', $this->largestFile->id)"
-						variant="outline"
-						size="sm"
-					>
-						{{ __('View') }}
-					</x-artisanpack-button>
-				</div>
+				@if(Route::has('admin.media.edit'))
+					<div class="flex-shrink-0">
+						<x-artisanpack-button
+							:href="route('admin.media.edit', $this->largestFile->id)"
+							variant="outline"
+							size="sm"
+						>
+							{{ __('View') }}
+						</x-artisanpack-button>
+					</div>
+				@endif
 			</div>
 		</x-artisanpack-card>
 	@endif
