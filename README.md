@@ -113,6 +113,7 @@ Export your media library to various formats:
 - **[Quick Start](docs/getting-started.md)** - Get up and running quickly
 - **[Installation](docs/installation/installation.md)** - Detailed installation instructions
 - **[Configuration](docs/installation/configuration.md)** - All configuration options
+- **[Upgrading to v1.1](docs/upgrading.md)** - Migration guide from v1.0.x
 
 ### Usage
 - **[Helper Functions](docs/usage/helper-functions.md)** - Common usage patterns

@@ -14,6 +14,7 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 
 - **Getting Started**
   - [Quick Start Guide](./getting-started.md)
+  - [Upgrading to v1.1](./upgrading.md)
 
 - **Installation**
   - [Installation Overview](./installation/installation.md)
