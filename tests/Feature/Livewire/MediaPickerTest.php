@@ -480,8 +480,8 @@ class MediaPickerTest extends TestCase
     {
         Livewire::actingAs($this->user)
             ->test(MediaPicker::class)
-            ->dispatch('media-uploaded');
-        // Should not throw - just refreshes the media list
+            ->dispatch('media-uploaded')
+            ->assertOk();
     }
 
     /**
@@ -509,5 +509,383 @@ class MediaPickerTest extends TestCase
             ->test(MediaPicker::class, ['acceptTypes' => 'image/*']);
 
         expect($component->invade()->totalCount())->toBe(10);
+    }
+
+    // =========================================================================
+    // Keyboard Navigation Tests (v1.1)
+    // =========================================================================
+
+    /**
+     * Test focusedIndex initial state.
+     */
+    public function test_focused_index_initial_state(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focusNext moves to next item.
+     */
+    public function test_focus_next_moves_to_next_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 0)
+            ->call('focusNext')
+            ->assertSet('focusedIndex', 1);
+    }
+
+    /**
+     * Test focusNext wraps around.
+     */
+    public function test_focus_next_wraps_around(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 2)
+            ->call('focusNext')
+            ->assertSet('focusedIndex', 0);
+    }
+
+    /**
+     * Test focusNext with no media.
+     */
+    public function test_focus_next_with_no_media(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('focusNext')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focusPrevious moves to previous item.
+     */
+    public function test_focus_previous_moves_to_previous_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 2)
+            ->call('focusPrevious')
+            ->assertSet('focusedIndex', 1);
+    }
+
+    /**
+     * Test focusPrevious wraps to end.
+     */
+    public function test_focus_previous_wraps_to_end(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 0)
+            ->call('focusPrevious')
+            ->assertSet('focusedIndex', 4);
+    }
+
+    /**
+     * Test focusPrevious does nothing with no focus.
+     */
+    public function test_focus_previous_does_nothing_with_no_focus(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('focusPrevious')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focusDown moves to next row.
+     */
+    public function test_focus_down_moves_to_next_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 1)
+            ->call('focusDown', 5)
+            ->assertSet('focusedIndex', 6);
+    }
+
+    /**
+     * Test focusDown stays at last row when would exceed.
+     */
+    public function test_focus_down_stays_at_last_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 3)
+            ->call('focusDown', 5)
+            ->assertSet('focusedIndex', 3);
+    }
+
+    /**
+     * Test focusDown does nothing with no focus.
+     */
+    public function test_focus_down_does_nothing_with_no_focus(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('focusDown', 5)
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focusUp moves to previous row.
+     */
+    public function test_focus_up_moves_to_previous_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 6)
+            ->call('focusUp', 5)
+            ->assertSet('focusedIndex', 1);
+    }
+
+    /**
+     * Test focusUp stays at first row when would go negative.
+     */
+    public function test_focus_up_stays_at_first_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 2)
+            ->call('focusUp', 5)
+            ->assertSet('focusedIndex', 2);
+    }
+
+    /**
+     * Test focusUp does nothing with no focus.
+     */
+    public function test_focus_up_does_nothing_with_no_focus(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('focusUp', 5)
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focusFirst moves to first item.
+     */
+    public function test_focus_first_moves_to_first_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(10)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 5)
+            ->call('focusFirst')
+            ->assertSet('focusedIndex', 0);
+    }
+
+    /**
+     * Test focusFirst with no media.
+     */
+    public function test_focus_first_with_no_media(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('focusFirst')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focusLast moves to last item.
+     */
+    public function test_focus_last_moves_to_last_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(10)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 0)
+            ->call('focusLast')
+            ->assertSet('focusedIndex', 9);
+    }
+
+    /**
+     * Test focusLast with no media.
+     */
+    public function test_focus_last_with_no_media(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('focusLast')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test selectFocused toggles selection.
+     */
+    public function test_select_focused_toggles_selection(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+        $sortedMedia = Media::latest()->get();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['multiSelect' => true])
+            ->set('focusedIndex', 0)
+            ->call('selectFocused')
+            ->assertSet('selectedMedia', [$sortedMedia->first()->id]);
+    }
+
+    /**
+     * Test selectFocused does nothing with no focus.
+     */
+    public function test_select_focused_does_nothing_with_no_focus(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['multiSelect' => true])
+            ->call('selectFocused')
+            ->assertSet('selectedMedia', []);
+    }
+
+    /**
+     * Test selectFocused does nothing with invalid index.
+     */
+    public function test_select_focused_does_nothing_with_invalid_index(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['multiSelect' => true])
+            ->set('focusedIndex', 100)
+            ->call('selectFocused')
+            ->assertSet('selectedMedia', []);
+    }
+
+    /**
+     * Test resetFocus sets index to -1.
+     */
+    public function test_reset_focus_sets_index_to_negative_one(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->set('focusedIndex', 5)
+            ->call('resetFocus')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test close resets focus index.
+     */
+    public function test_close_resets_focus_index(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class)
+            ->call('open')
+            ->set('focusedIndex', 3)
+            ->call('close')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    // =========================================================================
+    // Selection Normalization Tests (v1.1)
+    // =========================================================================
+
+    /**
+     * Test selectedMedia is deduplicated on mount.
+     */
+    public function test_selected_media_is_deduplicated_on_mount(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, [
+                'multiSelect' => true,
+                'selectedMedia' => [$media->id, $media->id, $media->id],
+            ])
+            ->assertSet('selectedMedia', [$media->id]);
+    }
+
+    /**
+     * Test selectedMedia is trimmed to maxSelections on mount.
+     */
+    public function test_selected_media_is_trimmed_to_max_selections_on_mount(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->count(5)->create();
+        $mediaIds = $media->pluck('id')->toArray();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, [
+                'multiSelect' => true,
+                'maxSelections' => 2,
+                'selectedMedia' => $mediaIds,
+            ])
+            ->assertSet('selectedMedia', array_slice($mediaIds, 0, 2));
+    }
+
+    // =========================================================================
+    // Context Matching Tests (v1.1)
+    // =========================================================================
+
+    /**
+     * Test open with empty context opens any component.
+     */
+    public function test_open_with_empty_context_opens_any_component(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['context' => ''])
+            ->call('open', 'any-context')
+            ->assertSet('isOpen', true);
+    }
+
+    /**
+     * Test component with empty context responds to any open event.
+     */
+    public function test_component_with_empty_context_responds_to_any_open(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['context' => ''])
+            ->call('open', '')
+            ->assertSet('isOpen', true);
+    }
+
+    /**
+     * Test open dispatches event with context.
+     */
+    public function test_open_dispatches_event_with_context(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['context' => 'test-context'])
+            ->call('open', 'test-context')
+            ->assertDispatched('media-picker-opened', context: 'test-context');
+    }
+
+    /**
+     * Test close dispatches event with context.
+     */
+    public function test_close_dispatches_event_with_context(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaPicker::class, ['context' => 'test-context'])
+            ->call('open', 'test-context')
+            ->call('close')
+            ->assertDispatched('media-picker-closed', context: 'test-context');
     }
 }

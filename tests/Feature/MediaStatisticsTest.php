@@ -484,4 +484,205 @@ class MediaStatisticsTest extends TestCase
         // With 30 day window, should find the media
         expect($component->get('recentUploadsCount'))->toBe(5);
     }
+
+    // =========================================================================
+    // Property Clamping Tests (v1.1)
+    // =========================================================================
+
+    /**
+     * Test topItemsLimit is clamped to minimum of 1.
+     */
+    public function test_top_items_limit_clamped_to_minimum(): void
+    {
+        Livewire::test(MediaStatistics::class)
+            ->set('topItemsLimit', 0)
+            ->assertSet('topItemsLimit', 1);
+
+        Livewire::test(MediaStatistics::class)
+            ->set('topItemsLimit', -5)
+            ->assertSet('topItemsLimit', 1);
+    }
+
+    /**
+     * Test topItemsLimit is clamped to maximum of 100.
+     */
+    public function test_top_items_limit_clamped_to_maximum(): void
+    {
+        Livewire::test(MediaStatistics::class)
+            ->set('topItemsLimit', 150)
+            ->assertSet('topItemsLimit', 100);
+
+        Livewire::test(MediaStatistics::class)
+            ->set('topItemsLimit', 500)
+            ->assertSet('topItemsLimit', 100);
+    }
+
+    /**
+     * Test recentDays is clamped to minimum of 1.
+     */
+    public function test_recent_days_clamped_to_minimum(): void
+    {
+        Livewire::test(MediaStatistics::class)
+            ->set('recentDays', 0)
+            ->assertSet('recentDays', 1);
+
+        Livewire::test(MediaStatistics::class)
+            ->set('recentDays', -10)
+            ->assertSet('recentDays', 1);
+    }
+
+    /**
+     * Test recentDays is clamped to maximum of 365.
+     */
+    public function test_recent_days_clamped_to_maximum(): void
+    {
+        Livewire::test(MediaStatistics::class)
+            ->set('recentDays', 400)
+            ->assertSet('recentDays', 365);
+
+        Livewire::test(MediaStatistics::class)
+            ->set('recentDays', 1000)
+            ->assertSet('recentDays', 365);
+    }
+
+    /**
+     * Test topItemsLimit clamping handles non-integer values.
+     */
+    public function test_top_items_limit_handles_non_integer_values(): void
+    {
+        // String that can be cast to int
+        Livewire::test(MediaStatistics::class)
+            ->set('topItemsLimit', '10')
+            ->assertSet('topItemsLimit', 10);
+    }
+
+    /**
+     * Test recentDays clamping handles non-integer values.
+     */
+    public function test_recent_days_handles_non_integer_values(): void
+    {
+        // String that can be cast to int
+        Livewire::test(MediaStatistics::class)
+            ->set('recentDays', '14')
+            ->assertSet('recentDays', 14);
+    }
+
+    // =========================================================================
+    // Edge Case Tests (v1.1)
+    // =========================================================================
+
+    /**
+     * Test averageFileSize returns 0 B when no media.
+     */
+    public function test_average_file_size_returns_zero_when_empty(): void
+    {
+        $component = Livewire::test(MediaStatistics::class);
+
+        expect($component->get('averageFileSize'))->toBe('0 B');
+    }
+
+    /**
+     * Test storageByType returns zero bytes for all types when empty.
+     */
+    public function test_storage_by_type_returns_zero_when_empty(): void
+    {
+        $component = Livewire::test(MediaStatistics::class);
+        $storageByType = $component->get('storageByType');
+
+        expect($storageByType['images']['bytes'])->toBe(0);
+        expect($storageByType['videos']['bytes'])->toBe(0);
+        expect($storageByType['audio']['bytes'])->toBe(0);
+        expect($storageByType['documents']['bytes'])->toBe(0);
+
+        expect($storageByType['images']['formatted'])->toBe('0 B');
+    }
+
+    /**
+     * Test mediaByType returns zero for all types when empty.
+     */
+    public function test_media_by_type_returns_zero_when_empty(): void
+    {
+        $component = Livewire::test(MediaStatistics::class);
+        $mediaByType = $component->get('mediaByType');
+
+        expect($mediaByType['images'])->toBe(0);
+        expect($mediaByType['videos'])->toBe(0);
+        expect($mediaByType['audio'])->toBe(0);
+        expect($mediaByType['documents'])->toBe(0);
+    }
+
+    /**
+     * Test topFolders returns empty collection when no folders.
+     */
+    public function test_top_folders_returns_empty_when_none(): void
+    {
+        $component = Livewire::test(MediaStatistics::class);
+        $topFolders = $component->get('topFolders');
+
+        expect($topFolders)->toHaveCount(0);
+    }
+
+    /**
+     * Test topTags returns empty collection when no tags.
+     */
+    public function test_top_tags_returns_empty_when_none(): void
+    {
+        $component = Livewire::test(MediaStatistics::class);
+        $topTags = $component->get('topTags');
+
+        expect($topTags)->toHaveCount(0);
+    }
+
+    /**
+     * Test recentUploadsCount returns zero when no recent uploads.
+     */
+    public function test_recent_uploads_count_returns_zero_when_none(): void
+    {
+        // Create old media only
+        Media::factory()->count(5)->uploadedBy($this->user)->create([
+            'created_at' => Carbon::now()->subDays(30),
+        ]);
+
+        $component = Livewire::test(MediaStatistics::class);
+
+        expect($component->get('recentUploadsCount'))->toBe(0);
+    }
+
+    /**
+     * Test totalStorageFormatted correctly formats different sizes.
+     */
+    public function test_total_storage_formatted_different_sizes(): void
+    {
+        // Test bytes
+        Media::factory()->uploadedBy($this->user)->create(['file_size' => 500]);
+        $component = Livewire::test(MediaStatistics::class);
+        expect($component->get('totalStorageFormatted'))->toContain('B');
+
+        // Clean up and test KB
+        Media::query()->delete();
+        Media::factory()->uploadedBy($this->user)->create(['file_size' => 2048]);
+        $component = Livewire::test(MediaStatistics::class);
+        expect($component->get('totalStorageFormatted'))->toContain('KB');
+
+        // Clean up and test GB
+        Media::query()->delete();
+        Media::factory()->uploadedBy($this->user)->create(['file_size' => 1073741824]); // 1 GB
+        $component = Livewire::test(MediaStatistics::class);
+        expect($component->get('totalStorageFormatted'))->toContain('GB');
+    }
+
+    /**
+     * Test component correctly handles single media item.
+     */
+    public function test_component_handles_single_media_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->image()->create(['file_size' => 1000]);
+
+        $component = Livewire::test(MediaStatistics::class);
+
+        expect($component->get('totalMedia'))->toBe(1);
+        expect($component->get('totalStorageBytes'))->toBe(1000);
+        expect($component->get('averageFileSize'))->toContain('B');
+        expect($component->get('largestFile'))->not->toBeNull();
+    }
 }
