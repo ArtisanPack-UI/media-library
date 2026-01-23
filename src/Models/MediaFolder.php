@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Folder Model
+ *
+ * Eloquent model representing hierarchical media folders. Supports nested
+ * folder structures with parent-child relationships, path generation,
+ * and descendant traversal.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Models
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFolderFactory;

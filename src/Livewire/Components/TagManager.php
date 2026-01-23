@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Tag Manager Livewire Component
+ *
+ * Provides a modal interface for creating, editing, and deleting media tags.
+ * Tags can be assigned to media items for categorization and filtering.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
@@ -28,6 +40,8 @@ class TagManager extends Component
      * Whether the modal is open.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isOpen = false;
 
@@ -35,6 +49,8 @@ class TagManager extends Component
      * Whether the form is in edit mode.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isEditing = false;
 
@@ -42,6 +58,8 @@ class TagManager extends Component
      * The tag being edited.
      *
      * @since 1.0.0
+     *
+     * @var MediaTag|null
      */
     public ?MediaTag $editingTag = null;
 
@@ -62,6 +80,8 @@ class TagManager extends Component
      * All tags for the list.
      *
      * @since 1.0.0
+     *
+     * @var Collection
      */
     public Collection $tags;
 

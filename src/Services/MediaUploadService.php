@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Upload Service
+ *
+ * Handles file uploads, validation, unique filename generation,
+ * metadata extraction, and Media model creation.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Services
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Services;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
@@ -23,11 +35,19 @@ class MediaUploadService
 {
     /**
      * Media storage service instance.
+     *
+     * @since 1.0.0
+     *
+     * @var MediaStorageService
      */
     protected MediaStorageService $storageService;
 
     /**
      * Video processing service instance.
+     *
+     * @since 1.0.0
+     *
+     * @var VideoProcessingService
      */
     protected VideoProcessingService $videoService;
 

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Tag Controller
+ *
+ * Handles API endpoints for media tag management including listing,
+ * creating, updating, deleting, and attaching tags to media.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Controllers
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 
 use ArtisanPackUI\MediaLibrary\Http\Requests\MediaTagStoreRequest;

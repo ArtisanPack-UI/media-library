@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Upload Livewire Component
+ *
+ * Provides a drag-and-drop interface for uploading single or multiple files
+ * with real-time validation, progress tracking, and file previews. Supports
+ * Livewire 4 streaming for real-time progress with Livewire 3 polling fallback.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
@@ -71,6 +84,8 @@ class MediaUpload extends Component
      * Whether files are currently being uploaded.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isUploading = false;
 
@@ -78,6 +93,8 @@ class MediaUpload extends Component
      * Current upload progress (0-100).
      *
      * @since 1.0.0
+     *
+     * @var int
      */
     public int $uploadProgress = 0;
 
@@ -85,6 +102,8 @@ class MediaUpload extends Component
      * Total number of files to upload.
      *
      * @since 1.0.0
+     *
+     * @var int
      */
     public int $totalFiles = 0;
 
@@ -92,6 +111,8 @@ class MediaUpload extends Component
      * Number of files uploaded successfully.
      *
      * @since 1.0.0
+     *
+     * @var int
      */
     public int $uploadedCount = 0;
 
@@ -99,6 +120,8 @@ class MediaUpload extends Component
      * Selected folder ID for uploaded files.
      *
      * @since 1.0.0
+     *
+     * @var int|null
      */
     public ?int $folderId = null;
 

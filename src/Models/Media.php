@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Model
+ *
+ * Eloquent model representing a single uploaded media item (image, video,
+ * audio, or document). Provides helpers for URLs, image sizes, file
+ * deletion, and query scopes by type, tag, and folder.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Models
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFactory;

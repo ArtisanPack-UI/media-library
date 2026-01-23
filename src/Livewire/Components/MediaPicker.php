@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Picker Livewire Component
+ *
+ * A lightweight, embeddable component for selecting media items.
+ * Supports infinite scroll, type filtering, single/multi-select modes,
+ * and keyboard navigation. Designed for integration with visual editors.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.1.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
@@ -25,6 +38,8 @@ class MediaPicker extends Component
      * Whether the picker is visible/open.
      *
      * @since 1.1.0
+     *
+     * @var bool
      */
     public bool $isOpen = false;
 
@@ -32,6 +47,8 @@ class MediaPicker extends Component
      * Whether multi-select mode is enabled.
      *
      * @since 1.1.0
+     *
+     * @var bool
      */
     public bool $multiSelect = false;
 
@@ -39,6 +56,8 @@ class MediaPicker extends Component
      * Maximum number of selections allowed (0 = unlimited).
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $maxSelections = 0;
 
@@ -55,6 +74,8 @@ class MediaPicker extends Component
      * Accepted MIME types pattern (e.g., 'image/*', 'video/*', 'application/pdf').
      *
      * @since 1.1.0
+     *
+     * @var string
      */
     public string $acceptTypes = '';
 
@@ -62,6 +83,8 @@ class MediaPicker extends Component
      * Number of items to load per batch for infinite scroll.
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $loadCount = 20;
 
@@ -69,6 +92,8 @@ class MediaPicker extends Component
      * Current number of items loaded.
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $loadedCount = 20;
 
@@ -76,6 +101,8 @@ class MediaPicker extends Component
      * Search query for filtering media.
      *
      * @since 1.1.0
+     *
+     * @var string
      */
     public string $search = '';
 
@@ -83,6 +110,8 @@ class MediaPicker extends Component
      * Selected folder ID for filtering.
      *
      * @since 1.1.0
+     *
+     * @var int|null
      */
     public ?int $folderId = null;
 
@@ -90,6 +119,8 @@ class MediaPicker extends Component
      * Context identifier for this picker instance.
      *
      * @since 1.1.0
+     *
+     * @var string
      */
     public string $context = '';
 
@@ -97,6 +128,8 @@ class MediaPicker extends Component
      * Currently focused media index for keyboard navigation.
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $focusedIndex = -1;
 

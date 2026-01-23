@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Library Livewire Component
+ *
+ * Component for browsing, searching, and managing media files.
+ * Supports search, filtering, sorting, bulk actions, and table export.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
@@ -34,6 +46,8 @@ class MediaLibrary extends Component
      * Search query.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url(as: 'q')]
     public string $search = '';
@@ -42,6 +56,8 @@ class MediaLibrary extends Component
      * Current folder ID for filtering.
      *
      * @since 1.0.0
+     *
+     * @var int|null
      */
     #[Url(as: 'folder')]
     public ?int $folderId = null;
@@ -50,6 +66,8 @@ class MediaLibrary extends Component
      * Media type filter (image, video, audio, document).
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $type = '';
@@ -58,6 +76,8 @@ class MediaLibrary extends Component
      * Tag slug for filtering.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $tag = '';
@@ -66,6 +86,8 @@ class MediaLibrary extends Component
      * Sort column.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $sortBy = 'created_at';
@@ -74,6 +96,8 @@ class MediaLibrary extends Component
      * Sort direction (asc, desc).
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $sortOrder = 'desc';
@@ -82,6 +106,8 @@ class MediaLibrary extends Component
      * View mode (grid, list).
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     public string $viewMode = 'grid';
 
@@ -98,6 +124,8 @@ class MediaLibrary extends Component
      * Whether bulk select mode is active.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $bulkSelectMode = false;
 
@@ -105,6 +133,8 @@ class MediaLibrary extends Component
      * Number of items per page.
      *
      * @since 1.0.0
+     *
+     * @var int
      */
     public int $perPage = 24;
 
@@ -112,6 +142,8 @@ class MediaLibrary extends Component
      * Announcement message for screen readers.
      *
      * @since 1.1.0
+     *
+     * @var string
      */
     public string $announcement = '';
 

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Statistics Dashboard Livewire Component
+ *
+ * Displays comprehensive statistics about the media library including
+ * total counts, storage usage, type breakdown, and usage trends.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.1.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
@@ -26,6 +38,8 @@ class MediaStatistics extends Component
      * Number of top items to display in rankings.
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $topItemsLimit = 5;
 
@@ -33,6 +47,8 @@ class MediaStatistics extends Component
      * Number of days to look back for recent uploads.
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $recentDays = 7;
 

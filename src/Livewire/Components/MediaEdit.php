@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Edit Livewire Component
+ *
+ * Provides an interface for editing media metadata including title, alt text,
+ * caption, description, folder assignment, and tags.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
@@ -30,6 +42,8 @@ class MediaEdit extends Component
      * The media item being edited.
      *
      * @since 1.0.0
+     *
+     * @var Media
      */
     public Media $media;
 
@@ -61,6 +75,8 @@ class MediaEdit extends Component
      * Whether the form is being saved.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isSaving = false;
 

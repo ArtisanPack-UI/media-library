@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Tag Model
+ *
+ * Eloquent model representing a tag that can be assigned to media items.
+ * Supports many-to-many relationships with media for categorization.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Models
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaTagFactory;

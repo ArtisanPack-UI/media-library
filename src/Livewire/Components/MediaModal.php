@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Modal Livewire Component
+ *
+ * A modal component for selecting media from the library or uploading new files.
+ * Supports single and multi-select modes with tabbed interface. Enhanced with
+ * visual editor features including inline mode, recently used, and keyboard navigation.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
@@ -33,6 +46,8 @@ class MediaModal extends Component
      * Whether the modal is open.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isOpen = false;
 
@@ -40,6 +55,8 @@ class MediaModal extends Component
      * Whether multi-select mode is enabled.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $multiSelect = false;
 
@@ -47,6 +64,8 @@ class MediaModal extends Component
      * Maximum number of selections allowed (0 = unlimited).
      *
      * @since 1.0.0
+     *
+     * @var int
      */
     public int $maxSelections = 0;
 
@@ -63,6 +82,8 @@ class MediaModal extends Component
      * Active tab (library or upload).
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $activeTab = 'library';
@@ -71,6 +92,8 @@ class MediaModal extends Component
      * Search query for filtering media.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $search = '';
@@ -79,6 +102,8 @@ class MediaModal extends Component
      * Selected folder ID for filtering.
      *
      * @since 1.0.0
+     *
+     * @var int|null
      */
     #[Url]
     public ?int $folderId = null;
@@ -87,6 +112,8 @@ class MediaModal extends Component
      * Selected media type filter.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     #[Url]
     public string $typeFilter = '';
@@ -95,6 +122,8 @@ class MediaModal extends Component
      * Items per page.
      *
      * @since 1.0.0
+     *
+     * @var int
      */
     public int $perPage = 12;
 
@@ -102,6 +131,8 @@ class MediaModal extends Component
      * Context identifier for this modal instance.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     public string $context = '';
 
@@ -109,6 +140,8 @@ class MediaModal extends Component
      * Whether inline/compact mode is enabled for visual editor embedding.
      *
      * @since 1.1.0
+     *
+     * @var bool
      */
     public bool $inlineMode = false;
 
@@ -125,6 +158,8 @@ class MediaModal extends Component
      * Whether to auto-select media immediately after upload.
      *
      * @since 1.1.0
+     *
+     * @var bool
      */
     public bool $quickUploadSelect = true;
 
@@ -132,6 +167,8 @@ class MediaModal extends Component
      * Currently focused media index for keyboard navigation.
      *
      * @since 1.1.0
+     *
+     * @var int
      */
     public int $focusedIndex = -1;
 
@@ -139,6 +176,8 @@ class MediaModal extends Component
      * ID of the last uploaded media for quick upload select.
      *
      * @since 1.1.0
+     *
+     * @var int|null
      */
     public ?int $lastUploadedMediaId = null;
 
