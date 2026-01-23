@@ -15,7 +15,7 @@ use Livewire\Component;
  *
  * A lightweight, embeddable component for selecting media items.
  * Supports infinite scroll, type filtering, and single/multi-select modes.
- * Designed for integration with visual editors like Keystone CMS.
+ * Designed for integration with visual editors.
  *
  * @since   1.1.0
  */

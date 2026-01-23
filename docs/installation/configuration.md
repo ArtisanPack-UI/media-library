@@ -268,6 +268,15 @@ MEDIA_ENABLE_MODERN_FORMATS=true
 MEDIA_MODERN_FORMAT=webp
 MEDIA_IMAGE_QUALITY=85
 MEDIA_ENABLE_THUMBNAILS=true
+
+# Feature Flags (v1.1)
+MEDIA_STREAMING_UPLOAD=true
+MEDIA_STREAMING_FALLBACK_INTERVAL=500
+
+# UI Settings (v1.1)
+MEDIA_GLASS_EFFECTS=true
+MEDIA_STATS_ENABLED=true
+MEDIA_TABLE_EXPORT=true
 ```
 
 ## Cloud Storage Configuration
@@ -321,6 +330,370 @@ In `config/filesystems.php`:
     'name' => env('AZURE_STORAGE_NAME'),
     'key' => env('AZURE_STORAGE_KEY'),
     'container' => env('AZURE_STORAGE_CONTAINER'),
+],
+```
+
+## Feature Flags (v1.1)
+
+Control which features are enabled in your application.
+
+### Streaming Uploads
+
+#### `features.streaming_upload`
+
+Enable Livewire 4's `wire:stream` for real-time upload progress.
+
+```php
+'features' => [
+    'streaming_upload' => env('MEDIA_STREAMING_UPLOAD', true),
+],
+```
+
+**Environment variable:**
+```env
+MEDIA_STREAMING_UPLOAD=true
+```
+
+When enabled on Livewire 4+, uploads show real-time progress via `wire:stream`. On Livewire 3, automatically falls back to polling.
+
+#### `features.streaming_fallback_interval`
+
+Polling interval (milliseconds) for Livewire 3 fallback.
+
+```php
+'features' => [
+    'streaming_fallback_interval' => env('MEDIA_STREAMING_FALLBACK_INTERVAL', 500),
+],
+```
+
+**Environment variable:**
+```env
+MEDIA_STREAMING_FALLBACK_INTERVAL=500
+```
+
+Lower values provide smoother progress updates but increase server load.
+
+## UI Settings (v1.1)
+
+### Glass Effects
+
+Enable modern glassmorphism UI effects.
+
+#### `ui.glass_effects.enabled`
+
+Enable or disable glass effects globally.
+
+```php
+'ui' => [
+    'glass_effects' => [
+        'enabled' => env('MEDIA_GLASS_EFFECTS', true),
+    ],
+],
+```
+
+**Environment variable:**
+```env
+MEDIA_GLASS_EFFECTS=true
+```
+
+#### `ui.glass_effects.card_overlay`
+
+Configuration for card overlay glass effects.
+
+```php
+'ui' => [
+    'glass_effects' => [
+        'card_overlay' => [
+            'blur' => 'md',
+            'opacity' => 80,
+        ],
+    ],
+],
+```
+
+**Options:**
+- `blur` - Blur intensity: `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`
+- `opacity` - Background opacity: 0-100
+
+#### `ui.glass_effects.modal_backdrop`
+
+Configuration for modal backdrop glass effects.
+
+```php
+'ui' => [
+    'glass_effects' => [
+        'modal_backdrop' => [
+            'blur' => 'sm',
+            'opacity' => 50,
+        ],
+    ],
+],
+```
+
+### Statistics Dashboard
+
+Configure the media statistics component.
+
+#### `ui.stats_dashboard.enabled`
+
+Enable the statistics dashboard.
+
+```php
+'ui' => [
+    'stats_dashboard' => [
+        'enabled' => env('MEDIA_STATS_ENABLED', true),
+    ],
+],
+```
+
+**Environment variable:**
+```env
+MEDIA_STATS_ENABLED=true
+```
+
+#### `ui.stats_dashboard.sparkline_days`
+
+Number of days to show in sparkline charts.
+
+```php
+'ui' => [
+    'stats_dashboard' => [
+        'sparkline_days' => 30,
+    ],
+],
+```
+
+#### `ui.stats_dashboard.refresh_interval`
+
+Auto-refresh interval in seconds (0 to disable).
+
+```php
+'ui' => [
+    'stats_dashboard' => [
+        'refresh_interval' => 0,
+    ],
+],
+```
+
+### Table Export
+
+Configure export functionality for the media library table.
+
+#### `ui.table_export.enabled`
+
+Enable table export functionality.
+
+```php
+'ui' => [
+    'table_export' => [
+        'enabled' => env('MEDIA_TABLE_EXPORT', true),
+    ],
+],
+```
+
+**Environment variable:**
+```env
+MEDIA_TABLE_EXPORT=true
+```
+
+#### `ui.table_export.formats`
+
+Available export formats.
+
+```php
+'ui' => [
+    'table_export' => [
+        'formats' => ['csv', 'xlsx', 'pdf'],
+    ],
+],
+```
+
+**Available formats:**
+- `csv` - Comma-separated values
+- `xlsx` - Microsoft Excel format (requires PhpSpreadsheet)
+- `pdf` - PDF document (requires DOMPDF or similar)
+
+#### `ui.table_export.max_rows`
+
+Maximum rows to export (0 for unlimited).
+
+```php
+'ui' => [
+    'table_export' => [
+        'max_rows' => 10000,
+    ],
+],
+```
+
+## Visual Editor Integration (v1.1)
+
+Configure MediaPicker for visual editor integration.
+
+### Recently Used Media
+
+#### `visual_editor.track_recently_used`
+
+Enable tracking of recently selected media.
+
+```php
+'visual_editor' => [
+    'track_recently_used' => true,
+],
+```
+
+#### `visual_editor.recently_used_limit`
+
+Maximum number of recently used items to track.
+
+```php
+'visual_editor' => [
+    'recently_used_limit' => 20,
+],
+```
+
+### Quick Upload Select
+
+#### `visual_editor.quick_upload_select`
+
+Automatically select newly uploaded media.
+
+```php
+'visual_editor' => [
+    'quick_upload_select' => true,
+],
+```
+
+When enabled, media uploaded via the picker is automatically selected after upload completes.
+
+### Picker Settings
+
+#### `visual_editor.picker.default_view`
+
+Default view mode for the picker.
+
+```php
+'visual_editor' => [
+    'picker' => [
+        'default_view' => 'grid',
+    ],
+],
+```
+
+**Options:** `grid`, `list`
+
+#### `visual_editor.picker.items_per_page`
+
+Number of items per page in the picker.
+
+```php
+'visual_editor' => [
+    'picker' => [
+        'items_per_page' => 24,
+    ],
+],
+```
+
+#### `visual_editor.picker.show_folders`
+
+Show folder sidebar in the picker.
+
+```php
+'visual_editor' => [
+    'picker' => [
+        'show_folders' => true,
+    ],
+],
+```
+
+#### `visual_editor.picker.allow_upload`
+
+Allow uploads from within the picker.
+
+```php
+'visual_editor' => [
+    'picker' => [
+        'allow_upload' => true,
+    ],
+],
+```
+
+## Block Requirements (v1.1)
+
+Define media requirements for visual editor block types.
+
+```php
+'block_requirements' => [
+    'default' => [
+        'allowed_types' => ['image', 'video', 'audio', 'document'],
+        'max_file_size' => null, // Use global default
+        'max_selections' => null, // No limit
+    ],
+    'image' => [
+        'allowed_types' => ['image'],
+        'max_file_size' => 5120, // 5 MB
+        'max_selections' => 1,
+    ],
+    'gallery' => [
+        'allowed_types' => ['image'],
+        'max_file_size' => 5120,
+        'max_selections' => 20,
+    ],
+    'video' => [
+        'allowed_types' => ['video'],
+        'max_file_size' => 102400, // 100 MB
+        'max_selections' => 1,
+    ],
+    'audio' => [
+        'allowed_types' => ['audio'],
+        'max_file_size' => 20480, // 20 MB
+        'max_selections' => 1,
+    ],
+    'document' => [
+        'allowed_types' => ['document'],
+        'max_file_size' => 10240, // 10 MB
+        'max_selections' => 5,
+    ],
+    'hero' => [
+        'allowed_types' => ['image'],
+        'max_file_size' => 10240,
+        'max_selections' => 1,
+        'min_width' => 1920,
+        'min_height' => 600,
+    ],
+    'background' => [
+        'allowed_types' => ['image'],
+        'max_file_size' => 5120,
+        'max_selections' => 1,
+    ],
+],
+```
+
+**Options per block type:**
+- `allowed_types` - Array of allowed media types: `image`, `video`, `audio`, `document`
+- `max_file_size` - Maximum file size in KB for this block type
+- `max_selections` - Maximum number of media items that can be selected
+- `min_width` - Minimum image width (images only)
+- `min_height` - Minimum image height (images only)
+
+### Custom Block Types
+
+Add custom block types to match your visual editor:
+
+```php
+'block_requirements' => [
+    // ... existing types ...
+    'product-image' => [
+        'allowed_types' => ['image'],
+        'max_file_size' => 2048,
+        'max_selections' => 1,
+        'min_width' => 800,
+        'min_height' => 800,
+    ],
+    'testimonial-avatar' => [
+        'allowed_types' => ['image'],
+        'max_file_size' => 1024,
+        'max_selections' => 1,
+    ],
 ],
 ```
 
@@ -387,3 +760,9 @@ config([
 - Explore [Model Usage](../usage/models.md)
 - Set up [Permissions](../integration/permissions.md)
 - Review [Customization](../integration/customization.md) options
+
+### v1.1 Features
+- Configure [Streaming Uploads](../usage/streaming-uploads.md)
+- Set up [Table Export](../usage/table-export.md)
+- Integrate with [Visual Editors](../visual-editor/media-picker.md)
+- Customize [Media Statistics](../dashboard/statistics.md)

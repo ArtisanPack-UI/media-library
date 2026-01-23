@@ -315,8 +315,8 @@ return [
     | Visual Editor / CMS Integration
     |--------------------------------------------------------------------------
     |
-    | Configuration for Keystone CMS visual editor integration and the
-    | MediaPicker component.
+    | Configuration for visual editor integration and the MediaPicker
+    | component.
     |
     */
     'visual_editor' => [
