@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Grid Livewire Component
+ *
+ * Displays media items in a grid or list layout with support
+ * for bulk selection and view mode switching.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -21,6 +33,8 @@ class MediaGrid extends Component
      * Media items to display (stored as Collection for serialization).
      *
      * @since 1.0.0
+     *
+     * @var Collection
      */
     #[Locked]
     public Collection $mediaItems;
@@ -29,6 +43,8 @@ class MediaGrid extends Component
      * View mode (grid or list).
      *
      * @since 1.0.0
+     *
+     * @var string
      */
     public string $viewMode = 'grid';
 
@@ -36,6 +52,8 @@ class MediaGrid extends Component
      * Whether bulk select mode is active.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $bulkSelectMode = false;
 

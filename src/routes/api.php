@@ -23,6 +23,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('media/tags/{id}/detach', [MediaTagController::class, 'detach'])->name('media.tags.detach');
     Route::apiResource('media/tags', MediaTagController::class);
 
+    // Media download route (API)
+    Route::get('media/{id}/download', [MediaController::class, 'download'])->name('api.media.download');
+
     // Media resource routes (last to avoid catching folder/tag routes)
     Route::apiResource('media', MediaController::class);
 });

@@ -2,10 +2,12 @@
 	{{-- Header --}}
 	<div class="flex items-center justify-between">
 		<x-artisanpack-heading level="1">{{ __('Edit Media') }}</x-artisanpack-heading>
-		<x-artisanpack-button :href="route('admin.media')" variant="ghost" size="sm">
-			<x-artisanpack-icon name="fas.arrow-left" class="mr-2"/>
-			{{ __('Back to Library') }}
-		</x-artisanpack-button>
+		@if(Route::has('admin.media'))
+			<x-artisanpack-button :href="route('admin.media')" variant="ghost" size="sm">
+				<x-artisanpack-icon name="fas.arrow-left" class="mr-2"/>
+				{{ __('Back to Library') }}
+			</x-artisanpack-button>
+		@endif
 	</div>
 
 	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -77,7 +79,7 @@
 				</div>
 
 				{{-- File URL --}}
-				<div class="mt-4">
+				<div class="mt-4" x-data="{ mediaUrl: @js($media->url()), copied: false }">
 					<x-artisanpack-heading level="3" class="mb-4">{{ __('File URL') }}</x-artisanpack-heading>
 					<div class="flex gap-2">
 						<x-artisanpack-input
@@ -88,10 +90,11 @@
 						<x-artisanpack-button
 							variant="secondary"
 							size="sm"
-							onclick="navigator.clipboard.writeText('{{ $media->url() }}')"
+							x-on:click="navigator.clipboard.writeText(mediaUrl).then(() => { copied = true; setTimeout(() => copied = false, 2000); })"
 							:title="__('Copy URL')"
 						>
-							<x-artisanpack-icon name="fas.copy"/>
+							<x-artisanpack-icon x-show="!copied" name="fas.copy"/>
+							<x-artisanpack-icon x-show="copied" x-cloak name="fas.check" class="text-success"/>
 						</x-artisanpack-button>
 					</div>
 				</div>

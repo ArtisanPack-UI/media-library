@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Library Service Provider
+ *
+ * Bootstraps the Media Library package by registering configuration,
+ * views, migrations, routes, Livewire components, and Blade components.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary;
 
 use ArtisanPackUI\MediaLibrary\Livewire\Components\FolderManager;
@@ -8,6 +20,8 @@ use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaItem;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaLibrary;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaModal;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaPicker;
+use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaStatistics;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaUpload;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\TagManager;
 use ArtisanPackUI\MediaLibrary\Managers\MediaManager;
@@ -18,6 +32,8 @@ use ArtisanPackUI\MediaLibrary\Services\MediaProcessingService;
 use ArtisanPackUI\MediaLibrary\Services\MediaStorageService;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
 use ArtisanPackUI\MediaLibrary\Services\VideoProcessingService;
+use ArtisanPackUI\MediaLibrary\View\Components\MediaPickerButton;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -32,8 +48,6 @@ use Livewire\Livewire;
  * package conventions.
  *
  * @since   1.0.0
- *
- * @package ArtisanPackUI\MediaLibrary
  */
 class MediaLibraryServiceProvider extends ServiceProvider
 {
@@ -78,6 +92,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->registerPolicies();
         $this->registerRoutes();
         $this->registerLivewireComponents();
+        $this->registerBladeComponents();
     }
 
     /**
@@ -150,6 +165,14 @@ class MediaLibraryServiceProvider extends ServiceProvider
         Route::middleware('api')
             ->prefix('api')
             ->group(__DIR__.'/routes/api.php');
+
+        // Register web route for media downloads (no auth required since files are public)
+        Route::middleware(['web'])
+            ->get('media/{id}/download', [
+                \ArtisanPackUI\MediaLibrary\Http\Controllers\MediaController::class,
+                'download',
+            ])
+            ->name('media.download');
     }
 
     /**
@@ -173,7 +196,19 @@ class MediaLibraryServiceProvider extends ServiceProvider
         Livewire::component('media::media-grid', MediaGrid::class);
         Livewire::component('media::media-item', MediaItem::class);
         Livewire::component('media::media-modal', MediaModal::class);
+        Livewire::component('media::media-picker', MediaPicker::class);
         Livewire::component('media::folder-manager', FolderManager::class);
         Livewire::component('media::tag-manager', TagManager::class);
+        Livewire::component('media::media-statistics', MediaStatistics::class);
+    }
+
+    /**
+     * Register Blade components.
+     *
+     * @since 1.1.0
+     */
+    protected function registerBladeComponents(): void
+    {
+        Blade::component('media-picker-button', MediaPickerButton::class);
     }
 }

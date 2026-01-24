@@ -418,4 +418,448 @@ class MediaModalTest extends TestCase
             ->test(MediaModal::class, ['selectedMedia' => [$media->id]])
             ->assertSet('selectedMedia', [$media->id]);
     }
+
+    // =========================================================================
+    // Visual Editor Features Tests (Issue #51)
+    // =========================================================================
+
+    /**
+     * Test inline mode initial state.
+     */
+    public function test_inline_mode_initial_state(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, ['inlineMode' => true])
+            ->assertSet('inlineMode', true);
+    }
+
+    /**
+     * Test default inline mode is false.
+     */
+    public function test_default_inline_mode_is_false(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->assertSet('inlineMode', false);
+    }
+
+    /**
+     * Test quick upload select is enabled by default.
+     */
+    public function test_quick_upload_select_enabled_by_default(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->assertSet('quickUploadSelect', true);
+    }
+
+    /**
+     * Test quick upload select can be disabled.
+     */
+    public function test_quick_upload_select_can_be_disabled(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, ['quickUploadSelect' => false])
+            ->assertSet('quickUploadSelect', false);
+    }
+
+    /**
+     * Test recently used loads from session on mount.
+     */
+    public function test_recently_used_loads_from_session(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        session(['media.recently_used' => [$media->id]]);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->assertSet('recentlyUsed', [$media->id]);
+    }
+
+    /**
+     * Test track usage adds media to recently used.
+     */
+    public function test_track_usage_adds_media_to_recently_used(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->call('trackUsage', $media->id)
+            ->assertSet('recentlyUsed', [$media->id]);
+
+        expect(session('media.recently_used'))->toBe([$media->id]);
+    }
+
+    /**
+     * Test track usage moves existing media to front.
+     */
+    public function test_track_usage_moves_existing_to_front(): void
+    {
+        $media1 = Media::factory()->uploadedBy($this->user)->create();
+        $media2 = Media::factory()->uploadedBy($this->user)->create();
+
+        session(['media.recently_used' => [$media1->id, $media2->id]]);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->call('trackUsage', $media2->id)
+            ->assertSet('recentlyUsed', [$media2->id, $media1->id]);
+    }
+
+    /**
+     * Test track usage limits to 10 items.
+     */
+    public function test_track_usage_limits_to_ten_items(): void
+    {
+        $mediaIds = Media::factory()->uploadedBy($this->user)->count(12)->create()->pluck('id')->toArray();
+
+        session(['media.recently_used' => array_slice($mediaIds, 0, 10)]);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->call('trackUsage', $mediaIds[11]);
+
+        expect(count(session('media.recently_used')))->toBe(10);
+        expect(session('media.recently_used')[0])->toBe($mediaIds[11]);
+    }
+
+    /**
+     * Test recently used media computed property.
+     */
+    public function test_recently_used_media_computed(): void
+    {
+        $media1 = Media::factory()->uploadedBy($this->user)->create();
+        $media2 = Media::factory()->uploadedBy($this->user)->create();
+
+        session(['media.recently_used' => [$media1->id, $media2->id]]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaModal::class);
+
+        $recentMedia = $component->invade()->recentlyUsedMedia();
+
+        expect($recentMedia)->toHaveCount(2);
+        expect($recentMedia->first()->id)->toBe($media1->id);
+    }
+
+    /**
+     * Test recently used media returns empty collection when none.
+     */
+    public function test_recently_used_media_returns_empty_when_none(): void
+    {
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaModal::class);
+
+        $recentMedia = $component->invade()->recentlyUsedMedia();
+
+        expect($recentMedia)->toHaveCount(0);
+    }
+
+    /**
+     * Test confirm selection tracks usage.
+     */
+    public function test_confirm_selection_tracks_usage(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->call('toggleSelect', $media->id)
+            ->call('confirmSelection');
+
+        expect(session('media.recently_used'))->toContain($media->id);
+    }
+
+    /**
+     * Test quick upload select in single mode confirms immediately.
+     */
+    public function test_quick_upload_select_single_mode_confirms(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, ['multiSelect' => false, 'quickUploadSelect' => true])
+            ->call('open')
+            ->dispatch('media-uploaded', mediaId: $media->id)
+            ->assertDispatched('media-selected');
+    }
+
+    /**
+     * Test quick upload select in multi mode adds to selection.
+     */
+    public function test_quick_upload_select_multi_mode_adds_selection(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, ['multiSelect' => true, 'quickUploadSelect' => true])
+            ->call('open')
+            ->dispatch('media-uploaded', mediaId: $media->id)
+            ->assertSet('selectedMedia', [$media->id])
+            ->assertNotDispatched('media-selected');
+    }
+
+    /**
+     * Test quick upload select disabled does not auto-select.
+     */
+    public function test_quick_upload_select_disabled(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, ['quickUploadSelect' => false])
+            ->call('open')
+            ->dispatch('media-uploaded', mediaId: $media->id)
+            ->assertSet('selectedMedia', [])
+            ->assertNotDispatched('media-selected');
+    }
+
+    /**
+     * Test quick upload select respects max selections.
+     */
+    public function test_quick_upload_select_respects_max_selections(): void
+    {
+        $media1 = Media::factory()->uploadedBy($this->user)->create();
+        $media2 = Media::factory()->uploadedBy($this->user)->create();
+        $media3 = Media::factory()->uploadedBy($this->user)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, ['multiSelect' => true, 'maxSelections' => 2, 'quickUploadSelect' => true])
+            ->call('toggleSelect', $media1->id)
+            ->call('toggleSelect', $media2->id)
+            ->dispatch('media-uploaded', mediaId: $media3->id)
+            ->assertSet('selectedMedia', [$media1->id, $media2->id]);
+    }
+
+    // =========================================================================
+    // Keyboard Navigation Tests
+    // =========================================================================
+
+    /**
+     * Test focus index initial state.
+     */
+    public function test_focus_index_initial_state(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focus next moves to next item.
+     */
+    public function test_focus_next_moves_to_next_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 0)
+            ->call('focusNext')
+            ->assertSet('focusedIndex', 1);
+    }
+
+    /**
+     * Test focus next wraps around.
+     */
+    public function test_focus_next_wraps_around(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 2)
+            ->call('focusNext')
+            ->assertSet('focusedIndex', 0);
+    }
+
+    /**
+     * Test focus next with no media.
+     */
+    public function test_focus_next_with_no_media(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', -1)
+            ->call('focusNext')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test focus previous moves to previous item.
+     */
+    public function test_focus_previous_moves_to_previous_item(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 2)
+            ->call('focusPrevious')
+            ->assertSet('focusedIndex', 1);
+    }
+
+    /**
+     * Test focus previous wraps to end.
+     */
+    public function test_focus_previous_wraps_to_end(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 0)
+            ->call('focusPrevious')
+            ->assertSet('focusedIndex', 4);
+    }
+
+    /**
+     * Test focus down moves to next row.
+     */
+    public function test_focus_down_moves_to_next_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 1)
+            ->call('focusDown', 5)
+            ->assertSet('focusedIndex', 6);
+    }
+
+    /**
+     * Test focus down stays at last row if would exceed.
+     */
+    public function test_focus_down_stays_at_last_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 3)
+            ->call('focusDown', 5)
+            ->assertSet('focusedIndex', 3);
+    }
+
+    /**
+     * Test focus up moves to previous row.
+     */
+    public function test_focus_up_moves_to_previous_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 6)
+            ->call('focusUp', 5)
+            ->assertSet('focusedIndex', 1);
+    }
+
+    /**
+     * Test focus up stays at first row if would go negative.
+     */
+    public function test_focus_up_stays_at_first_row(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(12)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 2)
+            ->call('focusUp', 5)
+            ->assertSet('focusedIndex', 2);
+    }
+
+    /**
+     * Test focus up does nothing if no focus.
+     */
+    public function test_focus_up_does_nothing_if_no_focus(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(5)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->call('focusUp', 5)
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test select focused toggles selection.
+     */
+    public function test_select_focused_toggles_selection(): void
+    {
+        // Create media items
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        // Get media in the order the component retrieves them (latest first)
+        $sortedMedia = Media::latest()->get();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 0)
+            ->call('selectFocused')
+            ->assertSet('selectedMedia', [$sortedMedia->first()->id]);
+    }
+
+    /**
+     * Test select focused does nothing with no focus.
+     */
+    public function test_select_focused_does_nothing_with_no_focus(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->call('selectFocused')
+            ->assertSet('selectedMedia', []);
+    }
+
+    /**
+     * Test select focused does nothing with invalid index.
+     */
+    public function test_select_focused_does_nothing_with_invalid_index(): void
+    {
+        Media::factory()->uploadedBy($this->user)->count(3)->create();
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 100)
+            ->call('selectFocused')
+            ->assertSet('selectedMedia', []);
+    }
+
+    /**
+     * Test reset focus sets index to -1.
+     */
+    public function test_reset_focus_sets_index_to_negative_one(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class)
+            ->set('focusedIndex', 5)
+            ->call('resetFocus')
+            ->assertSet('focusedIndex', -1);
+    }
+
+    /**
+     * Test component with all visual editor options.
+     */
+    public function test_component_with_all_visual_editor_options(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+        session(['media.recently_used' => [$media->id]]);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaModal::class, [
+                'inlineMode' => true,
+                'quickUploadSelect' => true,
+                'multiSelect' => false,
+                'context' => 'visual-editor',
+            ])
+            ->assertSet('inlineMode', true)
+            ->assertSet('quickUploadSelect', true)
+            ->assertSet('multiSelect', false)
+            ->assertSet('context', 'visual-editor')
+            ->assertSet('recentlyUsed', [$media->id]);
+    }
 }

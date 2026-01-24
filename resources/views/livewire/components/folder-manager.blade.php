@@ -127,8 +127,10 @@
 									wire:click="edit({{ $folder->id }})"
 									variant="primary"
 									size="sm"
+									aria-label="{{ __('Edit folder :name', ['name' => $folder->name]) }}"
 								>
-									<x-artisanpack-icon name="fas.edit" class="w-3 h-3"/>
+									<x-artisanpack-icon name="fas.edit" class="w-3 h-3" aria-hidden="true"/>
+									<span class="sr-only">{{ __('Edit') }}</span>
 								</x-artisanpack-button>
 
 								<x-artisanpack-button
@@ -137,8 +139,10 @@
 									wire:confirm="{{ __('Are you sure you want to delete this folder?') }}"
 									variant="error"
 									size="sm"
+									aria-label="{{ __('Delete folder :name', ['name' => $folder->name]) }}"
 								>
-									<x-artisanpack-icon name="fas.trash" class="w-3 h-3"/>
+									<x-artisanpack-icon name="fas.trash" class="w-3 h-3" aria-hidden="true"/>
+									<span class="sr-only">{{ __('Delete') }}</span>
 								</x-artisanpack-button>
 							</div>
 						</div>
@@ -175,8 +179,10 @@
 											wire:click="edit({{ $child->id }})"
 											variant="primary"
 											size="sm"
+											aria-label="{{ __('Edit folder :name', ['name' => $child->name]) }}"
 										>
-											<x-artisanpack-icon name="fas.edit" class="w-3 h-3"/>
+											<x-artisanpack-icon name="fas.edit" class="w-3 h-3" aria-hidden="true"/>
+											<span class="sr-only">{{ __('Edit') }}</span>
 										</x-artisanpack-button>
 
 										<x-artisanpack-button
@@ -185,8 +191,10 @@
 											wire:confirm="{{ __('Are you sure you want to delete this folder?') }}"
 											variant="error"
 											size="sm"
+											aria-label="{{ __('Delete folder :name', ['name' => $child->name]) }}"
 										>
-											<x-artisanpack-icon name="fas.trash" class="w-3 h-3"/>
+											<x-artisanpack-icon name="fas.trash" class="w-3 h-3" aria-hidden="true"/>
+											<span class="sr-only">{{ __('Delete') }}</span>
 										</x-artisanpack-button>
 									</div>
 								</div>

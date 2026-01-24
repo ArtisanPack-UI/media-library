@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Video Processing Service
+ *
+ * Handles video-related operations such as thumbnail extraction,
+ * metadata extraction, and preview image generation using FFmpeg.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Services
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Services;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;

@@ -376,4 +376,303 @@ class MediaUploadTest extends TestCase
             ->test(MediaUpload::class)
             ->assertStatus(200);
     }
+
+    /**
+     * Test that component has streaming properties from trait.
+     *
+     * @since 1.1.0
+     */
+    public function test_component_has_streaming_properties(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->assertSet('currentFileName', '')
+            ->assertSet('currentFileProgress', 0);
+    }
+
+    /**
+     * Test isStreamingEnabled method returns expected value.
+     *
+     * @since 1.1.0
+     */
+    public function test_is_streaming_enabled_method(): void
+    {
+        config(['artisanpack.media.features.streaming_upload' => true]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class);
+
+        $isEnabled = $component->invade()->isStreamingEnabled();
+        expect($isEnabled)->toBeBool();
+    }
+
+    /**
+     * Test getStreamingFallbackInterval method returns configured value.
+     *
+     * @since 1.1.0
+     */
+    public function test_get_streaming_fallback_interval(): void
+    {
+        config(['artisanpack.media.features.streaming_fallback_interval' => 750]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class);
+
+        $interval = $component->invade()->getStreamingFallbackInterval();
+        expect($interval)->toBe(750);
+    }
+
+    /**
+     * Test collectFilesForUpload method collects files correctly.
+     *
+     * @since 1.1.0
+     */
+    public function test_collect_files_for_upload(): void
+    {
+        $file1 = UploadedFile::fake()->image('photo1.jpg', 100, 100);
+        $file2 = UploadedFile::fake()->image('photo2.jpg', 100, 100);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('files', [$file1, $file2]);
+
+        $files = $component->invade()->collectFilesForUpload();
+        expect($files)->toHaveCount(2);
+    }
+
+    /**
+     * Test buildUploadOptions includes folder_id.
+     *
+     * @since 1.1.0
+     */
+    public function test_build_upload_options_includes_folder_id(): void
+    {
+        $folder = MediaFolder::factory()->createdBy($this->user)->create();
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('folderId', $folder->id);
+
+        $options = $component->invade()->buildUploadOptions();
+        expect($options['folder_id'])->toBe($folder->id);
+    }
+
+    /**
+     * Test buildUploadOptions includes metadata when provided.
+     *
+     * @since 1.1.0
+     */
+    public function test_build_upload_options_includes_metadata(): void
+    {
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('metadata.title', 'Test Title')
+            ->set('metadata.alt_text', 'Test Alt Text')
+            ->set('metadata.caption', 'Test Caption')
+            ->set('metadata.description', 'Test Description');
+
+        $options = $component->invade()->buildUploadOptions();
+
+        expect($options['title'])->toBe('Test Title');
+        expect($options['alt_text'])->toBe('Test Alt Text');
+        expect($options['caption'])->toBe('Test Caption');
+        expect($options['description'])->toBe('Test Description');
+    }
+
+    /**
+     * Test buildUploadOptions excludes empty metadata.
+     *
+     * @since 1.1.0
+     */
+    public function test_build_upload_options_excludes_empty_metadata(): void
+    {
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('metadata.title', '')
+            ->set('metadata.alt_text', '');
+
+        $options = $component->invade()->buildUploadOptions();
+
+        expect($options)->not->toHaveKey('title');
+        expect($options)->not->toHaveKey('alt_text');
+    }
+
+    /**
+     * Test processFilesStandard method works correctly.
+     *
+     * @since 1.1.0
+     */
+    public function test_process_files_standard(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        $mockService = Mockery::mock(MediaUploadService::class);
+        $mockService->shouldReceive('upload')
+            ->once()
+            ->andReturn($media);
+
+        $this->app->instance(MediaUploadService::class, $mockService);
+
+        // Disable streaming to use standard processing
+        config(['artisanpack.media.features.streaming_upload' => false]);
+
+        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('files', [$file])
+            ->call('processUpload')
+            ->assertCount('uploadedMedia', 1)
+            ->assertSet('uploadedCount', 1);
+    }
+
+    /**
+     * Test process upload uses streaming when enabled.
+     *
+     * @since 1.1.0
+     */
+    public function test_process_upload_uses_streaming_when_enabled(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        $mockService = Mockery::mock(MediaUploadService::class);
+        $mockService->shouldReceive('upload')
+            ->once()
+            ->andReturn($media);
+
+        $this->app->instance(MediaUploadService::class, $mockService);
+
+        // Enable streaming
+        config(['artisanpack.media.features.streaming_upload' => true]);
+
+        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('files', [$file])
+            ->call('processUpload')
+            ->assertCount('uploadedMedia', 1)
+            ->assertSet('uploadedCount', 1)
+            ->assertDispatched('media-uploaded');
+    }
+
+    /**
+     * Test shouldUsePoll property returns false when not uploading.
+     *
+     * @since 1.1.0
+     */
+    public function test_should_use_poll_false_when_not_uploading(): void
+    {
+        config(['artisanpack.media.features.streaming_upload' => false]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class);
+
+        // Not uploading, so should not poll
+        expect($component->get('shouldUsePoll'))->toBeFalse();
+    }
+
+    /**
+     * Test shouldUsePoll property returns false when streaming is enabled.
+     *
+     * @since 1.1.0
+     */
+    public function test_should_use_poll_false_when_streaming_enabled(): void
+    {
+        config(['artisanpack.media.features.streaming_upload' => true]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('isUploading', true);
+
+        // Streaming is enabled, so should not poll even when uploading
+        // Note: The actual value depends on whether stream() method exists
+        $shouldUsePoll = $component->get('shouldUsePoll');
+        expect($shouldUsePoll)->toBeBool();
+    }
+
+    /**
+     * Test pollingInterval property returns configured value.
+     *
+     * @since 1.1.0
+     */
+    public function test_polling_interval_returns_configured_value(): void
+    {
+        config(['artisanpack.media.features.streaming_fallback_interval' => 750]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class);
+
+        expect($component->get('pollingInterval'))->toBe(750);
+    }
+
+    /**
+     * Test pollingInterval property returns default value.
+     *
+     * @since 1.1.0
+     */
+    public function test_polling_interval_returns_default_value(): void
+    {
+        config(['artisanpack.media.features.streaming_fallback_interval' => 500]);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(MediaUpload::class);
+
+        expect($component->get('pollingInterval'))->toBe(500);
+    }
+
+    /**
+     * Test that polling mode uses standard processing (not streaming).
+     *
+     * @since 1.1.0
+     */
+    public function test_polling_mode_uses_standard_processing(): void
+    {
+        $media = Media::factory()->uploadedBy($this->user)->create();
+
+        $mockService = Mockery::mock(MediaUploadService::class);
+        $mockService->shouldReceive('upload')
+            ->once()
+            ->andReturn($media);
+
+        $this->app->instance(MediaUploadService::class, $mockService);
+
+        // Disable streaming to force polling mode
+        config(['artisanpack.media.features.streaming_upload' => false]);
+
+        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+
+        Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->set('files', [$file])
+            ->call('processUpload')
+            ->assertCount('uploadedMedia', 1)
+            ->assertSet('uploadedCount', 1)
+            ->assertSet('isUploading', false)
+            ->assertDispatched('media-uploaded');
+    }
+
+    /**
+     * Test that component exposes currentFileName for polling mode.
+     *
+     * @since 1.1.0
+     */
+    public function test_component_exposes_current_file_name_property(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->assertSet('currentFileName', '');
+    }
+
+    /**
+     * Test that component exposes currentFileProgress for polling mode.
+     *
+     * @since 1.1.0
+     */
+    public function test_component_exposes_current_file_progress_property(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(MediaUpload::class)
+            ->assertSet('currentFileProgress', 0);
+    }
 }

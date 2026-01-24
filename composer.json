@@ -3,7 +3,7 @@
   "description": "Media library package for ArtisanPack UI",
   "type": "library",
   "license": "GPL-3.0-or-later",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "autoload": {
     "psr-4": {
       "ArtisanPackUI\\MediaLibrary\\": "src/",
@@ -30,13 +30,17 @@
     "laravel/sanctum": "^4.1",
     "illuminate/support": "^12.17.0",
     "artisanpack-ui/core": "^1.0",
-    "artisanpack-ui/accessibility": "@dev",
-    "artisanpack-ui/livewire-ui-components": "@dev",
-    "artisanpack-ui/security": "@dev",
+    "artisanpack-ui/accessibility": "^2.0",
+    "artisanpack-ui/livewire-ui-components": "^2.0",
+    "artisanpack-ui/security": "^1.0",
     "artisanpack-ui/hooks": "^1.1",
     "intervention/image": "^3.0",
     "php-ffmpeg/php-ffmpeg": "^1.0",
-    "livewire/livewire": "^3.6"
+    "livewire/livewire": "^3.6|^4.0"
+  },
+  "suggest": {
+    "phpoffice/phpspreadsheet": "^1.29|^2.0 - Required for XLSX export functionality",
+    "barryvdh/laravel-dompdf": "^2.0|^3.0 - Required for PDF export functionality"
   },
   "require-dev": {
     "pestphp/pest": "^3.8",

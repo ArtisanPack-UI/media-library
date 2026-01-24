@@ -1,18 +1,34 @@
 <div class="media-upload-container space-y-6 mx-auto">
-	{{-- Header --}}
-	<div class="flex items-center justify-between">
-		<x-artisanpack-heading level="1">{{ __('Upload Media') }}</x-artisanpack-heading>
-		<x-artisanpack-button :href="route('admin.media')" variant="outline" size="sm">
-			<x-artisanpack-icon name="fas.arrow-left" class="mr-2"/>
-			{{ __('Back to Library') }}
-		</x-artisanpack-button>
+	{{-- Screen Reader Upload Progress Announcements --}}
+	<div
+		aria-live="polite"
+		aria-atomic="true"
+		class="sr-only"
+		role="status"
+	>
+		@if($isUploading)
+			{{ __('Uploading :current of :total files. :progress percent complete.', ['current' => $uploadedCount, 'total' => $totalFiles, 'progress' => $uploadProgress]) }}
+		@endif
 	</div>
+
+	{{-- Header (only shown in standalone mode, not when embedded in modal) --}}
+	@if(!isset($embedded) || !$embedded)
+		<div class="flex items-center justify-between">
+			<x-artisanpack-heading level="1">{{ __('Upload Media') }}</x-artisanpack-heading>
+			@if(Route::has('admin.media'))
+				<x-artisanpack-button :href="route('admin.media')" variant="outline" size="sm">
+					<x-artisanpack-icon name="fas.arrow-left" class="mr-2"/>
+					{{ __('Back to Library') }}
+				</x-artisanpack-button>
+			@endif
+		</div>
+	@endif
 
 	{{-- Upload Form --}}
 	<x-artisanpack-card>
 		{{-- Drag and Drop Zone --}}
 		<div
-			class="border-2 border-dashed rounded-lg p-12 text-center transition-all"
+			class="border-2 border-dashed rounded-lg p-12 text-center transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
 			:class="{
 				'border-primary bg-primary/5': isDragging,
 				'border-success bg-success/5': {{ $this->totalFilesCount > 0 ? 'true' : 'false' }},
@@ -23,6 +39,13 @@
 				dragCounter: 0,
 				openFilePicker() {
 					this.$refs.fileInput.click();
+				},
+				handleKeydown(e) {
+					// Handle Enter or Space to open file picker
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						this.openFilePicker();
+					}
 				},
 				handleDragEnter(e) {
 					e.preventDefault();
@@ -63,6 +86,10 @@
 					);
 				}
 			}"
+			tabindex="0"
+			role="button"
+			aria-label="{{ __('Drop files here or press Enter to browse') }}"
+			x-on:keydown="handleKeydown($event)"
 			x-on:dragenter="handleDragEnter($event)"
 			x-on:dragover.prevent
 			x-on:dragleave="handleDragLeave($event)"
@@ -141,9 +168,10 @@
 								wire:click="removeFile({{ $index }})"
 								variant="error"
 								size="sm"
-								:title="__('Remove')"
+								aria-label="{{ __('Remove :filename', ['filename' => $fileName]) }}"
 							>
-								<x-artisanpack-icon name="fas.times"/>
+								<x-artisanpack-icon name="fas.times" aria-hidden="true"/>
+								<span class="sr-only">{{ __('Remove') }}</span>
 							</x-artisanpack-button>
 						</div>
 					@endforeach
@@ -178,12 +206,13 @@
 							</div>
 
 							<x-artisanpack-button
-								wire:click="removeFile({{ $index }})"
+								wire:click="removeDroppedFile({{ $index }})"
 								variant="error"
 								size="sm"
-								:title="__('Remove')"
+								aria-label="{{ __('Remove :filename', ['filename' => $fileName]) }}"
 							>
-								<x-artisanpack-icon name="fas.times"/>
+								<x-artisanpack-icon name="fas.times" aria-hidden="true"/>
+								<span class="sr-only">{{ __('Remove') }}</span>
 							</x-artisanpack-button>
 						</div>
 					@endforeach
@@ -253,13 +282,239 @@
 
 		{{-- Upload Progress --}}
 		@if($isUploading || $uploadProgress > 0)
-			<div class="mt-6">
+			<div
+				class="mt-6"
+				{{-- Polling fallback for Livewire 3 (when streaming is not available) --}}
+				@if($this->shouldUsePoll)
+					wire:poll.{{ $this->pollingInterval }}ms
+				@endif
+				x-data="{
+					progress: {{ $uploadProgress }},
+					fileName: {{ Js::from($currentFileName) }},
+					fileProgress: {{ $currentFileProgress }},
+					current: {{ $uploadedCount }},
+					total: {{ $totalFiles }},
+					status: '',
+					complete: false,
+					isStreaming: {{ $this->isStreamingEnabled() ? 'true' : 'false' }},
+					progressObserver: null,
+					parseStreamData(content) {
+						try {
+							const data = JSON.parse(content);
+							if (data.progress !== undefined) this.progress = data.progress;
+							if (data.fileName !== undefined) this.fileName = data.fileName;
+							if (data.fileProgress !== undefined) this.fileProgress = data.fileProgress;
+							if (data.current !== undefined) this.current = data.current;
+							if (data.total !== undefined) this.total = data.total;
+							if (data.status !== undefined) this.status = data.status;
+							if (data.complete !== undefined) this.complete = data.complete;
+						} catch (e) {
+							console.error('Failed to parse stream data:', e);
+						}
+					},
+					updateFromServer() {
+						// For polling mode, update Alpine state from Livewire properties
+						if (!this.isStreaming) {
+							this.progress = {{ $uploadProgress }};
+							this.current = {{ $uploadedCount }};
+							this.total = {{ $totalFiles }};
+							this.fileName = {{ Js::from($currentFileName) }};
+							this.fileProgress = {{ $currentFileProgress }};
+						}
+					},
+					initProgressObserver() {
+						if (!this.isStreaming) return;
+
+						const target = this.$el.querySelector('[wire\\:stream=upload-progress]');
+						if (!target) return;
+
+						const self = this;
+						this.progressObserver = new MutationObserver((mutations) => {
+							for (const mutation of mutations) {
+								// Handle added nodes (for childList mutations)
+								if (mutation.addedNodes) {
+									for (const node of mutation.addedNodes) {
+										const content = node.nodeValue || node.textContent;
+										if (content && content.trim()) {
+											self.parseStreamData(content.trim());
+										}
+									}
+								}
+								// Handle characterData mutations (direct text changes)
+								if (mutation.type === 'characterData' && mutation.target.nodeValue) {
+									self.parseStreamData(mutation.target.nodeValue.trim());
+								}
+							}
+						});
+
+						this.progressObserver.observe(target, {
+							childList: true,
+							subtree: true,
+							characterData: true
+						});
+					},
+					destroyProgressObserver() {
+						if (this.progressObserver) {
+							this.progressObserver.disconnect();
+							this.progressObserver = null;
+						}
+					}
+				}"
+				@if($this->isStreamingEnabled())
+					x-init="initProgressObserver(); typeof $cleanup === 'function' && $cleanup(() => destroyProgressObserver())"
+				@else
+					x-init="updateFromServer()"
+					x-effect="updateFromServer()"
+				@endif
+			>
+				{{-- Stream target for progress updates (hidden, receives JSON data) --}}
+				@if($this->isStreamingEnabled())
+					<div wire:stream="upload-progress" class="hidden"></div>
+				@endif
+
+				{{-- Progress mode indicator (for development/debugging) --}}
+				@if(config('app.debug'))
+					<div class="text-xs text-zinc-400 mb-2">
+						{{ $this->isStreamingEnabled() ? __('Using streaming (Livewire 4)') : __('Using polling fallback (Livewire 3)') }}
+					</div>
+				@endif
+
 				<div class="flex items-center justify-between mb-2">
-					<span
-						class="text-sm font-medium">{{ __('Uploading :current of :total files', ['current' => $uploadedCount, 'total' => $totalFiles]) }}</span>
-					<span class="text-sm font-medium">{{ $uploadProgress }}%</span>
+					@if($this->isStreamingEnabled())
+						<span class="text-sm font-medium" x-text="status || '{{ __('Uploading :current of :total files', ['current' => $uploadedCount, 'total' => $totalFiles]) }}'">
+							{{ __('Uploading :current of :total files', ['current' => $uploadedCount, 'total' => $totalFiles]) }}
+						</span>
+						<span class="text-sm font-medium" x-text="progress + '%'">{{ $uploadProgress }}%</span>
+					@else
+						{{-- For polling mode, use server-side values directly --}}
+						<span class="text-sm font-medium">
+							{{ __('Uploading :current of :total files', ['current' => $uploadedCount, 'total' => $totalFiles]) }}
+						</span>
+						<span class="text-sm font-medium">{{ $uploadProgress }}%</span>
+					@endif
 				</div>
-				<x-artisanpack-progress :value="$uploadProgress"/>
+
+				{{-- Overall progress bar --}}
+				@if($this->isStreamingEnabled())
+					<x-artisanpack-progress :value="$uploadProgress" x-bind:value="progress" />
+				@else
+					{{-- For polling mode, progress updates via Livewire re-render --}}
+					<x-artisanpack-progress :value="$uploadProgress" />
+				@endif
+
+				{{-- Current file progress (only shown during streaming) --}}
+				@if($this->isStreamingEnabled())
+					<div x-show="fileName && !complete" x-cloak class="mt-3">
+						<div class="flex items-center justify-between mb-1">
+							<span class="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-xs" x-text="fileName"></span>
+							<span class="text-xs text-zinc-600 dark:text-zinc-400" x-text="fileProgress + '%'"></span>
+						</div>
+						<div
+							class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5"
+							role="progressbar"
+							aria-valuemin="0"
+							aria-valuemax="100"
+							x-bind:aria-valuenow="fileProgress"
+							x-bind:aria-label="'{{ __('File upload progress') }}: ' + fileName"
+						>
+							<div
+								class="bg-primary h-1.5 rounded-full transition-all duration-300"
+								x-bind:style="'width: ' + fileProgress + '%'"
+							></div>
+						</div>
+					</div>
+				@else
+					{{-- Polling mode: Show current file info if available --}}
+					@if($currentFileName)
+						<div class="mt-3">
+							<div class="flex items-center justify-between mb-1">
+								<span class="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-xs">{{ $currentFileName }}</span>
+								<span class="text-xs text-zinc-600 dark:text-zinc-400">{{ $currentFileProgress }}%</span>
+							</div>
+							<div
+								class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5"
+								role="progressbar"
+								aria-valuemin="0"
+								aria-valuemax="100"
+								aria-valuenow="{{ $currentFileProgress }}"
+								aria-label="{{ __('File upload progress') }}: {{ $currentFileName }}"
+							>
+								<div
+									class="bg-primary h-1.5 rounded-full transition-all duration-300"
+									style="width: {{ $currentFileProgress }}%"
+								></div>
+							</div>
+						</div>
+					@endif
+				@endif
+			</div>
+		@endif
+
+		{{-- Stream target for errors (only when streaming is enabled) --}}
+		@if($this->isStreamingEnabled())
+			<div
+				x-data="{
+					errors: [],
+					errorObserver: null,
+					addError(content) {
+						try {
+							const data = JSON.parse(content);
+							if (data.error && data.message) {
+								this.errors.push(data.message);
+							}
+						} catch (e) {
+							console.error('Failed to parse error stream:', e);
+						}
+					},
+					initErrorObserver() {
+						const self = this;
+						const target = this.$refs.errorStream;
+						if (!target) return;
+
+						this.errorObserver = new MutationObserver((mutations) => {
+							for (const mutation of mutations) {
+								// Handle added nodes (for childList mutations)
+								if (mutation.addedNodes) {
+									for (const node of mutation.addedNodes) {
+										const content = node.nodeValue || node.textContent;
+										if (content && content.trim()) {
+											self.addError(content.trim());
+										}
+									}
+								}
+								// Handle characterData mutations (direct text changes)
+								if (mutation.type === 'characterData' && mutation.target.nodeValue) {
+									self.addError(mutation.target.nodeValue.trim());
+								}
+							}
+						});
+
+						this.errorObserver.observe(target, {
+							childList: true,
+							subtree: true,
+							characterData: true
+						});
+					},
+					destroyErrorObserver() {
+						if (this.errorObserver) {
+							this.errorObserver.disconnect();
+							this.errorObserver = null;
+						}
+					}
+				}"
+				x-init="initErrorObserver(); typeof $cleanup === 'function' && $cleanup(() => destroyErrorObserver())"
+			>
+				{{-- Hidden stream target --}}
+				<div wire:stream="upload-errors" x-ref="errorStream" class="hidden"></div>
+
+				{{-- Render streamed errors --}}
+				<template x-if="errors.length > 0">
+					<div class="mt-4 space-y-2">
+						<template x-for="(error, index) in errors" :key="index">
+							<x-artisanpack-alert variant="error" x-text="error"></x-artisanpack-alert>
+						</template>
+					</div>
+				</template>
 			</div>
 		@endif
 	</x-artisanpack-card>
@@ -299,9 +554,11 @@
 							<p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $media->humanFileSize() }}</p>
 						</div>
 
-						<x-artisanpack-button :href="route('admin.media.edit', $media->id)" variant="outline" size="sm">
-							{{ __('Edit') }}
-						</x-artisanpack-button>
+						@if(Route::has('admin.media.edit'))
+							<x-artisanpack-button :href="route('admin.media.edit', $media->id)" variant="outline" size="sm">
+								{{ __('Edit') }}
+							</x-artisanpack-button>
+						@endif
 					</div>
 				@endforeach
 			</div>
@@ -310,9 +567,9 @@
 
 	{{-- Upload Errors --}}
 	@if(count($uploadErrors) > 0)
-		<x-artisanpack-alert variant="error">
+		<x-artisanpack-alert variant="error" role="alert">
 			<x-artisanpack-heading level="3" class="mb-2">{{ __('Upload Errors') }}</x-artisanpack-heading>
-			<ul class="list-disc list-inside space-y-1">
+			<ul class="list-disc list-inside space-y-1" aria-label="{{ __('List of upload errors') }}">
 				@foreach($uploadErrors as $error)
 					<li>{{ $error }}</li>
 				@endforeach
