@@ -132,35 +132,48 @@ return new class extends Migration
 
         // Make uploaded_by nullable for guest upload support (v1.1.1)
         // This requires dropping and re-creating the foreign key constraint
-        Schema::table('media', function (Blueprint $table) {
-            // Check if we need to modify the column (it might already be nullable)
-            // Using Doctrine's schema introspection for database-agnostic nullable check
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            $columns = $sm->listTableColumns('media');
-            $col = $columns['uploaded_by'] ?? null;
+        // Using Laravel's native Schema methods (Laravel 11+) instead of Doctrine
+        $columns = Schema::getColumns('media');
+        $uploadedByColumn = collect($columns)->firstWhere('name', 'uploaded_by');
 
-            // Only proceed if column exists and is NOT nullable (getNotnull() returns true when NOT NULL)
-            if ($col !== null && $col->getNotnull()) {
-                // Drop the existing foreign key if it exists
-                $foreignKeys = $sm->listTableForeignKeys('media');
+        // Only proceed if column exists and is NOT nullable
+        if ($uploadedByColumn !== null && ! $uploadedByColumn['nullable']) {
+            // Drop the existing foreign key if it exists
+            $foreignKeys = Schema::getForeignKeys('media');
 
-                foreach ($foreignKeys as $foreignKey) {
-                    if (in_array('uploaded_by', $foreignKey->getLocalColumns(), true)) {
-                        $table->dropForeign($foreignKey->getName());
-                        break;
-                    }
+            foreach ($foreignKeys as $foreignKey) {
+                if (in_array('uploaded_by', $foreignKey['columns'], true)) {
+                    Schema::table('media', function (Blueprint $table) use ($foreignKey) {
+                        $table->dropForeign($foreignKey['name']);
+                    });
+                    break;
                 }
+            }
 
-                // Make the column nullable
-                $table->unsignedBigInteger('uploaded_by')->nullable()->change();
+            // Make the column nullable using raw SQL for database-agnostic approach
+            $driver = Schema::getConnection()->getDriverName();
 
-                // Re-add the foreign key with nullOnDelete
+            if ($driver === 'sqlite') {
+                // SQLite doesn't support ALTER COLUMN, but columns are nullable by default
+                // when no NOT NULL constraint is specified during table creation.
+                // For SQLite, we'd need to recreate the table, but since this is an upgrade
+                // migration and SQLite is typically only used in development/testing,
+                // we can skip this for SQLite as the fresh install already creates it nullable.
+            } elseif ($driver === 'pgsql') {
+                DB::statement('ALTER TABLE media ALTER COLUMN uploaded_by DROP NOT NULL');
+            } else {
+                // MySQL/MariaDB
+                DB::statement('ALTER TABLE media MODIFY uploaded_by BIGINT UNSIGNED NULL');
+            }
+
+            // Re-add the foreign key with nullOnDelete
+            Schema::table('media', function (Blueprint $table) {
                 $table->foreign('uploaded_by')
                     ->references('id')
                     ->on('users')
                     ->nullOnDelete();
-            }
-        });
+            });
+        }
 
         // Add indexes if missing (check for existing indexes to avoid duplicates)
         // Using Laravel's native Schema::getIndexListing() instead of Doctrine

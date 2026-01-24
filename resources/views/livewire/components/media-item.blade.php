@@ -38,11 +38,14 @@
 	@endif
 
 	{{-- Clickable wrapper for non-bulk mode --}}
+	{{-- Using a div with click handler instead of <a> to avoid nested anchors with action bar links --}}
 	@if(!$bulkSelectMode && Route::has('admin.media.edit'))
-		<a
-			href="{{ route('admin.media.edit', $media->id) }}"
-			wire:navigate
-			class="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+		<div
+			role="link"
+			tabindex="0"
+			x-on:click="Livewire.navigate('{{ route('admin.media.edit', $media->id) }}')"
+			x-on:keydown.enter="Livewire.navigate('{{ route('admin.media.edit', $media->id) }}')"
+			class="block cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
 		>
 	@endif
 
@@ -83,6 +86,7 @@
 				href="{{ route('media.download', $media->id) }}"
 				x-on:click.stop
 				target="_blank"
+				rel="noopener noreferrer"
 				aria-label="{{ __('Download :name', ['name' => $media->title ?? $media->file_name]) }}"
 				class="btn btn-sm btn-outline bg-white/90 hover:bg-white"
 			>
@@ -145,6 +149,6 @@
 	</div>
 
 	@if(!$bulkSelectMode && Route::has('admin.media.edit'))
-		</a>
+		</div>
 	@endif
 </div>
