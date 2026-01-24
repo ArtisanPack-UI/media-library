@@ -13,7 +13,7 @@ Before upgrading, ensure your application meets these requirements:
 | Requirement | Version |
 |-------------|---------|
 | PHP | 8.2 or higher |
-| Laravel | 11.0 or higher |
+| Laravel | 12.0 or higher |
 | Livewire | 3.6+ or 4.0+ |
 | livewire-ui-components | ^2.0 |
 
@@ -321,7 +321,7 @@ The new MediaPicker component enables media selection in visual editors:
 ### 1. Add the MediaPicker Component
 
 ```blade
-<livewire:media-picker
+<livewire:media::media-picker
     context="featured-image"
     :allowed-types="['image']"
     :multi-select="false"
@@ -455,7 +455,7 @@ For complete documentation, see [MediaPicker Component](./visual-editor/media-pi
 
 1. Verify the component is on the page:
    ```blade
-   <livewire:media-picker context="my-context" />
+   <livewire:media::media-picker context="my-context" />
    ```
 
 2. Check the context matches:

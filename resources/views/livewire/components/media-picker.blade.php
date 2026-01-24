@@ -2,7 +2,7 @@
 	x-data="{
 		focusedIndex: @entangle('focusedIndex'),
 
-		handleKeydown(event) {
+		async handleKeydown(event) {
 			if (!$wire.isOpen) return;
 
 			// Escape to close
@@ -40,7 +40,7 @@
 			// Home to go to first item
 			if (event.key === 'Home') {
 				event.preventDefault();
-				$wire.focusFirst();
+				await $wire.focusFirst();
 				this.scrollToFocused();
 				return;
 			}
@@ -48,7 +48,7 @@
 			// End to go to last item
 			if (event.key === 'End') {
 				event.preventDefault();
-				$wire.focusLast();
+				await $wire.focusLast();
 				this.scrollToFocused();
 				return;
 			}
@@ -59,22 +59,22 @@
 			switch (event.key) {
 				case 'ArrowRight':
 					event.preventDefault();
-					$wire.focusNext();
+					await $wire.focusNext();
 					this.scrollToFocused();
 					break;
 				case 'ArrowLeft':
 					event.preventDefault();
-					$wire.focusPrevious();
+					await $wire.focusPrevious();
 					this.scrollToFocused();
 					break;
 				case 'ArrowDown':
 					event.preventDefault();
-					$wire.focusDown(columnsPerRow);
+					await $wire.focusDown(columnsPerRow);
 					this.scrollToFocused();
 					break;
 				case 'ArrowUp':
 					event.preventDefault();
-					$wire.focusUp(columnsPerRow);
+					await $wire.focusUp(columnsPerRow);
 					this.scrollToFocused();
 					break;
 			}
@@ -208,28 +208,52 @@
 			{{-- Media Grid with Infinite Scroll --}}
 			<div
 				class="p-4 max-h-[400px] overflow-y-auto"
+				x-ref="scrollContainer"
 				x-data="{
+					observer: null,
+
 					observe() {
-						let observer = new IntersectionObserver((entries) => {
+						// Disconnect existing observer before creating a new one
+						if (this.observer) {
+							this.observer.disconnect();
+						}
+
+						this.observer = new IntersectionObserver((entries) => {
 							entries.forEach(entry => {
 								if (entry.isIntersecting && $wire.hasMore) {
 									$wire.loadMore();
 								}
 							});
-						}, { rootMargin: '100px' });
+						}, {
+							root: this.$refs.scrollContainer,
+							rootMargin: '100px'
+						});
 
 						let sentinel = this.$refs.sentinel;
 						if (sentinel) {
-							observer.observe(sentinel);
+							this.observer.observe(sentinel);
 						}
+					},
+
+					reconnectObserver() {
+						// Re-observe the sentinel after Livewire updates
+						this.$nextTick(() => {
+							let sentinel = this.$refs.sentinel;
+							if (sentinel && this.observer) {
+								this.observer.disconnect();
+								this.observer.observe(sentinel);
+							}
+						});
 					}
 				}"
 				x-init="observe()"
+				@livewire:updated.window="reconnectObserver()"
 			>
 				<div
 					class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
 					role="grid"
 					aria-label="{{ __('Media items') }}"
+					aria-multiselectable="{{ $multiSelect ? 'true' : 'false' }}"
 				>
 					@forelse ($this->media as $index => $mediaItem)
 						@php

@@ -76,11 +76,12 @@ return new class extends Migration
         });
 
         // Migrate data from old table
+        // Using CURRENT_TIMESTAMP for DB-agnostic SQL (works on SQLite/Postgres/MySQL)
         $oldColumnName = Schema::hasColumn('media_media_tag', 'tag_id') ? 'tag_id' : 'media_tag_id';
 
         DB::statement("
 			INSERT INTO media_taggables (media_id, media_tag_id, created_at, updated_at)
-			SELECT media_id, {$oldColumnName}, NOW(), NOW()
+			SELECT media_id, {$oldColumnName}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 			FROM media_media_tag
 		");
 

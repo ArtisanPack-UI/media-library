@@ -239,46 +239,79 @@ if ($this->isLivewire4OrHigher()) {
 </div>
 ```
 
-## Events
+## Streaming Progress Updates
 
-### `upload-started`
+### Using `wire:stream`
 
-Dispatched when upload begins:
+On Livewire 4+, progress updates are streamed directly from the server using `wire:stream`. Add stream targets to your template:
+
+```blade
+{{-- Progress stream target --}}
+<div wire:stream="upload-progress">
+    {{-- Server pushes JSON progress updates here --}}
+</div>
+
+{{-- Error stream target --}}
+<div wire:stream="upload-errors">
+    {{-- Server pushes error messages here --}}
+</div>
+```
+
+### Stream Payload Fields
+
+The `upload-progress` stream emits JSON with these fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `progress` | int | Overall upload progress (0-100) |
+| `fileName` | string | Current file being uploaded |
+| `fileProgress` | int | Current file's progress (0-100) |
+| `current` | int | Current file number |
+| `total` | int | Total number of files |
+| `status` | string | Current status: `uploading`, `processing`, `complete`, `error` |
+| `complete` | bool | Whether all uploads are finished |
+| `successCount` | int | Number of successfully uploaded files |
+| `errorCount` | int | Number of failed uploads |
+| `error` | string\|null | Error message if status is `error` |
+
+### Consuming Stream Data
 
 ```javascript
-Livewire.on('upload-started', (event) => {
-    console.log('Upload started:', event.filename);
+// Parse streamed JSON updates
+const progressContainer = document.querySelector('[wire\\:stream="upload-progress"]');
+
+// Use MutationObserver to react to stream updates
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+            const data = JSON.parse(progressContainer.textContent);
+            console.log('Progress:', data.progress, '%');
+            console.log('Current file:', data.fileName);
+        }
+    });
+});
+
+observer.observe(progressContainer, { childList: true });
+```
+
+### Upload Completion Event
+
+When uploads complete, the component dispatches a `media-uploaded` DOM event:
+
+```javascript
+// Listen for upload completion
+document.addEventListener('media-uploaded', (event) => {
+    console.log('Upload complete:', event.detail);
+    // event.detail contains the uploaded media information
 });
 ```
 
-### `upload-progress`
+Or in Alpine.js:
 
-Dispatched during upload (polling mode):
-
-```javascript
-Livewire.on('upload-progress', (event) => {
-    console.log('Progress:', event.progress, '%');
-});
-```
-
-### `upload-completed`
-
-Dispatched when upload finishes:
-
-```javascript
-Livewire.on('upload-completed', (event) => {
-    console.log('Upload completed:', event.mediaId);
-});
-```
-
-### `upload-failed`
-
-Dispatched on upload error:
-
-```javascript
-Livewire.on('upload-failed', (event) => {
-    console.error('Upload failed:', event.message);
-});
+```blade
+<div @media-uploaded.window="handleUploadComplete($event.detail)">
+    <livewire:media-upload-zone />
+</div>
 ```
 
 ## Multiple File Uploads

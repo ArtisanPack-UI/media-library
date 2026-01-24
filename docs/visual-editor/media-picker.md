@@ -9,7 +9,7 @@ The MediaPicker is a Livewire component designed for embedding in visual editors
 ## Basic Usage
 
 ```blade
-<livewire:media-picker
+<livewire:media::media-picker
     context="featured-image"
     :allowed-types="['image']"
     :multi-select="false"
@@ -35,13 +35,13 @@ The `context` parameter is crucial for identifying which picker instance dispatc
 
 ```blade
 <!-- Featured image picker -->
-<livewire:media-picker context="featured-image" />
+<livewire:media::media-picker context="featured-image" />
 
 <!-- Gallery picker -->
-<livewire:media-picker context="gallery" :multi-select="true" />
+<livewire:media::media-picker context="gallery" :multi-select="true" />
 
 <!-- Background image picker -->
-<livewire:media-picker context="background" />
+<livewire:media::media-picker context="background" />
 ```
 
 ## Opening the Picker
@@ -64,7 +64,7 @@ Livewire.dispatch('open-media-picker', { context: 'featured-image' });
 ### Via Component Method
 
 ```blade
-<livewire:media-picker context="featured-image" wire:ref="featuredPicker" />
+<livewire:media::media-picker context="featured-image" wire:ref="featuredPicker" />
 
 <button wire:click="$refs.featuredPicker.open()">
     Select Image
@@ -167,25 +167,25 @@ Restrict the picker to specific media types:
 
 ```blade
 <!-- Images only -->
-<livewire:media-picker
+<livewire:media::media-picker
     context="image-picker"
     :allowed-types="['image']"
 />
 
 <!-- Videos only -->
-<livewire:media-picker
+<livewire:media::media-picker
     context="video-picker"
     :allowed-types="['video']"
 />
 
 <!-- Documents only -->
-<livewire:media-picker
+<livewire:media::media-picker
     context="document-picker"
     :allowed-types="['document']"
 />
 
 <!-- Multiple types -->
-<livewire:media-picker
+<livewire:media::media-picker
     context="media-picker"
     :allowed-types="['image', 'video']"
 />
@@ -196,7 +196,7 @@ Restrict the picker to specific media types:
 Enable multi-select mode for galleries or collections:
 
 ```blade
-<livewire:media-picker
+<livewire:media::media-picker
     context="gallery"
     :multi-select="true"
     :max-selections="20"
@@ -231,7 +231,7 @@ Recently used items appear at the top of the media grid when no search/filter is
 When enabled, newly uploaded media is automatically selected:
 
 ```blade
-<livewire:media-picker
+<livewire:media::media-picker
     context="quick-picker"
     :quick-upload-select="true"
 />
@@ -251,7 +251,7 @@ $requirements = config('artisanpack.media.block_requirements.hero', []);
 ```
 
 ```blade
-<livewire:media-picker
+<livewire:media::media-picker
     context="hero-block"
     :allowed-types="$requirements['allowed_types'] ?? ['image']"
     :max-selections="$requirements['max_selections'] ?? 1"
@@ -334,12 +334,12 @@ Complete example for a blog post editor:
     </div>
 
     <!-- Media Pickers -->
-    <livewire:media-picker
+    <livewire:media::media-picker
         context="featured-image"
         :allowed-types="['image']"
     />
 
-    <livewire:media-picker
+    <livewire:media::media-picker
         context="gallery"
         :allowed-types="['image']"
         :multi-select="true"

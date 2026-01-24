@@ -11,6 +11,9 @@
 					console.error('Failed to copy:', err);
 					$wire.error('{{ __('Failed to copy URL') }}');
 				});
+			} else {
+				// Fallback when Clipboard API is unavailable
+				$wire.error('{{ __('Clipboard not available') }}');
 			}
 		}
 	}"
@@ -64,7 +67,7 @@
 		<div
 			class="absolute bottom-0 left-0 right-0 glass-frosted bg-zinc-900/60 dark:bg-zinc-950/70 backdrop-blur-md backdrop-saturate-150 border-t border-white/10 p-4 flex gap-2 justify-center transition-opacity"
 			:class="showActions ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
-			x-on:click.prevent.stop
+			x-on:click.stop
 		>
 			<button
 				type="button"

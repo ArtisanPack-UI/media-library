@@ -134,13 +134,14 @@ return new class extends Migration
         // This requires dropping and re-creating the foreign key constraint
         Schema::table('media', function (Blueprint $table) {
             // Check if we need to modify the column (it might already be nullable)
-            $columnType = DB::select(
-                "SHOW COLUMNS FROM media WHERE Field = 'uploaded_by'"
-            );
+            // Using Doctrine's schema introspection for database-agnostic nullable check
+            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $columns = $sm->listTableColumns('media');
+            $col = $columns['uploaded_by'] ?? null;
 
-            if (! empty($columnType) && 'NO' === $columnType[0]->Null) {
+            // Only proceed if column exists and is NOT nullable (getNotnull() returns true when NOT NULL)
+            if ($col !== null && $col->getNotnull()) {
                 // Drop the existing foreign key if it exists
-                $sm = Schema::getConnection()->getDoctrineSchemaManager();
                 $foreignKeys = $sm->listTableForeignKeys('media');
 
                 foreach ($foreignKeys as $foreignKey) {
@@ -162,28 +163,38 @@ return new class extends Migration
         });
 
         // Add indexes if missing (check for existing indexes to avoid duplicates)
+        // Using Laravel's native Schema::getIndexListing() instead of Doctrine
         Schema::table('media', function (Blueprint $table) {
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            $indexes = $sm->listTableIndexes('media');
-            $indexNames = array_keys($indexes);
+            $indexNames = Schema::getIndexListing('media');
 
-            if (! in_array('media_file_name_index', $indexNames, true) && ! in_array('media_file_name_idx', $indexNames, true)) {
+            // Check for both possible naming conventions (_index and _idx)
+            $hasFileNameIndex = in_array('media_file_name_index', $indexNames, true)
+                || in_array('media_file_name_idx', $indexNames, true);
+            if (! $hasFileNameIndex) {
                 $table->index('file_name');
             }
 
-            if (! in_array('media_mime_type_index', $indexNames, true) && ! in_array('media_mime_type_idx', $indexNames, true)) {
+            $hasMimeTypeIndex = in_array('media_mime_type_index', $indexNames, true)
+                || in_array('media_mime_type_idx', $indexNames, true);
+            if (! $hasMimeTypeIndex) {
                 $table->index('mime_type');
             }
 
-            if (! in_array('media_folder_id_index', $indexNames, true) && ! in_array('media_folder_id_idx', $indexNames, true)) {
+            $hasFolderIdIndex = in_array('media_folder_id_index', $indexNames, true)
+                || in_array('media_folder_id_idx', $indexNames, true);
+            if (! $hasFolderIdIndex) {
                 $table->index('folder_id');
             }
 
-            if (! in_array('media_uploaded_by_index', $indexNames, true) && ! in_array('media_uploaded_by_idx', $indexNames, true)) {
+            $hasUploadedByIndex = in_array('media_uploaded_by_index', $indexNames, true)
+                || in_array('media_uploaded_by_idx', $indexNames, true);
+            if (! $hasUploadedByIndex) {
                 $table->index('uploaded_by');
             }
 
-            if (! in_array('media_created_at_index', $indexNames, true) && ! in_array('media_created_at_idx', $indexNames, true)) {
+            $hasCreatedAtIndex = in_array('media_created_at_index', $indexNames, true)
+                || in_array('media_created_at_idx', $indexNames, true);
+            if (! $hasCreatedAtIndex) {
                 $table->index('created_at');
             }
         });

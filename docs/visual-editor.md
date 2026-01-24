@@ -42,7 +42,7 @@ Complete examples for integrating with various CMS platforms and visual editors.
 ### Basic MediaPicker Usage
 
 ```blade
-<livewire:media-picker
+<livewire:media::media-picker
     context="featured-image"
     :allowed-types="['image']"
     :multi-select="false"
@@ -62,7 +62,7 @@ Livewire.on('media-picked', (event) => {
 
 ## Configuration
 
-Visual editor settings are configured in `config/artisanpack.php` under the `media.visual_editor` key.
+Visual editor settings are configured in `config/media.php` under the `visual_editor` key.
 
 See the [Configuration Guide](./installation/configuration.md#visual-editor-integration-v11) for all options.
 
