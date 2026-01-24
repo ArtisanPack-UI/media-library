@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Model
+ *
+ * Eloquent model representing a single uploaded media item (image, video,
+ * audio, or document). Provides helpers for URLs, image sizes, file
+ * deletion, and query scopes by type, tag, and folder.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Models
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\MediaFactory;
@@ -31,6 +44,17 @@ class Media extends Model
      * @var string
      */
     protected $table = 'media';
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @since 1.1.0
+     *
+     * @var array<string>
+     */
+    protected $appends = [
+        'url',
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -183,6 +207,18 @@ class Media extends Model
     public function url(): string
     {
         return Storage::disk( $this->disk )->url( $this->file_path );
+    }
+
+    /**
+     * Get the URL attribute for array/JSON serialization.
+     *
+     * @since 1.1.0
+     *
+     * @return string The full URL to the media file.
+     */
+    public function getUrlAttribute(): string
+    {
+        return $this->url();
     }
 
     /**

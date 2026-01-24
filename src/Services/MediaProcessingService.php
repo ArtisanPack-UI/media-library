@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Processing Service
+ *
+ * Handles image-related operations such as thumbnail generation,
+ * modern format conversion (WebP/AVIF), and image optimization.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Services
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Services;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;

@@ -16,6 +16,9 @@
 # AI assistant config
 /.claude            export-ignore
 
+# Development planning
+/plans              export-ignore
+
 # Testing
 /tests              export-ignore
 /phpunit.xml        export-ignore

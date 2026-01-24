@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Schema;
  * Create Media Folders Table Migration
  *
  * Creates the media_folders table for organizing media files into folders.
+ * This migration handles both fresh installs and upgrades from v1.0.
  *
  * @since 1.0.0
- *
- * @package ArtisanPackUI\MediaLibrary\Database\Migrations
+ * @since 1.1.0 Added upgrade support for existing installations.
  */
 return new class extends Migration
 {
@@ -21,11 +21,26 @@ return new class extends Migration
      * Runs the migrations.
      *
      * @since 1.0.0
-     *
-     * @return void
+     * @since 1.1.0 Added Schema::hasTable check for upgrade support.
      */
     public function up(): void
     {
+        if (Schema::hasTable('media_folders')) {
+            // Upgrade existing table - add any missing columns
+            Schema::table('media_folders', function (Blueprint $table) {
+                if (! Schema::hasColumn('media_folders', 'description')) {
+                    $table->text('description')->nullable()->after('slug');
+                }
+
+                if (! Schema::hasColumn('media_folders', 'created_by')) {
+                    $table->foreignId('created_by')->nullable()->after('parent_id')->constrained('users')->cascadeOnDelete();
+                }
+            });
+
+            return;
+        }
+
+        // Fresh install - create the table
         Schema::create('media_folders', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -45,8 +60,6 @@ return new class extends Migration
      * Reverses the migrations.
      *
      * @since 1.0.0
-     *
-     * @return void
      */
     public function down(): void
     {

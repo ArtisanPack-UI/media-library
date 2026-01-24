@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Folder Manager Livewire Component
+ *
+ * Provides a modal interface for creating, editing, and deleting media folders.
+ * Supports hierarchical folder structures with parent-child relationships.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
@@ -29,6 +41,8 @@ class FolderManager extends Component
      * Whether the modal is open.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isOpen = false;
 
@@ -36,6 +50,8 @@ class FolderManager extends Component
      * Whether the form is in edit mode.
      *
      * @since 1.0.0
+     *
+     * @var bool
      */
     public bool $isEditing = false;
 
@@ -43,6 +59,8 @@ class FolderManager extends Component
      * The folder being edited.
      *
      * @since 1.0.0
+     *
+     * @var MediaFolder|null
      */
     public ?MediaFolder $editingFolder = null;
 
@@ -64,6 +82,8 @@ class FolderManager extends Component
      * All folders for the list and parent dropdown.
      *
      * @since 1.0.0
+     *
+     * @var Collection
      */
     public Collection $folders;
 

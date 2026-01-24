@@ -22,8 +22,6 @@ return new class extends Migration
      * Runs the migrations.
      *
      * @since 1.0.0
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -42,8 +40,6 @@ return new class extends Migration
      * Reverses the migrations.
      *
      * @since 1.0.0
-     *
-     * @return void
      */
     public function down(): void
     {
