@@ -416,6 +416,6 @@ protected function updateFileProgress(int $index, int $progress): void
 
 ## Next Steps
 
-- [Table Export](./table-export.md) - Export media data
-- [Livewire Components](./livewire-components.md) - All components
-- [Configuration](../installation/configuration.md#feature-flags-v11) - Feature flags
+- [Table Export](Table-Export) - Export media data
+- [Livewire Components](Livewire-Components) - All components
+- [Configuration](Installation-Configuration#feature-flags-v11) - Feature flags

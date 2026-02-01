@@ -298,6 +298,6 @@ curl -X POST "https://example.com/api/media/tags/1/attach" \
 
 ## Next Steps
 
-- Learn about [Authentication](./authentication.md)
-- Review [Integration Guide](../integration/cms-module.md)
-- See [Helper Functions](../usage/helper-functions.md) for PHP usage
+- Learn about [Authentication](Authentication)
+- Review [Integration Guide](Integration-Cms-Module)
+- See [Helper Functions](Usage-Helper-Functions) for PHP usage

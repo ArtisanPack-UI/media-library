@@ -23,7 +23,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 Accept: application/json
 ```
 
-See [Authentication](./authentication.md) for details on obtaining and using tokens.
+See [Authentication](Authentication) for details on obtaining and using tokens.
 
 ## Endpoints Overview
 
@@ -138,10 +138,10 @@ GET /api/media?per_page=20&page=2
 
 ## Filtering & Sorting
 
-Many endpoints support filtering and sorting. See [Endpoints Reference](./endpoints.md) for details.
+Many endpoints support filtering and sorting. See [Endpoints Reference](Endpoints) for details.
 
 ## Next Steps
 
-- Review [Endpoints Reference](./endpoints.md) for detailed API documentation
-- Learn about [Authentication](./authentication.md)
-- See example implementations in [Integration Guide](../integration/cms-module.md)
+- Review [Endpoints Reference](Endpoints) for detailed API documentation
+- Learn about [Authentication](Authentication)
+- See example implementations in [Integration Guide](Integration-Cms-Module)

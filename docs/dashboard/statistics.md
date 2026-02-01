@@ -288,6 +288,6 @@ Livewire.dispatch('refresh-statistics');
 
 ## Next Steps
 
-- [Glass Effects](./glass-effects.md) - Customize glass styling
-- [Configuration](../installation/configuration.md#ui-settings-v11) - All UI options
-- [Livewire Components](../usage/livewire-components.md) - Other components
+- [Glass Effects](Glass-Effects) - Customize glass styling
+- [Configuration](Installation-Configuration#ui-settings-v11) - All UI options
+- [Livewire Components](Usage-Livewire-Components) - Other components

@@ -189,7 +189,7 @@ To completely remove the package:
 
 ## Next Steps
 
-- Review [Requirements](./requirements.md) for system requirements
-- Configure the package in [Configuration](./configuration.md)
-- Learn about [Helper Functions](../usage/helper-functions.md)
-- Set up [Permissions](../integration/permissions.md)
+- Review [Requirements](Requirements) for system requirements
+- Configure the package in [Configuration](Configuration)
+- Learn about [Helper Functions](Usage-Helper-Functions)
+- Set up [Permissions](Integration-Permissions)

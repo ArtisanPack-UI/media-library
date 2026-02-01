@@ -342,6 +342,6 @@ Use in views:
 
 ## Next Steps
 
-- Review [CMS Module Integration](./cms-module.md)
-- Learn about [Permissions](./permissions.md)
-- See [Troubleshooting](../reference/troubleshooting.md)
+- Review [CMS Module Integration](Cms-Module)
+- Learn about [Permissions](Permissions)
+- See [Troubleshooting](Reference-Troubleshooting)

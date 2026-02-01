@@ -130,11 +130,11 @@ All tests should pass if the installation is successful.
 
 ## Next Steps
 
-- Read [Installation](./installation/installation.md) for detailed setup options
-- Review [Configuration](./installation/configuration.md) for all available settings
-- Explore [Helper Functions](./usage/helper-functions.md) for common patterns
-- Check [Livewire Components](./usage/livewire-components.md) for UI integration
-- See [CMS Module Integration](./integration/cms-module.md) for Digital Shopfront CMS setup
+- Read [Installation](Installation-Installation) for detailed setup options
+- Review [Configuration](Installation-Configuration) for all available settings
+- Explore [Helper Functions](Usage-Helper-Functions) for common patterns
+- Check [Livewire Components](Usage-Livewire-Components) for UI integration
+- See [CMS Module Integration](Integration-Cms-Module) for Digital Shopfront CMS setup
 
 ## Common First Tasks
 
@@ -180,8 +180,8 @@ $role->save();
 
 If you encounter issues:
 
-1. Check the [Troubleshooting](./reference/troubleshooting.md) guide
-2. Review the [FAQ](./reference/faq.md)
+1. Check the [Troubleshooting](Reference-Troubleshooting) guide
+2. Review the [FAQ](Reference-Faq)
 3. Ensure all prerequisites are installed
 4. Verify database migrations ran successfully
 

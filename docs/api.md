@@ -8,7 +8,7 @@ The Media Library provides a comprehensive REST API for managing media, folders,
 
 ## API Documentation
 
-### [API Overview](./api/api.md)
+### [API Overview](Api-Api)
 
 Introduction to the REST API:
 - Base URL and endpoints
@@ -18,7 +18,7 @@ Introduction to the REST API:
 - Pagination
 - Filtering and sorting
 
-### [Endpoints Reference](./api/endpoints.md)
+### [Endpoints Reference](Api-Endpoints)
 
 Complete reference for all API endpoints:
 
@@ -45,7 +45,7 @@ Complete reference for all API endpoints:
 - `POST /api/media/tags/{id}/attach` - Attach to media
 - `POST /api/media/tags/{id}/detach` - Detach from media
 
-### [Authentication](./api/authentication.md)
+### [Authentication](Api-Authentication)
 
 API authentication with Laravel Sanctum:
 - Generating tokens
@@ -101,6 +101,6 @@ curl -X GET "https://example.com/api/media?type=image&per_page=20" \
 
 ## Next Steps
 
-- Review [Authentication](./api/authentication.md) setup
-- See complete [Endpoints Reference](./api/endpoints.md)
-- Learn about [Helper Functions](./usage.md) for PHP usage
+- Review [Authentication](Api-Authentication) setup
+- See complete [Endpoints Reference](Api-Endpoints)
+- Learn about [Helper Functions](Usage) for PHP usage

@@ -8,7 +8,7 @@ This section covers integrating the Media Library with the Digital Shopfront CMS
 
 ## Integration Guides
 
-### [CMS Module Integration](./integration/cms-module.md)
+### [CMS Module Integration](Integration-Cms-Module)
 
 Integration with Digital Shopfront CMS:
 - Module overview and features
@@ -20,7 +20,7 @@ Integration with Digital Shopfront CMS:
 - Module structure
 - Testing
 
-### [Permissions & Access Control](./integration/permissions.md)
+### [Permissions & Access Control](Integration-Permissions)
 
 Capability-based permissions system:
 - Permission capabilities (view, upload, edit, delete)
@@ -33,7 +33,7 @@ Capability-based permissions system:
 - API authentication
 - Testing permissions
 
-### [Customization](./integration/customization.md)
+### [Customization](Integration-Customization)
 
 Customizing the package for your needs:
 - Publishing assets (config, views, migrations)
@@ -100,7 +100,7 @@ addAction('media.after_upload', function ($media) {
 
 ## Next Steps
 
-- Review [CMS Module](./integration/cms-module.md) for full CMS integration
-- Set up [Permissions](./integration/permissions.md) for your roles
-- Explore [Customization](./integration/customization.md) options
-- See [Usage](./usage.md) for day-to-day operations
+- Review [CMS Module](Integration-Cms-Module) for full CMS integration
+- Set up [Permissions](Integration-Permissions) for your roles
+- Explore [Customization](Integration-Customization) options
+- See [Usage](Usage) for day-to-day operations

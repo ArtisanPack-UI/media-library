@@ -385,6 +385,6 @@ Livewire.on('media-selected', (event) => {
 
 ## Next Steps
 
-- Review [API Endpoints](../api/endpoints.md) for programmatic access
-- Explore [Customization](../integration/customization.md) options
-- Learn about [Permissions](../integration/permissions.md)
+- Review [API Endpoints](Api-Endpoints) for programmatic access
+- Explore [Customization](Integration-Customization) options
+- Learn about [Permissions](Integration-Permissions)

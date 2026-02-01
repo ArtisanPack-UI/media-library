@@ -284,6 +284,6 @@ test('user with view capability can access media', function () {
 
 ## Next Steps
 
-- Learn about [Customization](./customization.md)
-- Review [CMS Module Integration](./cms-module.md)
-- See [Troubleshooting](../reference/troubleshooting.md)
+- Learn about [Customization](Customization)
+- Review [CMS Module Integration](Cms-Module)
+- See [Troubleshooting](Reference-Troubleshooting)

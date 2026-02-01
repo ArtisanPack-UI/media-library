@@ -360,7 +360,7 @@ public function handleMediaPicked(array $media, string $context): void
 }
 ```
 
-For complete documentation, see [MediaPicker Component](./visual-editor/media-picker.md).
+For complete documentation, see [MediaPicker Component](Visual-Editor-Media-Picker).
 
 ## Troubleshooting
 
@@ -489,8 +489,8 @@ For complete documentation, see [MediaPicker Component](./visual-editor/media-pi
 
 If you encounter issues not covered here:
 
-1. Check the [FAQ](./reference/faq.md)
-2. Review the [Troubleshooting Guide](./reference/troubleshooting.md)
+1. Check the [FAQ](Reference-Faq)
+2. Review the [Troubleshooting Guide](Reference-Troubleshooting)
 3. Search existing [GitLab issues](https://gitlab.com/jacob-martella-web-design/artisanpack-ui/artisanpack-ui-media-library/-/issues)
 4. Open a new issue with:
    - Package versions (`composer show artisanpack-ui/*`)
@@ -500,8 +500,8 @@ If you encounter issues not covered here:
 
 ## Next Steps
 
-- [What's New in v1.1](./home.md#new-in-v11) - Full feature overview
-- [Streaming Uploads](./usage/streaming-uploads.md) - Real-time upload progress
-- [Media Statistics](./dashboard/statistics.md) - KPI dashboard
-- [MediaPicker Component](./visual-editor/media-picker.md) - Visual editor integration
-- [Configuration Reference](./installation/configuration.md) - All configuration options
+- [What's New in v1.1](Home#new-in-v11) - Full feature overview
+- [Streaming Uploads](Usage-Streaming-Uploads) - Real-time upload progress
+- [Media Statistics](Dashboard-Statistics) - KPI dashboard
+- [MediaPicker Component](Visual-Editor-Media-Picker) - Visual editor integration
+- [Configuration Reference](Installation-Configuration) - All configuration options

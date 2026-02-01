@@ -328,6 +328,6 @@ Use Tailwind's backdrop utilities directly:
 
 ## Next Steps
 
-- [Media Statistics](./statistics.md) - KPI dashboard component
-- [Configuration](../installation/configuration.md#ui-settings-v11) - All UI options
-- [Customization](../integration/customization.md) - General customization guide
+- [Media Statistics](Statistics) - KPI dashboard component
+- [Configuration](Installation-Configuration#ui-settings-v11) - All UI options
+- [Customization](Integration-Customization) - General customization guide

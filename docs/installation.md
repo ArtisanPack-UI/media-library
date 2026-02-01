@@ -8,7 +8,7 @@ This section covers everything you need to install and set up the ArtisanPack UI
 
 ## Installation Guides
 
-### [Installation Guide](./installation/installation.md)
+### [Installation Guide](Installation-Installation)
 
 Complete step-by-step installation instructions including:
 - Installing via Composer
@@ -19,7 +19,7 @@ Complete step-by-step installation instructions including:
 - Verifying the installation
 - Troubleshooting installation issues
 
-### [Requirements](./installation/requirements.md)
+### [Requirements](Installation-Requirements)
 
 Detailed system requirements including:
 - PHP version and extensions
@@ -32,7 +32,7 @@ Detailed system requirements including:
 - Production requirements
 - Environment check script
 
-### [Configuration](./installation/configuration.md)
+### [Configuration](Installation-Configuration)
 
 Complete configuration reference covering:
 - Storage settings (disk, file size, upload paths)
@@ -65,7 +65,7 @@ php artisan storage:link
 ## Next Steps
 
 After installation:
-- Review [Configuration](./installation/configuration.md) to customize settings
-- Learn about [Helper Functions](./usage/helper-functions.md) for basic usage
-- Set up [Permissions](./integration/permissions.md) for your roles
-- Check [Troubleshooting](./reference/troubleshooting.md) if you encounter issues
+- Review [Configuration](Installation-Configuration) to customize settings
+- Learn about [Helper Functions](Usage-Helper-Functions) for basic usage
+- Set up [Permissions](Integration-Permissions) for your roles
+- Check [Troubleshooting](Reference-Troubleshooting) if you encounter issues

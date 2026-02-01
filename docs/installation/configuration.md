@@ -756,13 +756,13 @@ config([
 
 ## Next Steps
 
-- Learn about [Helper Functions](../usage/helper-functions.md)
-- Explore [Model Usage](../usage/models.md)
-- Set up [Permissions](../integration/permissions.md)
-- Review [Customization](../integration/customization.md) options
+- Learn about [Helper Functions](Usage-Helper-Functions)
+- Explore [Model Usage](Usage-Models)
+- Set up [Permissions](Integration-Permissions)
+- Review [Customization](Integration-Customization) options
 
 ### v1.1 Features
-- Configure [Streaming Uploads](../usage/streaming-uploads.md)
-- Set up [Table Export](../usage/table-export.md)
-- Integrate with [Visual Editors](../visual-editor/media-picker.md)
-- Customize [Media Statistics](../dashboard/statistics.md)
+- Configure [Streaming Uploads](Usage-Streaming-Uploads)
+- Set up [Table Export](Usage-Table-Export)
+- Integrate with [Visual Editors](Visual-Editor-Media-Picker)
+- Customize [Media Statistics](Dashboard-Statistics)

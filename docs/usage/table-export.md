@@ -406,6 +406,6 @@ public function exportTableToCsv()
 
 ## Next Steps
 
-- [Streaming Uploads](./streaming-uploads.md) - Real-time upload progress
-- [Livewire Components](./livewire-components.md) - All component documentation
-- [Configuration](../installation/configuration.md#ui-settings-v11) - Export configuration
+- [Streaming Uploads](Streaming-Uploads) - Real-time upload progress
+- [Livewire Components](Livewire-Components) - All component documentation
+- [Configuration](Installation-Configuration#ui-settings-v11) - Export configuration

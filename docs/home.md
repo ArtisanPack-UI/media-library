@@ -13,46 +13,46 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 ## Table of Contents
 
 - **Getting Started**
-  - [Quick Start Guide](./getting-started.md)
-  - [Upgrading to v1.1](./upgrading.md)
+  - [Quick Start Guide](Getting-Started)
+  - [Upgrading to v1.1](Upgrading)
 
 - **Installation**
-  - [Installation Overview](./installation/installation.md)
-  - [Requirements](./installation/requirements.md)
-  - [Configuration](./installation/configuration.md)
+  - [Installation Overview](Installation-Installation)
+  - [Requirements](Installation-Requirements)
+  - [Configuration](Installation-Configuration)
 
 - **Usage**
-  - [Helper Functions](./usage/helper-functions.md)
-  - [Working with Models](./usage/models.md)
-  - [Livewire Components](./usage/livewire-components.md)
-  - [Streaming Uploads](./usage/streaming-uploads.md) *(v1.1)*
-  - [Table Export](./usage/table-export.md) *(v1.1)*
+  - [Helper Functions](Usage-Helper-Functions)
+  - [Working with Models](Usage-Models)
+  - [Livewire Components](Usage-Livewire-Components)
+  - [Streaming Uploads](Usage-Streaming-Uploads) *(v1.1)*
+  - [Table Export](Usage-Table-Export) *(v1.1)*
 
 - **Visual Editor Integration** *(v1.1)*
-  - [Overview](./visual-editor.md)
-  - [MediaPicker Component](./visual-editor/media-picker.md)
-  - [Block Content Helpers](./visual-editor/block-helpers.md)
-  - [Integration Examples](./visual-editor/examples.md)
+  - [Overview](Visual-Editor)
+  - [MediaPicker Component](Visual-Editor-Media-Picker)
+  - [Block Content Helpers](Visual-Editor-Block-Helpers)
+  - [Integration Examples](Visual-Editor-Examples)
 
 - **Dashboard & Statistics** *(v1.1)*
-  - [Overview](./dashboard.md)
-  - [Media Statistics](./dashboard/statistics.md)
-  - [Glass Effects](./dashboard/glass-effects.md)
+  - [Overview](Dashboard)
+  - [Media Statistics](Dashboard-Statistics)
+  - [Glass Effects](Dashboard-Glass-Effects)
 
 - **API**
-  - [API Overview](./api/api.md)
-  - [Endpoints Reference](./api/endpoints.md)
-  - [Authentication](./api/authentication.md)
+  - [API Overview](Api-Api)
+  - [Endpoints Reference](Api-Endpoints)
+  - [Authentication](Api-Authentication)
 
 - **Integration**
-  - [CMS Module Integration](./integration/cms-module.md)
-  - [Permissions & Access Control](./integration/permissions.md)
-  - [Customization](./integration/customization.md)
+  - [CMS Module Integration](Integration-Cms-Module)
+  - [Permissions & Access Control](Integration-Permissions)
+  - [Customization](Integration-Customization)
 
 - **Reference**
-  - [Troubleshooting](./reference/troubleshooting.md)
-  - [FAQ](./reference/faq.md)
-  - [Changelog](../CHANGELOG.md)
+  - [Troubleshooting](Reference-Troubleshooting)
+  - [FAQ](Reference-Faq)
+  - [Changelog](Changelog)
 
 ## Key Features
 
@@ -80,16 +80,16 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 
 ## Quick Links
 
-- [Installation Guide](./installation/installation.md) - Get started quickly
-- [Helper Functions](./usage/helper-functions.md) - Common usage patterns
-- [API Endpoints](./api/endpoints.md) - Complete API reference
-- [Troubleshooting](./reference/troubleshooting.md) - Common issues and solutions
+- [Installation Guide](Installation-Installation) - Get started quickly
+- [Helper Functions](Usage-Helper-Functions) - Common usage patterns
+- [API Endpoints](Api-Endpoints) - Complete API reference
+- [Troubleshooting](Reference-Troubleshooting) - Common issues and solutions
 
 ### v1.1 Features
-- [Streaming Uploads](./usage/streaming-uploads.md) - Livewire 4 real-time progress
-- [MediaPicker Component](./visual-editor/media-picker.md) - Visual editor integration
-- [Media Statistics](./dashboard/statistics.md) - KPI dashboard
-- [Table Export](./usage/table-export.md) - Export to CSV/XLSX/PDF
+- [Streaming Uploads](Usage-Streaming-Uploads) - Livewire 4 real-time progress
+- [MediaPicker Component](Visual-Editor-Media-Picker) - Visual editor integration
+- [Media Statistics](Dashboard-Statistics) - KPI dashboard
+- [Table Export](Usage-Table-Export) - Export to CSV/XLSX/PDF
 
 ## About This Documentation
 

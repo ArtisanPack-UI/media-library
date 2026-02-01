@@ -407,10 +407,10 @@ If these solutions don't resolve your issue:
 1. Check Laravel logs: `storage/logs/laravel.log`
 2. Enable debug mode temporarily: `APP_DEBUG=true`
 3. Search existing issues on GitLab
-4. Contact support: [support@artisanpackui.dev](mailto:support@artisanpackui.dev)
+4. Contact support: [support@artisanpackui.dev](Mailto:Support@Artisanpackui.Dev)
 
 ## Next Steps
 
-- Review [FAQ](./faq.md) for common questions
-- Check [Installation Guide](../installation/installation.md)
-- See [Configuration](../installation/configuration.md) options
+- Review [FAQ](Faq) for common questions
+- Check [Installation Guide](Installation-Installation)
+- See [Configuration](Installation-Configuration) options

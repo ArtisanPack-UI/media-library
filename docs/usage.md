@@ -8,7 +8,7 @@ This section covers how to use the Media Library package in your Laravel applica
 
 ## Usage Guides
 
-### [Helper Functions](./usage/helper-functions.md)
+### [Helper Functions](Usage-Helper-Functions)
 
 Learn about convenient helper functions for common operations:
 - `apUploadMedia()` - Upload files with metadata
@@ -19,7 +19,7 @@ Learn about convenient helper functions for common operations:
 - Usage patterns and examples
 - Best practices
 
-### [Working with Models](./usage/models.md)
+### [Working with Models](Usage-Models)
 
 Advanced usage with Eloquent models:
 - **Media Model** - Query scopes, relationships, URL methods, display methods
@@ -29,7 +29,7 @@ Advanced usage with Eloquent models:
 - Complex queries and filtering
 - Type checking methods
 
-### [Livewire Components](./usage/livewire-components.md)
+### [Livewire Components](Usage-Livewire-Components)
 
 UI components for media management:
 - **Media Modal** - Single/multi-select modal with context support
@@ -86,6 +86,6 @@ $images = Media::images()
 
 ## Next Steps
 
-- Explore [API Endpoints](./api.md) for programmatic access
-- Review [Integration](./integration.md) options
-- See [Configuration](./installation/configuration.md) for customization
+- Explore [API Endpoints](Api) for programmatic access
+- Review [Integration](Integration) options
+- See [Configuration](Installation-Configuration) for customization

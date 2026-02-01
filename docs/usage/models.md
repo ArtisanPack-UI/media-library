@@ -430,6 +430,6 @@ $media = Media::whereHas('tags', function ($q) {
 
 ## Next Steps
 
-- Learn about [Livewire Components](./livewire-components.md)
-- Review [API Endpoints](../api/endpoints.md)
-- Explore [Customization](../integration/customization.md) options
+- Learn about [Livewire Components](Livewire-Components)
+- Review [API Endpoints](Api-Endpoints)
+- Explore [Customization](Integration-Customization) options

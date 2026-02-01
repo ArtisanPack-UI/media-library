@@ -111,5 +111,5 @@ Ensure Sanctum is configured in `config/sanctum.php`:
 
 ## Next Steps
 
-- Review [API Endpoints](./endpoints.md)
-- See [Integration Guide](../integration/cms-module.md)
+- Review [API Endpoints](Endpoints)
+- See [Integration Guide](Integration-Cms-Module)

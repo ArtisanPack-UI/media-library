@@ -286,6 +286,6 @@ php check-media-requirements.php
 
 ## Next Steps
 
-- Proceed to [Installation](./installation.md)
-- Review [Configuration](./configuration.md) options
-- Check [Troubleshooting](../reference/troubleshooting.md) if you encounter issues
+- Proceed to [Installation](Installation)
+- Review [Configuration](Configuration) options
+- Check [Troubleshooting](Reference-Troubleshooting) if you encounter issues

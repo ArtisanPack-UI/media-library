@@ -28,7 +28,7 @@ Display key performance indicators for your media library:
 />
 ```
 
-**[Learn More: Media Statistics](./dashboard/statistics.md)**
+**[Learn More: Media Statistics](Dashboard-Statistics)**
 
 ### Glass Effects
 
@@ -40,7 +40,7 @@ Modern glassmorphism styling for cards and overlays:
 </x-artisanpack-card>
 ```
 
-**[Learn More: Glass Effects](./dashboard/glass-effects.md)**
+**[Learn More: Glass Effects](Dashboard-Glass-Effects)**
 
 ## Quick Example
 
@@ -59,10 +59,10 @@ Modern glassmorphism styling for cards and overlays:
 
 Dashboard settings are configured in `config/artisanpack.php` under the `media.ui` key.
 
-See the [Configuration Guide](./installation/configuration.md#ui-settings-v11) for all options.
+See the [Configuration Guide](Installation-Configuration#ui-settings-v11) for all options.
 
 ## Next Steps
 
-- [Media Statistics](./dashboard/statistics.md) - KPI cards and sparklines
-- [Glass Effects](./dashboard/glass-effects.md) - Glassmorphism customization
-- [Configuration](./installation/configuration.md#ui-settings-v11) - All UI configuration options
+- [Media Statistics](Dashboard-Statistics) - KPI cards and sparklines
+- [Glass Effects](Dashboard-Glass-Effects) - Glassmorphism customization
+- [Configuration](Installation-Configuration#ui-settings-v11) - All UI configuration options

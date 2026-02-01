@@ -709,6 +709,6 @@ class ProductEditor extends Component
 
 ## Next Steps
 
-- [MediaPicker Component](./media-picker.md) - Detailed component documentation
-- [Block Content Helpers](./block-helpers.md) - Working with block content
-- [Configuration](../installation/configuration.md#visual-editor-integration-v11) - All configuration options
+- [MediaPicker Component](Media-Picker) - Detailed component documentation
+- [Block Content Helpers](Block-Helpers) - Working with block content
+- [Configuration](Installation-Configuration#visual-editor-integration-v11) - All configuration options

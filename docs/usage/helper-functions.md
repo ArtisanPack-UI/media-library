@@ -292,6 +292,6 @@ if (apDeleteMedia($post->featured_image_id)) {
 
 ## Next Steps
 
-- Learn about [Working with Models](./models.md) for advanced queries
-- Explore [Livewire Components](./livewire-components.md) for UI integration
-- Review [API Endpoints](../api/endpoints.md) for programmatic access
+- Learn about [Working with Models](Models) for advanced queries
+- Explore [Livewire Components](Livewire-Components) for UI integration
+- Review [API Endpoints](Api-Endpoints) for programmatic access

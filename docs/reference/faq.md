@@ -17,7 +17,7 @@ The package supports:
 - **Audio:** MP3, WAV, OGG
 - **Documents:** PDF, Word, Excel
 
-See [Configuration](../installation/configuration.md) to customize allowed types.
+See [Configuration](Installation-Configuration) to customize allowed types.
 
 ### Can I use cloud storage?
 
@@ -29,7 +29,7 @@ Yes! The package supports any Laravel filesystem disk:
 - DigitalOcean Spaces
 - Any S3-compatible storage
 
-See [Configuration - Cloud Storage](../installation/configuration.md#cloud-storage-configuration).
+See [Configuration - Cloud Storage](Installation-Configuration#cloud-storage-configuration).
 
 ### Does it work with Laravel 11?
 
@@ -80,7 +80,7 @@ $media = apUploadMedia($file, [
 ]);
 ```
 
-See [Helper Functions](../usage/helper-functions.md) for more examples.
+See [Helper Functions](Usage-Helper-Functions) for more examples.
 
 ### Can I have multiple media modals on one page?
 
@@ -91,15 +91,15 @@ Yes! Use the `context` parameter to distinguish them:
 <livewire:media::media-modal context="banner" wire:key="banner-modal" />
 ```
 
-See [Livewire Components](../usage/livewire-components.md#multiple-modals-on-same-page).
+See [Livewire Components](Usage-Livewire-Components#multiple-modals-on-same-page).
 
 ### How do I restrict media to certain folders?
 
-You can implement folder-based permissions. See [Permissions - Folder Permissions](../integration/permissions.md#folder-permissions).
+You can implement folder-based permissions. See [Permissions - Folder Permissions](Integration-Permissions#folder-permissions).
 
 ### Can users only see their own media?
 
-Yes, implement ownership-based permissions. See [Permissions - Ownership-Based Permissions](../integration/permissions.md#ownership-based-permissions).
+Yes, implement ownership-based permissions. See [Permissions - Ownership-Based Permissions](Integration-Permissions#ownership-based-permissions).
 
 ## Configuration Questions
 
@@ -121,7 +121,7 @@ In a service provider:
 apRegisterImageSize('custom-size', 400, 300, true);
 ```
 
-See [Customization - Custom Image Sizes](../integration/customization.md#custom-image-sizes).
+See [Customization - Custom Image Sizes](Integration-Customization#custom-image-sizes).
 
 ### Can I disable thumbnail generation?
 
@@ -159,7 +159,7 @@ php artisan queue:work --queue=media
 4. Use Redis for cache
 5. Consider CDN for delivery
 
-See [Configuration - Performance Optimization](../installation/configuration.md#performance-optimization).
+See [Configuration - Performance Optimization](Installation-Configuration#performance-optimization).
 
 ### Can I lazy-load images?
 
@@ -173,15 +173,15 @@ echo $media->displayImage('large', ['loading' => 'lazy']);
 
 ### How do I integrate with the CMS?
 
-The package includes a CMS module. See [CMS Module Integration](../integration/cms-module.md).
+The package includes a CMS module. See [CMS Module Integration](Integration-Cms-Module).
 
 ### Can I use with Livewire components?
 
-Yes! The package provides Livewire components. See [Livewire Components](../usage/livewire-components.md).
+Yes! The package provides Livewire components. See [Livewire Components](Usage-Livewire-Components).
 
 ### Does it work with InertiaJS?
 
-Yes, through the API endpoints. See [API Endpoints](../api/endpoints.md).
+Yes, through the API endpoints. See [API Endpoints](Api-Endpoints).
 
 ### Can I use with Filament?
 
@@ -197,15 +197,15 @@ Use Laravel Sanctum tokens in the Authorization header:
 Authorization: Bearer YOUR_TOKEN
 ```
 
-See [API Authentication](../api/authentication.md).
+See [API Authentication](Api-Authentication).
 
 ### Are there rate limits?
 
-Yes, 60 requests per minute for authenticated users. See [API Overview - Rate Limiting](../api/api.md#rate-limiting).
+Yes, 60 requests per minute for authenticated users. See [API Overview - Rate Limiting](Api-Api#rate-limiting).
 
 ### Can I upload via API?
 
-Yes! See [API Endpoints - Upload Media](../api/endpoints.md#upload-media).
+Yes! See [API Endpoints - Upload Media](Api-Endpoints#upload-media).
 
 ## Security Questions
 
@@ -224,11 +224,11 @@ Yes, file names are sanitized and stored files use hashed names to prevent direc
 
 ### How do permissions work?
 
-The package uses capability-based permissions. See [Permissions & Access Control](../integration/permissions.md).
+The package uses capability-based permissions. See [Permissions & Access Control](Integration-Permissions).
 
 ### Can I scan for malware?
 
-Yes, integrate a malware scanning service in the upload process. See [Customization - Custom Upload Processing](../integration/customization.md#custom-upload-processing).
+Yes, integrate a malware scanning service in the upload process. See [Customization - Custom Upload Processing](Integration-Customization#custom-upload-processing).
 
 ## Troubleshooting Questions
 
@@ -239,7 +239,7 @@ Yes, integrate a malware scanning service in the upload process. See [Customizat
 3. Verify upload limits in `php.ini`
 4. Check storage directory permissions
 
-See [Troubleshooting](./troubleshooting.md) for detailed solutions.
+See [Troubleshooting](Troubleshooting) for detailed solutions.
 
 ### Images don't display, what's wrong?
 
@@ -248,7 +248,7 @@ See [Troubleshooting](./troubleshooting.md) for detailed solutions.
 3. Check file permissions (should be 644)
 4. Clear cache: `php artisan cache:clear`
 
-See [Troubleshooting - URL & Display Issues](./troubleshooting.md#url--display-issues).
+See [Troubleshooting - URL & Display Issues](Troubleshooting#url--display-issues).
 
 ### How do I enable debug mode?
 
@@ -284,9 +284,9 @@ Yes, backup the storage disk and database. For S3, use S3 versioning and lifecyc
 ### Where can I get help?
 
 1. Check this documentation
-2. Review [Troubleshooting Guide](./troubleshooting.md)
+2. Review [Troubleshooting Guide](Troubleshooting)
 3. Search GitLab issues
-4. Contact support: [support@artisanpackui.dev](mailto:support@artisanpackui.dev)
+4. Contact support: [support@artisanpackui.dev](Mailto:Support@Artisanpackui.Dev)
 
 ### How do I report a bug?
 
@@ -304,6 +304,6 @@ Yes! Submit feature requests on GitLab or contact us directly.
 
 ## Next Steps
 
-- Review [Troubleshooting](./troubleshooting.md) for solutions
-- See [Getting Started](../getting-started.md) for quick setup
-- Explore [Helper Functions](../usage/helper-functions.md) for common patterns
+- Review [Troubleshooting](Troubleshooting) for solutions
+- See [Getting Started](Getting-Started) for quick setup
+- Explore [Helper Functions](Usage-Helper-Functions) for common patterns

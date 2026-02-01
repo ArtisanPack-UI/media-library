@@ -329,6 +329,6 @@ Livewire.on('media-picked', (event) => {
 
 ## Next Steps
 
-- [MediaPicker Component](./media-picker.md) - UI for media selection
-- [Integration Examples](./examples.md) - Complete integration guides
-- [Configuration](../installation/configuration.md#block-requirements-v11) - Block requirements configuration
+- [MediaPicker Component](Media-Picker) - UI for media selection
+- [Integration Examples](Examples) - Complete integration guides
+- [Configuration](Installation-Configuration#block-requirements-v11) - Block requirements configuration

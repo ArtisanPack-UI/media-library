@@ -362,6 +362,6 @@ Complete example for a blog post editor:
 
 ## Next Steps
 
-- [Block Content Helpers](./block-helpers.md) - Working with block content
-- [Integration Examples](./examples.md) - More complete examples
-- [Configuration](../installation/configuration.md#visual-editor-integration-v11) - All configuration options
+- [Block Content Helpers](Block-Helpers) - Working with block content
+- [Integration Examples](Examples) - More complete examples
+- [Configuration](Installation-Configuration#visual-editor-integration-v11) - All configuration options

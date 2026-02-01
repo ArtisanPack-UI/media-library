@@ -8,7 +8,7 @@ This section provides troubleshooting guides and answers to frequently asked que
 
 ## Reference Guides
 
-### [Troubleshooting](./reference/troubleshooting.md)
+### [Troubleshooting](Reference-Troubleshooting)
 
 Common issues and their solutions:
 
@@ -59,7 +59,7 @@ Common issues and their solutions:
 
 - Tests fail with database errors
 
-### [FAQ](./reference/faq.md)
+### [FAQ](Reference-Faq)
 
 Frequently asked questions organized by category:
 
@@ -160,14 +160,14 @@ Frequently asked questions organized by category:
 
 If you can't find a solution:
 
-1. Check [Troubleshooting](./reference/troubleshooting.md)
-2. Review [FAQ](./reference/faq.md)
+1. Check [Troubleshooting](Reference-Troubleshooting)
+2. Review [FAQ](Reference-Faq)
 3. Search GitLab issues
-4. Contact support: [support@artisanpackui.dev](mailto:support@artisanpackui.dev)
+4. Contact support: [support@artisanpackui.dev](Mailto:Support@Artisanpackui.Dev)
 
 ## Next Steps
 
-- Review detailed [Troubleshooting Guide](./reference/troubleshooting.md)
-- Browse [FAQ](./reference/faq.md) for common questions
-- Check [Installation](./installation.md) if having setup issues
-- See [Configuration](./installation/configuration.md) for optimization
+- Review detailed [Troubleshooting Guide](Reference-Troubleshooting)
+- Browse [FAQ](Reference-Faq) for common questions
+- Check [Installation](Installation) if having setup issues
+- See [Configuration](Installation-Configuration) for optimization

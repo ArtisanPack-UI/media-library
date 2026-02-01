@@ -21,13 +21,13 @@ The v1.1 release introduces comprehensive visual editor support through:
 
 The primary component for visual editor integration. Supports single and multi-select modes, type filtering, and context-based events.
 
-**[Learn More: MediaPicker Component](./visual-editor/media-picker.md)**
+**[Learn More: MediaPicker Component](Visual-Editor-Media-Picker)**
 
 ### Block Content Helpers
 
 Helper functions and traits for working with media in block-based content structures.
 
-**[Learn More: Block Content Helpers](./visual-editor/block-helpers.md)**
+**[Learn More: Block Content Helpers](Visual-Editor-Block-Helpers)**
 
 ## Integration Guides
 
@@ -35,7 +35,7 @@ Helper functions and traits for working with media in block-based content struct
 
 Complete examples for integrating with various CMS platforms and visual editors.
 
-**[View Examples](./visual-editor/examples.md)**
+**[View Examples](Visual-Editor-Examples)**
 
 ## Quick Start
 
@@ -64,10 +64,10 @@ Livewire.on('media-picked', (event) => {
 
 Visual editor settings are configured in `config/media.php` under the `visual_editor` key.
 
-See the [Configuration Guide](./installation/configuration.md#visual-editor-integration-v11) for all options.
+See the [Configuration Guide](Installation-Configuration#visual-editor-integration-v11) for all options.
 
 ## Next Steps
 
-- [MediaPicker Component](./visual-editor/media-picker.md) - Detailed component documentation
-- [Block Helpers](./visual-editor/block-helpers.md) - Working with block content
-- [Integration Examples](./visual-editor/examples.md) - Complete integration guides
+- [MediaPicker Component](Visual-Editor-Media-Picker) - Detailed component documentation
+- [Block Helpers](Visual-Editor-Block-Helpers) - Working with block content
+- [Integration Examples](Visual-Editor-Examples) - Complete integration guides

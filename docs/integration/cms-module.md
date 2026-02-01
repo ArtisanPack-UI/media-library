@@ -250,6 +250,6 @@ php artisan test Modules/Media/tests/Feature/MediaSettingsPageTest.php
 
 ## Next Steps
 
-- Review [Permissions & Access Control](./permissions.md)
-- Explore [Customization](./customization.md) options
-- See [Helper Functions](../usage/helper-functions.md) for usage patterns
+- Review [Permissions & Access Control](Permissions)
+- Explore [Customization](Customization) options
+- See [Helper Functions](Usage-Helper-Functions) for usage patterns
