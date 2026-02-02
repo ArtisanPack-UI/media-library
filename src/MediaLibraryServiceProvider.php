@@ -184,22 +184,18 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerLivewireComponents(): void
     {
-        // Only register Livewire components if Livewire is bound in the container
-        if (! $this->app->bound('livewire')) {
+        // Only register Livewire components if Livewire is available
+        if ( ! class_exists( \Livewire\Livewire::class ) ) {
             return;
         }
 
-        // Register components
-        Livewire::component('media::media-library', MediaLibrary::class);
-        Livewire::component('media::media-upload', MediaUpload::class);
-        Livewire::component('media::media-edit', MediaEdit::class);
-        Livewire::component('media::media-grid', MediaGrid::class);
-        Livewire::component('media::media-item', MediaItem::class);
-        Livewire::component('media::media-modal', MediaModal::class);
-        Livewire::component('media::media-picker', MediaPicker::class);
-        Livewire::component('media::folder-manager', FolderManager::class);
-        Livewire::component('media::tag-manager', TagManager::class);
-        Livewire::component('media::media-statistics', MediaStatistics::class);
+        // Register the media namespace for Livewire components (Livewire 4+ API)
+        Livewire::addNamespace(
+            namespace: 'media',
+            classNamespace: 'ArtisanPackUI\\MediaLibrary\\Livewire\\Components',
+            classPath: __DIR__ . '/Livewire/Components',
+            classViewPath: __DIR__ . '/../resources/views/livewire'
+        );
     }
 
     /**
