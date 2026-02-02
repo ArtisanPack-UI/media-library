@@ -1,6 +1,6 @@
 <div
 	x-data="{
-		focusedIndex: @entangle('focusedIndex'),
+		focusedIndex: $wire.entangle('focusedIndex'),
 
 		async handleKeydown(event) {
 			if (!$wire.isOpen) return;

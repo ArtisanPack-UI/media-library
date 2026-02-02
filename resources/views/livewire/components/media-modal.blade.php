@@ -1,7 +1,7 @@
 <div
 	x-data="{
 		isDragging: false,
-		focusedIndex: @entangle('focusedIndex'),
+		focusedIndex: $wire.entangle('focusedIndex'),
 		previouslyFocused: null,
 
 		init() {
