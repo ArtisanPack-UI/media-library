@@ -170,7 +170,7 @@
 			<x-artisanpack-tab name="library" :label="__('Media Library')" icon="o-photo">
 				{{-- Drag and Drop Overlay --}}
 				<div
-					x-show="isDragging"
+					x-show="$root.isDragging"
 					x-transition:enter="transition ease-out duration-200"
 					x-transition:enter-start="opacity-0"
 					x-transition:enter-end="opacity-100"
@@ -178,9 +178,9 @@
 					x-transition:leave-start="opacity-100"
 					x-transition:leave-end="opacity-0"
 					class="absolute inset-0 z-50 flex items-center justify-center bg-primary/20 border-4 border-dashed border-primary rounded-lg"
-					@dragover.prevent="isDragging = true"
-					@dragleave.prevent="isDragging = false"
-					@drop="handleDrop($event)"
+					@dragover.prevent="$root.isDragging = true"
+					@dragleave.prevent="$root.isDragging = false"
+					@drop="$root.handleDrop($event)"
 				>
 					<div class="text-center">
 						<x-artisanpack-icon name="fas.cloud-arrow-up" class="w-16 h-16 mx-auto mb-4 text-primary"/>
@@ -471,7 +471,7 @@
 					@drop="handleDrop($event)"
 				>
 					<div
-						x-show="isDragging"
+						x-show="$root.isDragging"
 						x-transition
 						class="absolute inset-0 z-50 flex items-center justify-center bg-primary/20 border-4 border-dashed border-primary rounded-lg"
 					>
