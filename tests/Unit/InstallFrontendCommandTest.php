@@ -79,7 +79,7 @@ class InstallFrontendCommandTest extends TestCase
     public function test_command_displays_npm_install_for_react(): void
     {
         $this->artisan( 'media:install-frontend', ['--stack' => 'react'] )
-            ->expectsOutputToContain( 'npm install react react-dom' )
+            ->expectsOutputToContain( 'npm install react@"^18.0 || ^19.0" react-dom@"^18.0 || ^19.0"' )
             ->assertSuccessful();
     }
 
@@ -123,7 +123,7 @@ class InstallFrontendCommandTest extends TestCase
     public function test_command_displays_npm_install_for_vue(): void
     {
         $this->artisan( 'media:install-frontend', ['--stack' => 'vue'] )
-            ->expectsOutputToContain( 'npm install vue' )
+            ->expectsOutputToContain( 'npm install vue@"^3.4"' )
             ->assertSuccessful();
     }
 

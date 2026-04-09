@@ -163,10 +163,20 @@ class InstallFrontendCommand extends Command
         $this->newLine();
 
         // Publish components
-        $this->publishAssets( $stack );
+        $assetsExitCode = $this->publishAssets( $stack );
+        if ( 0 !== $assetsExitCode ) {
+            $this->error( __( 'Failed to publish :stack components.', ['stack' => $stack] ) );
+
+            return self::FAILURE;
+        }
 
         // Publish shared type definitions
-        $this->publishTypes();
+        $typesExitCode = $this->publishTypes();
+        if ( 0 !== $typesExitCode ) {
+            $this->error( __( 'Failed to publish type definitions.' ) );
+
+            return self::FAILURE;
+        }
 
         // Display peer dependencies
         $this->displayDependencies( $stack );
@@ -183,8 +193,10 @@ class InstallFrontendCommand extends Command
      * @since 1.2.0
      *
      * @param  string  $stack  The stack to publish (react or vue).
+     *
+     * @return int Exit code from vendor:publish.
      */
-    protected function publishAssets( string $stack ): void
+    protected function publishAssets( string $stack ): int
     {
         $tag    = 'media-' . $stack;
         $params = [
@@ -196,15 +208,17 @@ class InstallFrontendCommand extends Command
             $params['--force'] = true;
         }
 
-        $this->call( 'vendor:publish', $params );
+        return $this->call( 'vendor:publish', $params );
     }
 
     /**
      * Publish the shared TypeScript type definitions.
      *
      * @since 1.2.0
+     *
+     * @return int Exit code from vendor:publish.
      */
-    protected function publishTypes(): void
+    protected function publishTypes(): int
     {
         $params = [
             '--tag'      => 'media-types',
@@ -215,7 +229,7 @@ class InstallFrontendCommand extends Command
             $params['--force'] = true;
         }
 
-        $this->call( 'vendor:publish', $params );
+        return $this->call( 'vendor:publish', $params );
     }
 
     /**
@@ -255,13 +269,13 @@ class InstallFrontendCommand extends Command
 
         $installParts = [];
         foreach ( $dependencies as $package => $version ) {
-            $installParts[] = $package;
+            $installParts[] = $package . '@"' . $version . '"';
         }
         $this->line( '  npm install ' . implode( ' ', $installParts ) );
 
         $devInstallParts = [];
         foreach ( $devDependencies as $package => $version ) {
-            $devInstallParts[] = $package;
+            $devInstallParts[] = $package . '@"' . $version . '"';
         }
         $this->line( '  npm install -D ' . implode( ' ', $devInstallParts ) );
     }
