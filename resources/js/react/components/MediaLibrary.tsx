@@ -9,7 +9,7 @@
  * @since   1.2.0
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button, Input, Select, Card, Alert } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
@@ -74,13 +74,19 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
         }
     }, [ showUpload ] );
 
+    // Stabilize callback ref to avoid re-render loops with inline callbacks
+    const selectionChangeRef   = useRef( onSelectionChange );
+    useEffect( () => {
+        selectionChangeRef.current = onSelectionChange;
+    }, [ onSelectionChange ] );
+
     // Notify parent when selection changes
     useEffect( () => {
-        if ( onSelectionChange ) {
+        if ( selectionChangeRef.current ) {
             const selected = library.media.filter( ( m ) => library.selectedIds.has( m.id ) );
-            onSelectionChange( selected );
+            selectionChangeRef.current( selected );
         }
-    }, [ library.selectedIds, library.media, onSelectionChange ] );
+    }, [ library.selectedIds, library.media ] );
 
     const handleItemClick = useCallback( ( media: Media ) => {
         if ( onMediaClick ) {
