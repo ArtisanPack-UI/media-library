@@ -86,6 +86,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->mergeConfiguration();
         $this->publishConfiguration();
         $this->publishTypeDefinitions();
+        $this->publishReactComponents();
         $this->registerViews();
         $this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
         $this->registerPolicies();
@@ -141,6 +142,25 @@ class MediaLibraryServiceProvider extends ServiceProvider
             $this->publishes( [
                 __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'types/media.d.ts' ),
             ], 'media-types' );
+        }
+    }
+
+    /**
+     * Publish React components for the media library.
+     *
+     * Publishes the React component source files to the application's
+     * resources directory so React/Inertia.js consumers can import
+     * and use the media library UI components.
+     *
+     * @since 1.2.0
+     */
+    protected function publishReactComponents(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                __DIR__ . '/../resources/js/react'         => resource_path( 'js/vendor/media-library' ),
+                __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'js/vendor/media-library/types/media.d.ts' ),
+            ], 'media-react' );
         }
     }
 
@@ -215,7 +235,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         Livewire::component( 'media::media-picker', MediaPicker::class );
         Livewire::component( 'media::folder-manager', FolderManager::class );
         Livewire::component( 'media::tag-manager', TagManager::class );
-        Livewire::component( 'media::media-statistics', MediaStatistics::class);
+        Livewire::component( 'media::media-statistics', MediaStatistics::class );
     }
 
     /**
@@ -225,6 +245,6 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerBladeComponents(): void
     {
-        Blade::component( 'media-picker-button', MediaPickerButton::class);
+        Blade::component( 'media-picker-button', MediaPickerButton::class );
     }
 }
