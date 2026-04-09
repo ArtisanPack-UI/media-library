@@ -131,15 +131,19 @@ export const TagManager: React.FC<TagManagerProps> = ( {
         setError( null );
 
         try {
+            const deletedSlug = deleting.slug;
             await deleteTag( deleting.id );
             setDeleting( null );
+            if ( selectedTag === deletedSlug ) {
+                onTagSelect?.( null );
+            }
             await loadTags();
         } catch ( err ) {
             setError( err instanceof Error ? err.message : 'Failed to delete tag' );
         } finally {
             setSaving( false );
         }
-    }, [ deleting, loadTags ] );
+    }, [ deleting, selectedTag, onTagSelect, loadTags ] );
 
     return (
         <Card className={ className }>
