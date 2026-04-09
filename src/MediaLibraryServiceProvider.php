@@ -87,6 +87,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->publishConfiguration();
         $this->publishTypeDefinitions();
         $this->publishReactComponents();
+        $this->publishVueComponents();
         $this->registerViews();
         $this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
         $this->registerPolicies();
@@ -161,6 +162,25 @@ class MediaLibraryServiceProvider extends ServiceProvider
                 __DIR__ . '/../resources/js/react'         => resource_path( 'js/vendor/media-library' ),
                 __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'js/vendor/media-library/types/media.d.ts' ),
             ], 'media-react' );
+        }
+    }
+
+    /**
+     * Publish Vue components for the media library.
+     *
+     * Publishes the Vue component source files to the application's
+     * resources directory so Vue/Inertia.js consumers can import
+     * and use the media library UI components.
+     *
+     * @since 1.2.0
+     */
+    protected function publishVueComponents(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                __DIR__ . '/../resources/js/vue'           => resource_path( 'js/vendor/media-library-vue' ),
+                __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'js/vendor/media-library-vue/types/media.d.ts' ),
+            ], 'media-vue' );
         }
     }
 
