@@ -64,14 +64,33 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
     const uploadedMedia    = ref<Media[]>( [] );
 
     let dragCounter = 0;
+    let configPromise: Promise<void> | null = null;
 
     onMounted( () => {
         if ( autoFetchConfig ) {
-            fetchMediaConfig()
+            configPromise = fetchMediaConfig()
                 .then( ( c ) => { config.value = c; } )
                 .catch( () => { /* non-critical */ } );
         }
     } );
+
+    /**
+     * Ensure config is loaded before validating files.
+     */
+    async function ensureConfig(): Promise<void> {
+        if ( config.value ) {
+            return;
+        }
+        if ( configPromise ) {
+            await configPromise;
+            return;
+        }
+        try {
+            config.value = await fetchMediaConfig();
+        } catch {
+            // Non-critical — validation will be skipped
+        }
+    }
 
     function validateFile( file: File ): string | null {
         if ( ! config.value ) {
@@ -91,7 +110,8 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
         return null;
     }
 
-    function addFiles( files: FileList | File[] ) {
+    async function addFiles( files: FileList | File[] ) {
+        await ensureConfig();
         const fileArray = Array.from( files );
         const errors: string[]              = [];
         const validItems: UploadQueueItem[] = [];

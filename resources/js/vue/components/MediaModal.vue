@@ -93,11 +93,14 @@ const typeFilterOptions = [
 
 const selectedCount = computed( () => picker.selectedMedia.value.length );
 
-// Keyboard navigation — skip form controls
+// Keyboard navigation — skip form controls and interactive elements
 function handleKeyDown( e: KeyboardEvent ) {
     const target  = e.target as HTMLElement;
     const tagName = target.tagName.toLowerCase();
     if ( tagName === 'input' || tagName === 'textarea' || tagName === 'select' || target.isContentEditable ) {
+        return;
+    }
+    if ( target.closest( 'button, a, [role="button"], [role="tab"], [role="menuitem"]' ) ) {
         return;
     }
 
@@ -124,7 +127,11 @@ function handleUploadComplete( media: Media ) {
     if ( ! props.multiSelect ) {
         emit( 'select', [ media ], props.context );
         open.value = false;
-    } else {
+    }
+}
+
+function handleQueueComplete() {
+    if ( props.multiSelect ) {
         activeTab.value = 'library';
         picker.refresh();
     }
@@ -247,6 +254,7 @@ const tabItems = computed( () => [
                             <MediaUpload
                                 auto-upload
                                 @upload-complete="handleUploadComplete"
+                                @queue-complete="handleQueueComplete"
                             />
                         </div>
                     </template>
