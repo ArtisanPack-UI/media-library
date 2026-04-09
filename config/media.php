@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 /**
  * ArtisanPack UI - Media Library Configuration
@@ -25,7 +25,7 @@ return [
     | Defaults to the cms-framework user model if available, otherwise App\Models\User.
     |
     */
-    'user_model' => config('artisanpack.cms-framework.user_model', 'App\Models\User'),
+    'user_model' => config( 'artisanpack.cms-framework.user_model', 'App\Models\User' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -39,7 +39,7 @@ return [
     | Consider implementing rate limiting and file validation.
     |
     */
-    'allow_guest_uploads' => env('MEDIA_ALLOW_GUEST_UPLOADS', false),
+    'allow_guest_uploads' => env( 'MEDIA_ALLOW_GUEST_UPLOADS', false ),
 
     /*
     |--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ return [
     | You might want to create a "System" or "Guest" user for this purpose.
     |
     */
-    'guest_user_id' => env('MEDIA_GUEST_USER_ID', null),
+    'guest_user_id' => env( 'MEDIA_GUEST_USER_ID', null ),
 
     /*
     |--------------------------------------------------------------------------
@@ -61,7 +61,7 @@ return [
     | The default disk to use for media uploads.
     |
     */
-    'disk' => env('MEDIA_DISK', 'public'),
+    'disk' => env( 'MEDIA_DISK', 'public' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +108,7 @@ return [
     | Maximum file size in kilobytes. Default: 10MB
     |
     */
-    'max_file_size' => env('MEDIA_MAX_FILE_SIZE', 10240),
+    'max_file_size' => env( 'MEDIA_MAX_FILE_SIZE', 10240 ),
 
     /*
     |--------------------------------------------------------------------------
@@ -122,7 +122,7 @@ return [
     | {user_id} - Uploading user's ID
     |
     */
-    'upload_path_format' => env('MEDIA_UPLOAD_PATH_FORMAT', '{year}/{month}'),
+    'upload_path_format' => env( 'MEDIA_UPLOAD_PATH_FORMAT', '{year}/{month}' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -133,7 +133,7 @@ return [
     | while keeping the original file.
     |
     */
-    'enable_modern_formats' => env('MEDIA_ENABLE_MODERN_FORMATS', true),
+    'enable_modern_formats' => env( 'MEDIA_ENABLE_MODERN_FORMATS', true ),
 
     /*
     |--------------------------------------------------------------------------
@@ -143,7 +143,7 @@ return [
     | Which modern format to use: 'webp' or 'avif'
     |
     */
-    'modern_format' => env('MEDIA_MODERN_FORMAT', 'webp'),
+    'modern_format' => env( 'MEDIA_MODERN_FORMAT', 'webp' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -153,7 +153,7 @@ return [
     | Quality for image compression (1-100). Higher is better quality.
     |
     */
-    'image_quality' => env('MEDIA_IMAGE_QUALITY', 85),
+    'image_quality' => env( 'MEDIA_IMAGE_QUALITY', 85 ),
 
     /*
     |--------------------------------------------------------------------------
@@ -163,7 +163,7 @@ return [
     | Generate thumbnails for uploaded images.
     |
     */
-    'enable_thumbnails' => env('MEDIA_ENABLE_THUMBNAILS', true),
+    'enable_thumbnails' => env( 'MEDIA_ENABLE_THUMBNAILS', true ),
 
     /*
     |--------------------------------------------------------------------------
@@ -178,19 +178,19 @@ return [
     */
     'image_sizes' => [
         'thumbnail' => [
-            'width' => 150,
+            'width'  => 150,
             'height' => 150,
-            'crop' => true,
+            'crop'   => true,
         ],
         'medium' => [
-            'width' => 300,
+            'width'  => 300,
             'height' => 300,
-            'crop' => false,
+            'crop'   => false,
         ],
         'large' => [
-            'width' => 1024,
+            'width'  => 1024,
             'height' => 1024,
-            'crop' => false,
+            'crop'   => false,
         ],
     ],
 
@@ -392,7 +392,7 @@ return [
         |
         */
         'default' => [
-            'types' => [ 'image', 'video', 'audio', 'document' ],
+            'types'     => [ 'image', 'video', 'audio', 'document' ],
             'max_files' => 1,
             'min_files' => 0,
         ],
@@ -403,9 +403,9 @@ return [
         |----------------------------------------------------------------------
         */
         'image' => [
-            'types' => [ 'image' ],
-            'max_files' => 1,
-            'min_files' => 1,
+            'types'              => [ 'image' ],
+            'max_files'          => 1,
+            'min_files'          => 1,
             'allowed_extensions' => [ 'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg' ],
         ],
 
@@ -415,9 +415,9 @@ return [
         |----------------------------------------------------------------------
         */
         'gallery' => [
-            'types' => [ 'image' ],
-            'max_files' => 50,
-            'min_files' => 1,
+            'types'              => [ 'image' ],
+            'max_files'          => 50,
+            'min_files'          => 1,
             'allowed_extensions' => [ 'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif' ],
         ],
 
@@ -427,9 +427,9 @@ return [
         |----------------------------------------------------------------------
         */
         'video' => [
-            'types' => [ 'video' ],
-            'max_files' => 1,
-            'min_files' => 1,
+            'types'              => [ 'video' ],
+            'max_files'          => 1,
+            'min_files'          => 1,
             'allowed_extensions' => [ 'mp4', 'webm', 'mov' ],
         ],
 
@@ -439,9 +439,9 @@ return [
         |----------------------------------------------------------------------
         */
         'audio' => [
-            'types' => [ 'audio' ],
-            'max_files' => 1,
-            'min_files' => 1,
+            'types'              => [ 'audio' ],
+            'max_files'          => 1,
+            'min_files'          => 1,
             'allowed_extensions' => [ 'mp3', 'wav', 'ogg' ],
         ],
 
@@ -451,9 +451,9 @@ return [
         |----------------------------------------------------------------------
         */
         'document' => [
-            'types' => [ 'document' ],
-            'max_files' => 10,
-            'min_files' => 1,
+            'types'              => [ 'document' ],
+            'max_files'          => 10,
+            'min_files'          => 1,
             'allowed_extensions' => [ 'pdf', 'doc', 'docx', 'xls', 'xlsx' ],
         ],
 
@@ -463,11 +463,11 @@ return [
         |----------------------------------------------------------------------
         */
         'hero' => [
-            'types' => [ 'image', 'video' ],
-            'max_files' => 1,
-            'min_files' => 0,
+            'types'                  => [ 'image', 'video' ],
+            'max_files'              => 1,
+            'min_files'              => 0,
             'recommended_dimensions' => [
-                'width' => 1920,
+                'width'  => 1920,
                 'height' => 1080,
             ],
         ],
@@ -478,9 +478,9 @@ return [
         |----------------------------------------------------------------------
         */
         'background' => [
-            'types' => [ 'image', 'video' ],
-            'max_files' => 1,
-            'min_files' => 0,
+            'types'              => [ 'image', 'video' ],
+            'max_files'          => 1,
+            'min_files'          => 0,
             'allowed_extensions' => [ 'jpg', 'jpeg', 'png', 'webp', 'mp4', 'webm' ],
         ],
     ],

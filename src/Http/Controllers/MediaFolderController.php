@@ -46,6 +46,7 @@ class MediaFolderController extends Controller
      * @since 1.0.0
      *
      * @param Request $request The HTTP request instance.
+     *
      * @return JsonResponse The folders collection.
      */
     public function index( Request $request ): JsonResponse
@@ -66,6 +67,7 @@ class MediaFolderController extends Controller
      * @since 1.0.0
      *
      * @param MediaFolderStoreRequest $request The validated request.
+     *
      * @return JsonResponse The created folder.
      */
     public function store( MediaFolderStoreRequest $request ): JsonResponse
@@ -87,7 +89,7 @@ class MediaFolderController extends Controller
         $folder = MediaFolder::create( $data );
 
         return response()->json( [
-                                     'data' => $folder->load( [ 'parent', 'children', 'creator' ] ),
+                                     'data'                                                                                                                                                                                                                                                                                     => $folder->load( [ 'parent', 'children', 'creator' ] ),
                                                                                                                                                                                                                                                                                                                       'message' => 'Folder created successfully',
                                  ], 201 );
     }
@@ -98,6 +100,7 @@ class MediaFolderController extends Controller
      * @since 1.0.0
      *
      * @param int $id The folder ID.
+     *
      * @return JsonResponse The folder data.
      */
     public function show( int $id ): JsonResponse
@@ -115,7 +118,8 @@ class MediaFolderController extends Controller
      * @since 1.0.0
      *
      * @param int $id The folder ID.
-     * @return Response|JsonResponse The response with no content or error message.
+     *
+     * @return JsonResponse|Response The response with no content or error message.
      */
     public function destroy( int $id ): Response | JsonResponse
     {
@@ -147,6 +151,7 @@ class MediaFolderController extends Controller
      *
      * @param Request $request The HTTP request instance.
      * @param int     $id      The folder ID to move.
+     *
      * @return JsonResponse The updated folder.
      */
     public function move( Request $request, int $id ): JsonResponse
@@ -159,7 +164,7 @@ class MediaFolderController extends Controller
         $parentId = $request->input( 'parent_id' );
 
         // Prevent moving folder into itself or its descendants
-        if ( $parentId !== null ) {
+        if ( null !== $parentId ) {
             $parent = MediaFolder::findOrFail( $parentId );
 
             // Check if target parent is a descendant
@@ -186,6 +191,7 @@ class MediaFolderController extends Controller
      *
      * @param MediaFolderUpdateRequest $request The validated request.
      * @param int                      $id      The folder ID.
+     *
      * @return JsonResponse The updated folder.
      */
     public function update( MediaFolderUpdateRequest $request, int $id ): JsonResponse

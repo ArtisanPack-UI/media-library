@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature\Livewire;
 
@@ -29,16 +29,16 @@ class MediaGridTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
+        Storage::fake( 'public' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'public',
+        config( [
+            'artisanpack.media.disk'       => 'public',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     /**
@@ -46,12 +46,12 @@ class MediaGridTest extends TestCase
      */
     public function test_component_renders(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -59,12 +59,12 @@ class MediaGridTest extends TestCase
      */
     public function test_default_view_mode_is_grid(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->assertSet('viewMode', 'grid');
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->assertSet( 'viewMode', 'grid' );
     }
 
     /**
@@ -72,12 +72,12 @@ class MediaGridTest extends TestCase
      */
     public function test_can_set_view_mode_to_list(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator, 'viewMode' => 'list'])
-            ->assertSet('viewMode', 'list');
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator, 'viewMode' => 'list'] )
+            ->assertSet( 'viewMode', 'list' );
     }
 
     /**
@@ -85,12 +85,12 @@ class MediaGridTest extends TestCase
      */
     public function test_default_bulk_select_mode_is_false(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->assertSet('bulkSelectMode', false);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->assertSet( 'bulkSelectMode', false );
     }
 
     /**
@@ -98,12 +98,12 @@ class MediaGridTest extends TestCase
      */
     public function test_can_enable_bulk_select_mode(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator, 'bulkSelectMode' => true])
-            ->assertSet('bulkSelectMode', true);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator, 'bulkSelectMode' => true] )
+            ->assertSet( 'bulkSelectMode', true );
     }
 
     /**
@@ -111,12 +111,12 @@ class MediaGridTest extends TestCase
      */
     public function test_default_selected_media_is_empty(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -124,13 +124,13 @@ class MediaGridTest extends TestCase
      */
     public function test_can_mount_with_preselected_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media       = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator   = new LengthAwarePaginator( $media, 3, 12 );
         $selectedIds = [$media[0]->id, $media[1]->id];
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator, 'selectedMedia' => $selectedIds])
-            ->assertSet('selectedMedia', $selectedIds);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator, 'selectedMedia' => $selectedIds] )
+            ->assertSet( 'selectedMedia', $selectedIds );
     }
 
     /**
@@ -138,14 +138,14 @@ class MediaGridTest extends TestCase
      */
     public function test_toggle_selection_adds_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->call('toggleSelection', $media[0]->id)
-            ->assertSet('selectedMedia', [$media[0]->id])
-            ->assertDispatched('selection-changed');
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->call( 'toggleSelection', $media[0]->id )
+            ->assertSet( 'selectedMedia', [$media[0]->id] )
+            ->assertDispatched( 'selection-changed' );
     }
 
     /**
@@ -153,14 +153,14 @@ class MediaGridTest extends TestCase
      */
     public function test_toggle_selection_removes_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator, 'selectedMedia' => [$media[0]->id]])
-            ->call('toggleSelection', $media[0]->id)
-            ->assertSet('selectedMedia', [])
-            ->assertDispatched('selection-changed');
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator, 'selectedMedia' => [$media[0]->id]] )
+            ->call( 'toggleSelection', $media[0]->id )
+            ->assertSet( 'selectedMedia', [] )
+            ->assertDispatched( 'selection-changed' );
     }
 
     /**
@@ -168,14 +168,14 @@ class MediaGridTest extends TestCase
      */
     public function test_toggle_selection_with_multiple_items(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->call('toggleSelection', $media[0]->id)
-            ->call('toggleSelection', $media[1]->id)
-            ->assertSet('selectedMedia', [$media[0]->id, $media[1]->id]);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->call( 'toggleSelection', $media[0]->id )
+            ->call( 'toggleSelection', $media[1]->id )
+            ->assertSet( 'selectedMedia', [$media[0]->id, $media[1]->id] );
     }
 
     /**
@@ -183,13 +183,13 @@ class MediaGridTest extends TestCase
      */
     public function test_selection_changed_event_dispatches_correct_data(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->call('toggleSelection', $media[0]->id)
-            ->assertDispatched('selection-changed', selectedMedia: [$media[0]->id]);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->call( 'toggleSelection', $media[0]->id )
+            ->assertDispatched( 'selection-changed', selectedMedia: [$media[0]->id] );
     }
 
     /**
@@ -197,11 +197,11 @@ class MediaGridTest extends TestCase
      */
     public function test_component_with_empty_media_collection(): void
     {
-        $paginator = new LengthAwarePaginator(collect(), 0, 12);
+        $paginator = new LengthAwarePaginator( collect(), 0, 12 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -209,14 +209,14 @@ class MediaGridTest extends TestCase
      */
     public function test_component_stores_media_items(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] );
 
-        expect($component->get('mediaItems'))->toBeInstanceOf(\Illuminate\Support\Collection::class);
-        expect($component->get('mediaItems')->count())->toBe(3);
+        expect( $component->get( 'mediaItems' ) )->toBeInstanceOf( \Illuminate\Support\Collection::class );
+        expect( $component->get( 'mediaItems' )->count() )->toBe( 3 );
     }
 
     /**
@@ -224,18 +224,18 @@ class MediaGridTest extends TestCase
      */
     public function test_toggle_selection_maintains_array_indices(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $paginator = new LengthAwarePaginator($media, 3, 12);
+        $media     = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $paginator = new LengthAwarePaginator( $media, 3, 12 );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaGrid::class, ['media' => $paginator])
-            ->call('toggleSelection', $media[0]->id)
-            ->call('toggleSelection', $media[1]->id)
-            ->call('toggleSelection', $media[2]->id)
-            ->call('toggleSelection', $media[1]->id);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaGrid::class, ['media' => $paginator] )
+            ->call( 'toggleSelection', $media[0]->id )
+            ->call( 'toggleSelection', $media[1]->id )
+            ->call( 'toggleSelection', $media[2]->id)
+            ->call( 'toggleSelection', $media[1]->id);
 
-        $selectedMedia = $component->get('selectedMedia');
-        expect(array_keys($selectedMedia))->toBe([0, 1]);
-        expect($selectedMedia)->toBe([$media[0]->id, $media[2]->id]);
+        $selectedMedia = $component->get( 'selectedMedia');
+        expect( array_keys( $selectedMedia))->toBe( [0, 1]);
+        expect( $selectedMedia)->toBe( [$media[0]->id, $media[2]->id]);
     }
 }

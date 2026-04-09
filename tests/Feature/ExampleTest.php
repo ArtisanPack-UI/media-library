@@ -1,7 +1,7 @@
 <?php
 
-it('returns a successful response', function () {
+it( 'returns a successful response', function (): void {
     $status = true;
 
-    $this->assertTrue($status);
-});
+    $this->assertTrue( $status );
+} );

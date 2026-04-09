@@ -49,7 +49,7 @@ class MediaLibrary extends Component
      *
      * @var string
      */
-    #[Url(as: 'q')]
+    #[Url( as: 'q' )]
     public string $search = '';
 
     /**
@@ -59,7 +59,7 @@ class MediaLibrary extends Component
      *
      * @var int|null
      */
-    #[Url(as: 'folder')]
+    #[Url( as: 'folder' )]
     public ?int $folderId = null;
 
     /**
@@ -182,57 +182,57 @@ class MediaLibrary extends Component
     public function mount(): void
     {
         // Load view mode from session
-        $this->viewMode = session('media.viewMode', 'grid');
-        $this->types = [
+        $this->viewMode = session( 'media.viewMode', 'grid' );
+        $this->types    = [
             [
                 'value' => '',
-                'label' => __('All Types'),
+                'label' => __( 'All Types' ),
             ],
             [
                 'value' => 'image',
-                'label' => __('Image'),
+                'label' => __( 'Image' ),
             ],
             [
                 'value' => 'video',
-                'label' => __('Video'),
+                'label' => __( 'Video' ),
             ],
             [
                 'value' => 'audio',
-                'label' => __('Audio'),
+                'label' => __( 'Audio' ),
             ],
             [
                 'value' => 'document',
-                'label' => __('Documents'),
+                'label' => __( 'Documents' ),
             ],
         ];
 
         $this->sortByOptions = [
             [
                 'value' => 'created_at',
-                'label' => __('Date Added'),
+                'label' => __( 'Date Added' ),
             ],
             [
                 'value' => 'title',
-                'label' => __('Title'),
+                'label' => __( 'Title' ),
             ],
             [
                 'value' => 'file_name',
-                'label' => __('File Name'),
+                'label' => __( 'File Name' ),
             ],
             [
                 'value' => 'file_size',
-                'label' => __('File Size'),
+                'label' => __( 'File Size' ),
             ],
         ];
 
         $this->sortOrderOptions = [
             [
                 'value' => 'asc',
-                'label' => __('Ascending'),
+                'label' => __( 'Ascending' ),
             ],
             [
                 'value' => 'desc',
-                'label' => __('Descending'),
+                'label' => __( 'Descending' ),
             ],
         ];
     }
@@ -247,45 +247,45 @@ class MediaLibrary extends Component
     #[Computed]
     public function media(): LengthAwarePaginator
     {
-        $query = Media::query()->with(['folder', 'uploadedBy', 'tags']);
+        $query = Media::query()->with( ['folder', 'uploadedBy', 'tags'] );
 
         // Apply folder filter
-        if ($this->folderId !== null) {
-            $query->where('folder_id', $this->folderId);
+        if ( null !== $this->folderId ) {
+            $query->where( 'folder_id', $this->folderId );
         }
 
         // Apply type filter
-        if ($this->type !== '') {
-            if ($this->type === 'image') {
+        if ( '' !== $this->type ) {
+            if ( 'image' === $this->type ) {
                 $query->images();
-            } elseif ($this->type === 'video') {
+            } elseif ( 'video' === $this->type ) {
                 $query->videos();
-            } elseif ($this->type === 'audio') {
+            } elseif ( 'audio' === $this->type ) {
                 $query->audios();
-            } elseif ($this->type === 'document') {
+            } elseif ( 'document' === $this->type ) {
                 $query->documents();
             } else {
-                $query->byType($this->type);
+                $query->byType( $this->type );
             }
         }
 
         // Apply tag filter
-        if ($this->tag !== '') {
-            $query->withTag($this->tag);
+        if ( '' !== $this->tag ) {
+            $query->withTag( $this->tag );
         }
 
         // Apply search
-        if ($this->search !== '') {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('file_name', 'like', '%'.$this->search.'%');
-            });
+        if ( '' !== $this->search ) {
+            $query->where( function ( $q ): void {
+                $q->where( 'title', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'file_name', 'like', '%' . $this->search . '%' );
+            } );
         }
 
         // Apply sorting
-        $query->orderBy($this->sortBy, $this->sortOrder);
+        $query->orderBy( $this->sortBy, $this->sortOrder );
 
-        return $query->paginate($this->perPage);
+        return $query->paginate( $this->perPage );
     }
 
     /**
@@ -299,9 +299,9 @@ class MediaLibrary extends Component
     public function folders(): Collection
     {
         return MediaFolder::query()
-            ->whereNull('parent_id')
-            ->with('children')
-            ->orderBy('name')
+            ->whereNull( 'parent_id' )
+            ->with( 'children' )
+            ->orderBy( 'name' )
             ->get();
     }
 
@@ -315,7 +315,7 @@ class MediaLibrary extends Component
     #[Computed]
     public function tags(): Collection
     {
-        return MediaTag::query()->orderBy('name')->get();
+        return MediaTag::query()->orderBy( 'name' )->get();
     }
 
     /**
@@ -328,11 +328,11 @@ class MediaLibrary extends Component
     #[Computed]
     public function currentFolder(): ?MediaFolder
     {
-        if ($this->folderId === null) {
+        if ( null === $this->folderId ) {
             return null;
         }
 
-        return MediaFolder::find($this->folderId);
+        return MediaFolder::find( $this->folderId );
     }
 
     /**
@@ -342,10 +342,10 @@ class MediaLibrary extends Component
      */
     public function clearFilters(): void
     {
-        $this->search = '';
+        $this->search   = '';
         $this->folderId = null;
-        $this->type = '';
-        $this->tag = '';
+        $this->type     = '';
+        $this->tag      = '';
         $this->resetPage();
     }
 
@@ -356,7 +356,7 @@ class MediaLibrary extends Component
      *
      * @param  int|null  $folderId  The folder ID to filter by.
      */
-    public function setFolder(?int $folderId): void
+    public function setFolder( ?int $folderId ): void
     {
         $this->folderId = $folderId;
         $this->resetPage();
@@ -369,7 +369,7 @@ class MediaLibrary extends Component
      *
      * @param  string  $type  The media type to filter by.
      */
-    public function setType(string $type): void
+    public function setType( string $type ): void
     {
         $this->type = $type;
         $this->resetPage();
@@ -382,7 +382,7 @@ class MediaLibrary extends Component
      *
      * @param  string  $tag  The tag slug to filter by.
      */
-    public function setTag(string $tag): void
+    public function setTag( string $tag ): void
     {
         $this->tag = $tag;
         $this->resetPage();
@@ -395,29 +395,17 @@ class MediaLibrary extends Component
      *
      * @param  string  $column  The column to sort by.
      */
-    public function setSortBy(string $column): void
+    public function setSortBy( string $column ): void
     {
-        if ($this->sortBy === $column) {
+        if ( $this->sortBy === $column ) {
             // Toggle sort direction if already sorting by this column
-            $this->sortOrder = $this->sortOrder === 'asc' ? 'desc' : 'asc';
+            $this->sortOrder = 'asc' === $this->sortOrder ? 'desc' : 'asc';
         } else {
-            $this->sortBy = $column;
+            $this->sortBy    = $column;
             $this->sortOrder = 'desc';
         }
 
         $this->resetPage();
-    }
-
-    /**
-     * Announce a message for screen readers.
-     *
-     * @since 1.1.0
-     *
-     * @param  string  $message  The message to announce.
-     */
-    protected function announce(string $message): void
-    {
-        $this->announcement = $message;
     }
 
     /**
@@ -427,9 +415,9 @@ class MediaLibrary extends Component
      */
     public function toggleViewMode(): void
     {
-        $this->viewMode = $this->viewMode === 'grid' ? 'list' : 'grid';
-        session(['media.viewMode' => $this->viewMode]);
-        $this->announce($this->viewMode === 'grid' ? __('Switched to grid view') : __('Switched to list view'));
+        $this->viewMode = 'grid' === $this->viewMode ? 'list' : 'grid';
+        session( ['media.viewMode' => $this->viewMode] );
+        $this->announce( 'grid' === $this->viewMode ? __( 'Switched to grid view' ) : __( 'Switched to list view' ) );
     }
 
     /**
@@ -440,10 +428,10 @@ class MediaLibrary extends Component
     public function toggleBulkSelect(): void
     {
         $this->bulkSelectMode = ! $this->bulkSelectMode;
-        if (! $this->bulkSelectMode) {
+        if ( ! $this->bulkSelectMode ) {
             $this->selectedMedia = [];
         }
-        $this->announce($this->bulkSelectMode ? __('Bulk selection mode enabled') : __('Bulk selection mode disabled'));
+        $this->announce( $this->bulkSelectMode ? __( 'Bulk selection mode enabled' ) : __( 'Bulk selection mode disabled' ) );
     }
 
     /**
@@ -453,8 +441,8 @@ class MediaLibrary extends Component
      */
     public function selectAll(): void
     {
-        $this->selectedMedia = $this->media->pluck('id')->toArray();
-        $this->announce(__(':count items selected', ['count' => count($this->selectedMedia)]));
+        $this->selectedMedia = $this->media->pluck( 'id' )->toArray();
+        $this->announce( __( ':count items selected', ['count' => count( $this->selectedMedia )] ) );
     }
 
     /**
@@ -465,7 +453,7 @@ class MediaLibrary extends Component
     public function deselectAll(): void
     {
         $this->selectedMedia = [];
-        $this->announce(__('All items deselected'));
+        $this->announce( __( 'All items deselected' ) );
     }
 
     /**
@@ -475,26 +463,26 @@ class MediaLibrary extends Component
      */
     public function bulkDelete(): void
     {
-        if (empty($this->selectedMedia)) {
-            $this->warning(__('No media selected'));
+        if ( empty( $this->selectedMedia ) ) {
+            $this->warning( __( 'No media selected' ) );
 
             return;
         }
 
         $count = 0;
-        foreach ($this->selectedMedia as $mediaId) {
-            $media = Media::find($mediaId);
-            if ($media !== null && auth()->user()->can('delete', $media)) {
+        foreach ( $this->selectedMedia as $mediaId ) {
+            $media = Media::find( $mediaId );
+            if ( null !== $media && auth()->user()->can( 'delete', $media ) ) {
                 $media->delete();
                 $count++;
             }
         }
 
-        $this->selectedMedia = [];
+        $this->selectedMedia  = [];
         $this->bulkSelectMode = false;
 
-        $this->success(__(':count media items deleted', ['count' => $count]));
-        $this->dispatch('media-updated');
+        $this->success( __( ':count media items deleted', ['count' => $count] ) );
+        $this->dispatch( 'media-updated' );
     }
 
     /**
@@ -504,28 +492,28 @@ class MediaLibrary extends Component
      *
      * @param  int|null  $folderId  The folder ID to move to.
      */
-    public function bulkMove(?int $folderId): void
+    public function bulkMove( ?int $folderId ): void
     {
-        if (empty($this->selectedMedia)) {
-            $this->warning(__('No media selected'));
+        if ( empty( $this->selectedMedia ) ) {
+            $this->warning( __( 'No media selected' ) );
 
             return;
         }
 
         $count = 0;
-        foreach ($this->selectedMedia as $mediaId) {
-            $media = Media::find($mediaId);
-            if ($media !== null && auth()->user()->can('update', $media)) {
-                $media->update(['folder_id' => $folderId]);
+        foreach ( $this->selectedMedia as $mediaId ) {
+            $media = Media::find( $mediaId );
+            if ( null !== $media && auth()->user()->can( 'update', $media ) ) {
+                $media->update( ['folder_id' => $folderId] );
                 $count++;
             }
         }
 
-        $this->selectedMedia = [];
+        $this->selectedMedia  = [];
         $this->bulkSelectMode = false;
 
-        $this->success(__(':count media items moved', ['count' => $count]));
-        $this->dispatch('media-updated');
+        $this->success( __( ':count media items moved', ['count' => $count] ) );
+        $this->dispatch( 'media-updated' );
     }
 
     /**
@@ -533,11 +521,11 @@ class MediaLibrary extends Component
      *
      * @since 1.0.0
      */
-    #[On('media-updated')]
+    #[On( 'media-updated' )]
     public function refreshMedia(): void
     {
         // Refresh computed properties
-        unset($this->media);
+        unset( $this->media );
     }
 
     /**
@@ -548,17 +536,17 @@ class MediaLibrary extends Component
      * @param  int  $mediaId  The media ID that was toggled.
      * @param  bool  $selected  Whether the media is now selected.
      */
-    #[On('media-selected')]
-    public function handleMediaSelected(int $mediaId, bool $selected): void
+    #[On( 'media-selected' )]
+    public function handleMediaSelected( int $mediaId, bool $selected ): void
     {
-        if ($selected) {
-            if (! in_array($mediaId, $this->selectedMedia, true)) {
+        if ( $selected ) {
+            if ( ! in_array( $mediaId, $this->selectedMedia, true ) ) {
                 $this->selectedMedia[] = $mediaId;
             }
         } else {
-            $this->selectedMedia = array_values(array_diff($this->selectedMedia, [$mediaId]));
+            $this->selectedMedia = array_values( array_diff( $this->selectedMedia, [$mediaId] ) );
         }
-        $this->announce(__(':count items selected', ['count' => count($this->selectedMedia)]));
+        $this->announce( __( ':count items selected', ['count' => count( $this->selectedMedia )] ) );
     }
 
     /**
@@ -579,92 +567,93 @@ class MediaLibrary extends Component
      * @since 1.1.0
      *
      * @param  string  $tableId  The table identifier (unused, single table).
+     *
      * @return array{headers: array, rows: array, filename: string} The export data.
      */
-    public function getTableExportData(string $tableId = 'default'): array
+    public function getTableExportData( string $tableId = 'default' ): array
     {
         // Get all filtered media (not paginated) for export
-        $query = Media::query()->with(['folder', 'uploadedBy']);
+        $query = Media::query()->with( ['folder', 'uploadedBy'] );
 
         // Apply folder filter
-        if ($this->folderId !== null) {
-            $query->where('folder_id', $this->folderId);
+        if ( null !== $this->folderId ) {
+            $query->where( 'folder_id', $this->folderId );
         }
 
         // Apply type filter
-        if ($this->type !== '') {
-            if ($this->type === 'image') {
+        if ( '' !== $this->type ) {
+            if ( 'image' === $this->type ) {
                 $query->images();
-            } elseif ($this->type === 'video') {
+            } elseif ( 'video' === $this->type ) {
                 $query->videos();
-            } elseif ($this->type === 'audio') {
+            } elseif ( 'audio' === $this->type ) {
                 $query->audios();
-            } elseif ($this->type === 'document') {
+            } elseif ( 'document' === $this->type ) {
                 $query->documents();
             } else {
-                $query->byType($this->type);
+                $query->byType( $this->type );
             }
         }
 
         // Apply tag filter
-        if ($this->tag !== '') {
-            $query->withTag($this->tag);
+        if ( '' !== $this->tag ) {
+            $query->withTag( $this->tag );
         }
 
         // Apply search
-        if ($this->search !== '') {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('file_name', 'like', '%'.$this->search.'%');
-            });
+        if ( '' !== $this->search ) {
+            $query->where( function ( $q ): void {
+                $q->where( 'title', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'file_name', 'like', '%' . $this->search . '%' );
+            } );
         }
 
         // Apply sorting
-        $query->orderBy($this->sortBy, $this->sortOrder);
+        $query->orderBy( $this->sortBy, $this->sortOrder );
 
         $media = $query->get();
 
         return [
             'headers' => [
                 [
-                    'key' => 'id',
-                    'label' => __('ID'),
+                    'key'   => 'id',
+                    'label' => __( 'ID' ),
                 ],
                 [
-                    'key' => 'title',
-                    'label' => __('Title'),
+                    'key'   => 'title',
+                    'label' => __( 'Title' ),
                 ],
                 [
-                    'key' => 'file_name',
-                    'label' => __('File Name'),
+                    'key'   => 'file_name',
+                    'label' => __( 'File Name' ),
                 ],
                 [
-                    'key' => 'mime_type',
-                    'label' => __('Type'),
+                    'key'   => 'mime_type',
+                    'label' => __( 'Type' ),
                 ],
                 [
-                    'key' => 'file_size',
-                    'label' => __('Size'),
+                    'key'   => 'file_size',
+                    'label' => __( 'Size' ),
                 ],
                 [
-                    'key' => 'folder',
-                    'label' => __('Folder'),
+                    'key'   => 'folder',
+                    'label' => __( 'Folder' ),
                 ],
                 [
-                    'key' => 'created_at',
-                    'label' => __('Uploaded'),
+                    'key'   => 'created_at',
+                    'label' => __( 'Uploaded' ),
                 ],
             ],
-            'rows' => $media->map(fn ($m) => [
-                'id' => $m->id,
-                'title' => $m->title ?? '',
-                'file_name' => $m->file_name,
-                'mime_type' => $m->mime_type,
-                'file_size' => $m->humanFileSize(),
-                'folder' => $m->folder?->name ?? __('No Folder'),
-                'created_at' => $m->created_at->format('Y-m-d H:i'),
+            'rows' => $media->map( fn ( $m ) => [
+                'id'         => $m->id,
+                'title'      => $m->title ?? '',
+                'file_name'  => $m->file_name,
+                'mime_type'  => $m->mime_type,
+                'file_size'  => $m->humanFileSize(),
+                'folder'     => $m->folder?->name ?? __( 'No Folder'),
+                'created_at' => $m->created_at->format( 'Y-m-d H:i'),
             ])->toArray(),
-            'filename' => 'media-export-'.date('Y-m-d'),
+            'filename' => 'media-export-' . date( 'Y-m-d'),
         ];
     }
 
@@ -677,6 +666,18 @@ class MediaLibrary extends Component
      */
     public function render(): View
     {
-        return view('media::livewire.pages.media-library');
+        return view( 'media::livewire.pages.media-library');
+    }
+
+    /**
+     * Announce a message for screen readers.
+     *
+     * @since 1.1.0
+     *
+     * @param  string  $message  The message to announce.
+     */
+    protected function announce( string $message): void
+    {
+        $this->announcement = $message;
     }
 }

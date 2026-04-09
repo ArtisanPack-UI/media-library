@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,8 +18,7 @@ use Illuminate\Support\Facades\Schema;
  * @since 1.0.0
  * @since 1.1.0 Added upgrade support for existing installations.
  */
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Runs the migrations.
      *
@@ -28,28 +27,28 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('media_tags')) {
+        if ( Schema::hasTable( 'media_tags' ) ) {
             // Upgrade existing table - add any missing columns
-            Schema::table('media_tags', function (Blueprint $table) {
-                if (! Schema::hasColumn('media_tags', 'description')) {
-                    $table->text('description')->nullable()->after('slug');
+            Schema::table( 'media_tags', function ( Blueprint $table ): void {
+                if ( ! Schema::hasColumn( 'media_tags', 'description' ) ) {
+                    $table->text( 'description' )->nullable()->after( 'slug' );
                 }
-            });
+            } );
 
             return;
         }
 
         // Fresh install - create the table
-        Schema::create('media_tags', function (Blueprint $table) {
+        Schema::create( 'media_tags', function ( Blueprint $table ): void {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
+            $table->string( 'name' );
+            $table->string( 'slug' )->unique();
+            $table->text( 'description' )->nullable();
             $table->timestamps();
 
             // Indexes
-            $table->index('slug');
-        });
+            $table->index( 'slug' );
+        } );
     }
 
     /**
@@ -59,6 +58,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('media_tags');
+        Schema::dropIfExists( 'media_tags');
     }
 };

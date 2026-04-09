@@ -77,23 +77,6 @@ class MediaProcessingService
     }
 
     /**
-     * Creates an Intervention Image manager with the best available driver.
-     *
-     * @since 1.0.0
-     *
-     * @return ImageManager The image manager instance.
-     */
-    protected function createImageManager(): ImageManager
-    {
-        // Prefer Imagick over GD if available
-        if ( extension_loaded( 'imagick' ) ) {
-            return new ImageManager( new ImagickDriver );
-        }
-
-        return new ImageManager( new GdDriver );
-    }
-
-    /**
      * Processes an image: generates thumbnails and converts to modern formats.
      *
      * @since 1.0.0
@@ -146,10 +129,10 @@ class MediaProcessingService
                     $media->file_path,
                     $media->disk,
                     $sizeName,
-                    $sizeConfig
+                    $sizeConfig,
                 );
 
-                if ( $thumbnailPath !== null ) {
+                if ( null !== $thumbnailPath ) {
                     $thumbnails[ $sizeName ] = $thumbnailPath;
                 }
             } catch ( Exception $e ) {
@@ -166,6 +149,128 @@ class MediaProcessingService
         }
 
         return $thumbnails;
+    }
+
+    /**
+     * Converts an image to a modern format (WebP or AVIF).
+     *
+     * @since 1.0.0
+     *
+     * @param Media  $media  The media instance.
+     * @param string $format The target format ('webp' or 'avif').
+     *
+     * @return string|null The converted image path or null on failure.
+     */
+    public function convertToModernFormat( Media $media, string $format = 'webp' ): ?string
+    {
+        if ( ! $media->isImage() ) {
+            return null;
+        }
+
+        // Don't convert SVGs
+        if ( 'image/svg+xml' === $media->mime_type ) {
+            return null;
+        }
+
+        // Don't convert if already in modern format
+        if ( in_array( $media->mime_type, [ 'image/webp', 'image/avif' ], true ) ) {
+            return null;
+        }
+
+        try {
+            $sourcePath = $this->storageService->path( $media->file_path, $media->disk );
+            $image      = $this->imageManager->read( $sourcePath );
+
+            // Generate modern format filename
+            $pathInfo   = pathinfo( $media->file_path );
+            $modernName = $pathInfo['filename'] . '.' . $format;
+            $modernPath = $pathInfo['dirname'] . '/' . $modernName;
+
+            // Get quality setting
+            $quality = config( 'artisanpack.media.image_quality', 85 );
+
+            // Encode to the target format
+            $encoded = match ( $format ) {
+                'webp'  => $image->toWebp( $quality ),
+                'avif'  => $image->toAvif( $quality ),
+                default => null,
+            };
+
+            if ( null === $encoded ) {
+                return null;
+            }
+
+            // Store the converted image
+            $this->storageService->put( $modernPath, (string)$encoded, $media->disk );
+
+            // Update metadata
+            $metadata                              = $media->metadata ?? [];
+            $metadata['modern_formats']            = $metadata['modern_formats'] ?? [];
+            $metadata['modern_formats'][ $format ] = $modernPath;
+            $media->update( [ 'metadata' => $metadata ] );
+
+            return $modernPath;
+        } catch ( Exception $e ) {
+            return null;
+        }
+    }
+
+    /**
+     * Extracts dimensions from an image file path.
+     *
+     * @since 1.0.0
+     *
+     * @param string $path The image file path.
+     *
+     * @return array<string, int>|null Array with width and height, or null if unable to extract.
+     */
+    public function extractImageDimensions( string $path ): ?array
+    {
+        try {
+            $imageSize = getimagesize( $path );
+            if ( false === $imageSize ) {
+                return null;
+            }
+
+            return [
+                'width'  => $imageSize[0],
+                'height' => $imageSize[1],
+            ];
+        } catch ( Exception $e ) {
+            return null;
+        }
+    }
+
+    /**
+     * Optimizes an image at the given path.
+     *
+     * @since 1.0.0
+     *
+     * @param string $path    The image file path.
+     * @param int    $quality The quality setting (1-100).
+     *
+     * @return void
+     */
+    public function optimizeImage( string $path, int $quality = 85 ): void
+    {
+        $this->optimizationService->optimize( $path, [ 'quality' => $quality ] );
+    }
+
+    /**
+     * Creates an Intervention Image manager with the best available driver.
+     *
+     * @since 1.0.0
+     *
+     * @return ImageManager The image manager instance.
+     */
+    protected function createImageManager(): ImageManager
+    {
+        // Prefer Imagick over GD if available
+        if ( extension_loaded( 'imagick' ) ) {
+            return new ImageManager( new ImagickDriver );
+        }
+
+        return new ImageManager( new GdDriver );
     }
 
     /**
@@ -201,9 +306,8 @@ class MediaProcessingService
         string $relativeSource,
         string $disk,
         string $sizeName,
-        array $sizeConfig
-    ): ?string
-    {
+        array $sizeConfig,
+    ): ?string {
         try {
             // Load the image
             $image = $this->imageManager->read( $sourcePath );
@@ -213,10 +317,10 @@ class MediaProcessingService
             $crop   = $sizeConfig['crop'] ?? false;
 
             // Resize based on configuration
-            if ( $crop && $width !== null && $height !== null ) {
+            if ( $crop && null !== $width && null !== $height ) {
                 // Crop to exact dimensions
                 $image->cover( $width, $height );
-            } elseif ( $width !== null || $height !== null ) {
+            } elseif ( null !== $width || null !== $height ) {
                 // Scale maintaining aspect ratio
                 $image->scale( $width, $height );
             }
@@ -237,110 +341,5 @@ class MediaProcessingService
         } catch ( Exception $e ) {
             return null;
         }
-    }
-
-    /**
-     * Converts an image to a modern format (WebP or AVIF).
-     *
-     * @since 1.0.0
-     *
-     * @param Media  $media  The media instance.
-     * @param string $format The target format ('webp' or 'avif').
-     *
-     * @return string|null The converted image path or null on failure.
-     */
-    public function convertToModernFormat( Media $media, string $format = 'webp' ): ?string
-    {
-        if ( ! $media->isImage() ) {
-            return null;
-        }
-
-        // Don't convert SVGs
-        if ( $media->mime_type === 'image/svg+xml' ) {
-            return null;
-        }
-
-        // Don't convert if already in modern format
-        if ( in_array( $media->mime_type, [ 'image/webp', 'image/avif' ], true ) ) {
-            return null;
-        }
-
-        try {
-            $sourcePath = $this->storageService->path( $media->file_path, $media->disk );
-            $image      = $this->imageManager->read( $sourcePath );
-
-            // Generate modern format filename
-            $pathInfo   = pathinfo( $media->file_path );
-            $modernName = $pathInfo['filename'] . '.' . $format;
-            $modernPath = $pathInfo['dirname'] . '/' . $modernName;
-
-            // Get quality setting
-            $quality = config( 'artisanpack.media.image_quality', 85 );
-
-            // Encode to the target format
-            $encoded = match ( $format ) {
-                'webp' => $image->toWebp( $quality ),
-                'avif' => $image->toAvif( $quality ),
-                default => null,
-            };
-
-            if ( $encoded === null ) {
-                return null;
-            }
-
-            // Store the converted image
-            $this->storageService->put( $modernPath, (string)$encoded, $media->disk );
-
-            // Update metadata
-            $metadata                              = $media->metadata ?? [];
-            $metadata['modern_formats']            = $metadata['modern_formats'] ?? [];
-            $metadata['modern_formats'][ $format ] = $modernPath;
-            $media->update( [ 'metadata' => $metadata ] );
-
-            return $modernPath;
-        } catch ( Exception $e ) {
-            return null;
-        }
-    }
-
-    /**
-     * Extracts dimensions from an image file path.
-     *
-     * @since 1.0.0
-     *
-     * @param string $path The image file path.
-     *
-     * @return array<string, int>|null Array with width and height, or null if unable to extract.
-     */
-    public function extractImageDimensions( string $path ): ?array
-    {
-        try {
-            $imageSize = getimagesize( $path );
-            if ( $imageSize === false ) {
-                return null;
-            }
-
-            return [
-                'width'  => $imageSize[0],
-                'height' => $imageSize[1],
-            ];
-        } catch ( Exception $e ) {
-            return null;
-        }
-    }
-
-    /**
-     * Optimizes an image at the given path.
-     *
-     * @since 1.0.0
-     *
-     * @param string $path    The image file path.
-     * @param int    $quality The quality setting (1-100).
-     *
-     * @return void
-     */
-    public function optimizeImage( string $path, int $quality = 85 ): void
-    {
-        $this->optimizationService->optimize( $path, [ 'quality' => $quality ] );
     }
 }

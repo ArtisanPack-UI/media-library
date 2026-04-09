@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature\Livewire;
 
@@ -29,16 +29,16 @@ class MediaPickerTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
+        Storage::fake( 'public' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'public',
+        config( [
+            'artisanpack.media.disk'       => 'public',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     /**
@@ -46,9 +46,9 @@ class MediaPickerTest extends TestCase
      */
     public function test_component_renders(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -56,18 +56,18 @@ class MediaPickerTest extends TestCase
      */
     public function test_component_has_initial_state(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->assertSet('isOpen', false)
-            ->assertSet('multiSelect', false)
-            ->assertSet('maxSelections', 0)
-            ->assertSet('selectedMedia', [])
-            ->assertSet('acceptTypes', '')
-            ->assertSet('loadCount', 20)
-            ->assertSet('loadedCount', 20)
-            ->assertSet('search', '')
-            ->assertSet('folderId', null)
-            ->assertSet('context', '');
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->assertSet( 'isOpen', false )
+            ->assertSet( 'multiSelect', false )
+            ->assertSet( 'maxSelections', 0 )
+            ->assertSet( 'selectedMedia', [] )
+            ->assertSet( 'acceptTypes', '' )
+            ->assertSet( 'loadCount', 20 )
+            ->assertSet( 'loadedCount', 20 )
+            ->assertSet( 'search', '' )
+            ->assertSet( 'folderId', null )
+            ->assertSet( 'context', '' );
     }
 
     /**
@@ -75,22 +75,22 @@ class MediaPickerTest extends TestCase
      */
     public function test_component_mounts_with_custom_options(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, [
-                'multiSelect' => true,
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, [
+                'multiSelect'   => true,
                 'maxSelections' => 5,
-                'acceptTypes' => 'image/*',
-                'loadCount' => 30,
-                'context' => 'gallery',
-                'isOpen' => true,
-            ])
-            ->assertSet('multiSelect', true)
-            ->assertSet('maxSelections', 5)
-            ->assertSet('acceptTypes', 'image/*')
-            ->assertSet('loadCount', 30)
-            ->assertSet('loadedCount', 30)
-            ->assertSet('context', 'gallery')
-            ->assertSet('isOpen', true);
+                'acceptTypes'   => 'image/*',
+                'loadCount'     => 30,
+                'context'       => 'gallery',
+                'isOpen'        => true,
+            ] )
+            ->assertSet( 'multiSelect', true )
+            ->assertSet( 'maxSelections', 5 )
+            ->assertSet( 'acceptTypes', 'image/*' )
+            ->assertSet( 'loadCount', 30 )
+            ->assertSet( 'loadedCount', 30 )
+            ->assertSet( 'context', 'gallery' )
+            ->assertSet( 'isOpen', true );
     }
 
     /**
@@ -98,15 +98,15 @@ class MediaPickerTest extends TestCase
      */
     public function test_open_and_close(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->assertSet('isOpen', false)
-            ->call('open')
-            ->assertSet('isOpen', true)
-            ->assertDispatched('media-picker-opened')
-            ->call('close')
-            ->assertSet('isOpen', false)
-            ->assertDispatched('media-picker-closed');
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->assertSet( 'isOpen', false )
+            ->call( 'open' )
+            ->assertSet( 'isOpen', true )
+            ->assertDispatched( 'media-picker-opened' )
+            ->call( 'close' )
+            ->assertSet( 'isOpen', false )
+            ->assertDispatched( 'media-picker-closed' );
     }
 
     /**
@@ -114,13 +114,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_open_with_context_matching(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'featured-image'])
-            ->assertSet('isOpen', false)
-            ->call('open', 'other-context')
-            ->assertSet('isOpen', false) // Should not open, context doesn't match
-            ->call('open', 'featured-image')
-            ->assertSet('isOpen', true); // Should open, context matches
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'featured-image'] )
+            ->assertSet( 'isOpen', false )
+            ->call( 'open', 'other-context' )
+            ->assertSet( 'isOpen', false ) // Should not open, context doesn't match
+            ->call( 'open', 'featured-image' )
+            ->assertSet( 'isOpen', true ); // Should open, context matches
     }
 
     /**
@@ -128,13 +128,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_displays_media_items(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(5)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(5);
+        expect( $media->count() )->toBe( 5 );
     }
 
     /**
@@ -142,16 +142,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_search_filter(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['title' => 'Searchable Media']);
-        Media::factory()->uploadedBy($this->user)->create(['title' => 'Other Media']);
+        Media::factory()->uploadedBy( $this->user )->create( ['title' => 'Searchable Media'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['title' => 'Other Media'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('search', 'Searchable');
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'search', 'Searchable' );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(1);
-        expect($media->first()->title)->toBe('Searchable Media');
+        expect( $media->count() )->toBe( 1 );
+        expect( $media->first()->title )->toBe( 'Searchable Media' );
     }
 
     /**
@@ -161,15 +161,15 @@ class MediaPickerTest extends TestCase
     {
         $folder = MediaFolder::factory()->create();
 
-        Media::factory()->uploadedBy($this->user)->create(['folder_id' => $folder->id]);
-        Media::factory()->uploadedBy($this->user)->create();
+        Media::factory()->uploadedBy( $this->user )->create( ['folder_id' => $folder->id] );
+        Media::factory()->uploadedBy( $this->user )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('folderId', $folder->id);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'folderId', $folder->id );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(1);
+        expect( $media->count() )->toBe( 1 );
     }
 
     /**
@@ -177,15 +177,15 @@ class MediaPickerTest extends TestCase
      */
     public function test_accept_types_filter_wildcard(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'image/jpeg']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'image/png']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'video/mp4']);
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'image/jpeg'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'image/png'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'video/mp4'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['acceptTypes' => 'image/*']);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['acceptTypes' => 'image/*'] );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(2);
+        expect( $media->count() )->toBe( 2 );
     }
 
     /**
@@ -193,15 +193,15 @@ class MediaPickerTest extends TestCase
      */
     public function test_accept_types_filter_exact(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'image/jpeg']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'image/png']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'application/pdf']);
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'image/jpeg'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'image/png'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'application/pdf'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['acceptTypes' => 'application/pdf']);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['acceptTypes' => 'application/pdf'] );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(1);
+        expect( $media->count() )->toBe( 1 );
     }
 
     /**
@@ -209,16 +209,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_accept_types_filter_multiple(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'image/jpeg']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'video/mp4']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'application/pdf']);
-        Media::factory()->uploadedBy($this->user)->create(['mime_type' => 'audio/mp3']);
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'image/jpeg'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'video/mp4'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'application/pdf'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['mime_type' => 'audio/mp3'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['acceptTypes' => 'image/*, application/pdf']);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['acceptTypes' => 'image/*, application/pdf'] );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(2);
+        expect( $media->count() )->toBe( 2 );
     }
 
     /**
@@ -226,12 +226,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_single_select_mode(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('toggleSelect', $media1->id)
-            ->assertDispatched('media-picked'); // In single select, it should pick immediately
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'toggleSelect', $media1->id )
+            ->assertDispatched( 'media-picked' ); // In single select, it should pick immediately
     }
 
     /**
@@ -239,15 +239,15 @@ class MediaPickerTest extends TestCase
      */
     public function test_multi_select_mode(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->call('toggleSelect', $media1->id)
-            ->assertSet('selectedMedia', [$media1->id])
-            ->call('toggleSelect', $media2->id)
-            ->assertSet('selectedMedia', [$media1->id, $media2->id]);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->call( 'toggleSelect', $media1->id )
+            ->assertSet( 'selectedMedia', [$media1->id] )
+            ->call( 'toggleSelect', $media2->id )
+            ->assertSet( 'selectedMedia', [$media1->id, $media2->id] );
     }
 
     /**
@@ -255,17 +255,17 @@ class MediaPickerTest extends TestCase
      */
     public function test_multi_select_with_max_selections(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->create();
-        $media3 = Media::factory()->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->create();
+        $media3 = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true, 'maxSelections' => 2])
-            ->call('toggleSelect', $media1->id)
-            ->call('toggleSelect', $media2->id)
-            ->assertSet('selectedMedia', [$media1->id, $media2->id])
-            ->call('toggleSelect', $media3->id)
-            ->assertSet('selectedMedia', [$media1->id, $media2->id]); // Should not add third
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true, 'maxSelections' => 2] )
+            ->call( 'toggleSelect', $media1->id )
+            ->call( 'toggleSelect', $media2->id )
+            ->assertSet( 'selectedMedia', [$media1->id, $media2->id] )
+            ->call( 'toggleSelect', $media3->id )
+            ->assertSet( 'selectedMedia', [$media1->id, $media2->id] ); // Should not add third
     }
 
     /**
@@ -273,14 +273,14 @@ class MediaPickerTest extends TestCase
      */
     public function test_toggle_deselect(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->call('toggleSelect', $media->id)
-            ->assertSet('selectedMedia', [$media->id])
-            ->call('toggleSelect', $media->id)
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->call( 'toggleSelect', $media->id )
+            ->assertSet( 'selectedMedia', [$media->id] )
+            ->call( 'toggleSelect', $media->id )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -288,16 +288,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_clear_selections(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->call('toggleSelect', $media1->id)
-            ->call('toggleSelect', $media2->id)
-            ->assertSet('selectedMedia', [$media1->id, $media2->id])
-            ->call('clearSelections')
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->call( 'toggleSelect', $media1->id )
+            ->call( 'toggleSelect', $media2->id )
+            ->assertSet( 'selectedMedia', [$media1->id, $media2->id] )
+            ->call( 'clearSelections' )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -305,16 +305,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_confirm_selection(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true, 'context' => 'test-context'])
-            ->call('toggleSelect', $media->id)
-            ->call('confirmSelection')
-            ->assertDispatched('media-picked')
-            ->assertDispatched('media-picker-closed')
-            ->assertSet('isOpen', false)
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true, 'context' => 'test-context'] )
+            ->call( 'toggleSelect', $media->id )
+            ->call( 'confirmSelection' )
+            ->assertDispatched( 'media-picked' )
+            ->assertDispatched( 'media-picker-closed' )
+            ->assertSet( 'isOpen', false )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -322,10 +322,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_confirm_selection_does_nothing_when_empty(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->call('confirmSelection')
-            ->assertNotDispatched('media-picked');
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->call( 'confirmSelection' )
+            ->assertNotDispatched( 'media-picked' );
     }
 
     /**
@@ -333,20 +333,20 @@ class MediaPickerTest extends TestCase
      */
     public function test_load_more(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(50)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 50 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 20])
-            ->assertSet('loadedCount', 20);
-
-        $media = $component->invade()->media();
-        expect($media->count())->toBe(20);
-
-        $component->call('loadMore')
-            ->assertSet('loadedCount', 40);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 20] )
+            ->assertSet( 'loadedCount', 20 );
 
         $media = $component->invade()->media();
-        expect($media->count())->toBe(40);
+        expect( $media->count() )->toBe( 20 );
+
+        $component->call( 'loadMore' )
+            ->assertSet( 'loadedCount', 40 );
+
+        $media = $component->invade()->media();
+        expect( $media->count() )->toBe( 40 );
     }
 
     /**
@@ -354,16 +354,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_has_more(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(30)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 30 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 20]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 20] );
 
-        expect($component->invade()->hasMore())->toBeTrue();
+        expect( $component->invade()->hasMore() )->toBeTrue();
 
-        $component->call('loadMore');
+        $component->call( 'loadMore' );
 
-        expect($component->invade()->hasMore())->toBeFalse();
+        expect( $component->invade()->hasMore() )->toBeFalse();
     }
 
     /**
@@ -373,15 +373,15 @@ class MediaPickerTest extends TestCase
     {
         $folder = MediaFolder::factory()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('search', 'test')
-            ->set('folderId', $folder->id)
-            ->assertSet('search', 'test')
-            ->assertSet('folderId', $folder->id)
-            ->call('resetFilters')
-            ->assertSet('search', '')
-            ->assertSet('folderId', null);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'search', 'test' )
+            ->set( 'folderId', $folder->id )
+            ->assertSet( 'search', 'test' )
+            ->assertSet( 'folderId', $folder->id )
+            ->call( 'resetFilters' )
+            ->assertSet( 'search', '' )
+            ->assertSet( 'folderId', null );
     }
 
     /**
@@ -389,13 +389,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_loads_folders(): void
     {
-        MediaFolder::factory()->count(3)->create();
+        MediaFolder::factory()->count( 3 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class );
 
         $folders = $component->invade()->folders();
-        expect($folders->count())->toBe(3);
+        expect( $folders->count() )->toBe( 3 );
     }
 
     /**
@@ -403,15 +403,15 @@ class MediaPickerTest extends TestCase
      */
     public function test_folder_options(): void
     {
-        MediaFolder::factory()->count(2)->create();
+        MediaFolder::factory()->count( 2 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class );
 
         $options = $component->invade()->folderOptions();
-        expect(count($options))->toBe(3); // "All Folders" + 2 folders
-        expect($options[0]['key'])->toBeNull();
-        expect($options[0]['label'])->toBe(__('All Folders'));
+        expect( count( $options ) )->toBe( 3 ); // "All Folders" + 2 folders
+        expect( $options[0]['key'] )->toBeNull();
+        expect( $options[0]['label'] )->toBe( __( 'All Folders' ) );
     }
 
     /**
@@ -419,13 +419,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_max_selections_is_clamped(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['maxSelections' => 5000])
-            ->assertSet('maxSelections', 1000); // Clamped to max 1000
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['maxSelections' => 5000] )
+            ->assertSet( 'maxSelections', 1000 ); // Clamped to max 1000
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['maxSelections' => -5])
-            ->assertSet('maxSelections', 0); // Clamped to min 0
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['maxSelections' => -5] )
+            ->assertSet( 'maxSelections', 0 ); // Clamped to min 0
     }
 
     /**
@@ -433,13 +433,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_load_count_is_clamped(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 500])
-            ->assertSet('loadCount', 100); // Clamped to max 100
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 500] )
+            ->assertSet( 'loadCount', 100 ); // Clamped to max 100
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 0])
-            ->assertSet('loadCount', 1); // Clamped to min 1
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 0] )
+            ->assertSet( 'loadCount', 1 ); // Clamped to min 1
     }
 
     /**
@@ -447,14 +447,14 @@ class MediaPickerTest extends TestCase
      */
     public function test_search_resets_loaded_count(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(50)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 50 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 20])
-            ->call('loadMore')
-            ->assertSet('loadedCount', 40)
-            ->set('search', 'test')
-            ->assertSet('loadedCount', 20); // Reset to initial loadCount
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 20] )
+            ->call( 'loadMore' )
+            ->assertSet( 'loadedCount', 40 )
+            ->set( 'search', 'test' )
+            ->assertSet( 'loadedCount', 20 ); // Reset to initial loadCount
     }
 
     /**
@@ -463,14 +463,14 @@ class MediaPickerTest extends TestCase
     public function test_folder_change_resets_loaded_count(): void
     {
         $folder = MediaFolder::factory()->create();
-        Media::factory()->uploadedBy($this->user)->count(50)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 50 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 20])
-            ->call('loadMore')
-            ->assertSet('loadedCount', 40)
-            ->set('folderId', $folder->id)
-            ->assertSet('loadedCount', 20); // Reset to initial loadCount
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 20] )
+            ->call( 'loadMore' )
+            ->assertSet( 'loadedCount', 40 )
+            ->set( 'folderId', $folder->id )
+            ->assertSet( 'loadedCount', 20 ); // Reset to initial loadCount
     }
 
     /**
@@ -478,9 +478,9 @@ class MediaPickerTest extends TestCase
      */
     public function test_handles_media_uploaded_event(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->dispatch('media-uploaded')
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->dispatch( 'media-uploaded' )
             ->assertOk();
     }
 
@@ -489,12 +489,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_total_count(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(50)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 50 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['loadCount' => 20]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['loadCount' => 20] );
 
-        expect($component->invade()->totalCount())->toBe(50);
+        expect( $component->invade()->totalCount() )->toBe( 50 );
     }
 
     /**
@@ -502,13 +502,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_total_count_respects_filters(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(10)->create(['mime_type' => 'image/jpeg']);
-        Media::factory()->uploadedBy($this->user)->count(5)->create(['mime_type' => 'video/mp4']);
+        Media::factory()->uploadedBy( $this->user )->count( 10 )->create( ['mime_type' => 'image/jpeg'] );
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create( ['mime_type' => 'video/mp4'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['acceptTypes' => 'image/*']);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['acceptTypes' => 'image/*'] );
 
-        expect($component->invade()->totalCount())->toBe(10);
+        expect( $component->invade()->totalCount() )->toBe( 10 );
     }
 
     // =========================================================================
@@ -520,9 +520,9 @@ class MediaPickerTest extends TestCase
      */
     public function test_focused_index_initial_state(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -530,13 +530,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_next_moves_to_next_item(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(5)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 0)
-            ->call('focusNext')
-            ->assertSet('focusedIndex', 1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 0 )
+            ->call( 'focusNext' )
+            ->assertSet( 'focusedIndex', 1 );
     }
 
     /**
@@ -544,13 +544,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_next_wraps_around(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(3)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 2)
-            ->call('focusNext')
-            ->assertSet('focusedIndex', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 2 )
+            ->call( 'focusNext' )
+            ->assertSet( 'focusedIndex', 0 );
     }
 
     /**
@@ -558,10 +558,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_next_with_no_media(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('focusNext')
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'focusNext' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -569,13 +569,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_previous_moves_to_previous_item(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(5)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 2)
-            ->call('focusPrevious')
-            ->assertSet('focusedIndex', 1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 2 )
+            ->call( 'focusPrevious' )
+            ->assertSet( 'focusedIndex', 1 );
     }
 
     /**
@@ -583,13 +583,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_previous_wraps_to_end(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(5)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 0)
-            ->call('focusPrevious')
-            ->assertSet('focusedIndex', 4);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 0 )
+            ->call( 'focusPrevious' )
+            ->assertSet( 'focusedIndex', 4 );
     }
 
     /**
@@ -597,12 +597,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_previous_does_nothing_with_no_focus(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(3)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('focusPrevious')
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'focusPrevious' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -610,13 +610,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_down_moves_to_next_row(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(12)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 12 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 1)
-            ->call('focusDown', 5)
-            ->assertSet('focusedIndex', 6);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 1 )
+            ->call( 'focusDown', 5 )
+            ->assertSet( 'focusedIndex', 6 );
     }
 
     /**
@@ -624,13 +624,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_down_stays_at_last_row(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(5)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 3)
-            ->call('focusDown', 5)
-            ->assertSet('focusedIndex', 3);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 3 )
+            ->call( 'focusDown', 5 )
+            ->assertSet( 'focusedIndex', 3 );
     }
 
     /**
@@ -638,12 +638,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_down_does_nothing_with_no_focus(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(12)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 12 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('focusDown', 5)
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'focusDown', 5 )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -651,13 +651,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_up_moves_to_previous_row(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(12)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 12 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 6)
-            ->call('focusUp', 5)
-            ->assertSet('focusedIndex', 1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 6 )
+            ->call( 'focusUp', 5 )
+            ->assertSet( 'focusedIndex', 1 );
     }
 
     /**
@@ -665,13 +665,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_up_stays_at_first_row(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(12)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 12 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 2)
-            ->call('focusUp', 5)
-            ->assertSet('focusedIndex', 2);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 2 )
+            ->call( 'focusUp', 5 )
+            ->assertSet( 'focusedIndex', 2 );
     }
 
     /**
@@ -679,12 +679,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_up_does_nothing_with_no_focus(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(12)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 12 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('focusUp', 5)
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'focusUp', 5 )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -692,13 +692,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_first_moves_to_first_item(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(10)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 10 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 5)
-            ->call('focusFirst')
-            ->assertSet('focusedIndex', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 5 )
+            ->call( 'focusFirst' )
+            ->assertSet( 'focusedIndex', 0 );
     }
 
     /**
@@ -706,10 +706,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_first_with_no_media(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('focusFirst')
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'focusFirst' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -717,13 +717,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_last_moves_to_last_item(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(10)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 10 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 0)
-            ->call('focusLast')
-            ->assertSet('focusedIndex', 9);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 0 )
+            ->call( 'focusLast' )
+            ->assertSet( 'focusedIndex', 9 );
     }
 
     /**
@@ -731,10 +731,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_focus_last_with_no_media(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('focusLast')
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'focusLast' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -742,14 +742,14 @@ class MediaPickerTest extends TestCase
      */
     public function test_select_focused_toggles_selection(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(3)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
         $sortedMedia = Media::latest()->get();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->set('focusedIndex', 0)
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', [$sortedMedia->first()->id]);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->set( 'focusedIndex', 0 )
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [$sortedMedia->first()->id] );
     }
 
     /**
@@ -757,12 +757,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_select_focused_does_nothing_with_no_focus(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(3)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -770,13 +770,13 @@ class MediaPickerTest extends TestCase
      */
     public function test_select_focused_does_nothing_with_invalid_index(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(3)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->set('focusedIndex', 100)
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->set( 'focusedIndex', 100 )
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -784,11 +784,11 @@ class MediaPickerTest extends TestCase
      */
     public function test_reset_focus_sets_index_to_negative_one(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('focusedIndex', 5)
-            ->call('resetFocus')
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'focusedIndex', 5 )
+            ->call( 'resetFocus' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -796,12 +796,12 @@ class MediaPickerTest extends TestCase
      */
     public function test_close_resets_focus_index(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->call('open')
-            ->set('focusedIndex', 3)
-            ->call('close')
-            ->assertSet('focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->call( 'open' )
+            ->set( 'focusedIndex', 3 )
+            ->call( 'close' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     // =========================================================================
@@ -813,14 +813,14 @@ class MediaPickerTest extends TestCase
      */
     public function test_selected_media_is_deduplicated_on_mount(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, [
-                'multiSelect' => true,
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, [
+                'multiSelect'   => true,
                 'selectedMedia' => [$media->id, $media->id, $media->id],
-            ])
-            ->assertSet('selectedMedia', [$media->id]);
+            ] )
+            ->assertSet( 'selectedMedia', [$media->id] );
     }
 
     /**
@@ -828,16 +828,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_selected_media_is_trimmed_to_max_selections_on_mount(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(5)->create();
-        $mediaIds = $media->pluck('id')->toArray();
+        $media    = Media::factory()->uploadedBy( $this->user )->count( 5)->create();
+        $mediaIds = $media->pluck( 'id')->toArray();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, [
-                'multiSelect' => true,
+        Livewire::actingAs( $this->user)
+            ->test( MediaPicker::class, [
+                'multiSelect'   => true,
                 'maxSelections' => 2,
                 'selectedMedia' => $mediaIds,
             ])
-            ->assertSet('selectedMedia', array_slice($mediaIds, 0, 2));
+            ->assertSet( 'selectedMedia', array_slice( $mediaIds, 0, 2));
     }
 
     // =========================================================================
@@ -849,10 +849,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_open_with_empty_context_opens_any_component(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => ''])
-            ->call('open', 'any-context')
-            ->assertSet('isOpen', true);
+        Livewire::actingAs( $this->user)
+            ->test( MediaPicker::class, ['context' => ''])
+            ->call( 'open', 'any-context')
+            ->assertSet( 'isOpen', true);
     }
 
     /**
@@ -860,10 +860,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_component_with_empty_context_responds_to_any_open(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => ''])
-            ->call('open', '')
-            ->assertSet('isOpen', true);
+        Livewire::actingAs( $this->user)
+            ->test( MediaPicker::class, ['context' => ''])
+            ->call( 'open', '')
+            ->assertSet( 'isOpen', true);
     }
 
     /**
@@ -871,10 +871,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_open_dispatches_event_with_context(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'test-context'])
-            ->call('open', 'test-context')
-            ->assertDispatched('media-picker-opened', context: 'test-context');
+        Livewire::actingAs( $this->user)
+            ->test( MediaPicker::class, ['context' => 'test-context'])
+            ->call( 'open', 'test-context')
+            ->assertDispatched( 'media-picker-opened', context: 'test-context');
     }
 
     /**
@@ -882,10 +882,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_close_dispatches_event_with_context(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'test-context'])
-            ->call('open', 'test-context')
-            ->call('close')
-            ->assertDispatched('media-picker-closed', context: 'test-context');
+        Livewire::actingAs( $this->user)
+            ->test( MediaPicker::class, ['context' => 'test-context'])
+            ->call( 'open', 'test-context')
+            ->call( 'close')
+            ->assertDispatched( 'media-picker-closed', context: 'test-context');
     }
 }

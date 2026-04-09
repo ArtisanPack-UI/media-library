@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature;
 
@@ -41,34 +41,34 @@ class ImageProcessingPipelineTest extends TestCase
 
         // Create user for testing
         $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actingAs( $this->user );
 
         // Setup test disk
-        Storage::fake('test-disk');
+        Storage::fake( 'test-disk' );
 
-        $this->uploadService = app(MediaUploadService::class);
-        $this->processingService = app(MediaProcessingService::class);
+        $this->uploadService     = app( MediaUploadService::class );
+        $this->processingService = app( MediaProcessingService::class );
 
         // Configure for testing
-        config([
-            'artisanpack.media.disk' => 'test-disk',
-            'artisanpack.media.enable_thumbnails' => true,
+        config( [
+            'artisanpack.media.disk'                  => 'test-disk',
+            'artisanpack.media.enable_thumbnails'     => true,
             'artisanpack.media.enable_modern_formats' => true,
-            'artisanpack.media.modern_format' => 'webp',
-            'artisanpack.media.image_quality' => 85,
-            'artisanpack.media.image_sizes' => [
+            'artisanpack.media.modern_format'         => 'webp',
+            'artisanpack.media.image_quality'         => 85,
+            'artisanpack.media.image_sizes'           => [
                 'thumbnail' => [
-                    'width' => 150,
+                    'width'  => 150,
                     'height' => 150,
-                    'crop' => true,
+                    'crop'   => true,
                 ],
                 'medium' => [
-                    'width' => 300,
+                    'width'  => 300,
                     'height' => 300,
-                    'crop' => false,
+                    'crop'   => false,
                 ],
             ],
-        ]);
+        ] );
     }
 
     /**
@@ -76,29 +76,29 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_complete_image_processing_pipeline(): void
     {
-        $file = UploadedFile::fake()->image('test-photo.jpg', 800, 600);
+        $file = UploadedFile::fake()->image( 'test-photo.jpg', 800, 600 );
 
         // Upload the image
-        $media = $this->uploadService->upload($file, ['disk' => 'test-disk']);
+        $media = $this->uploadService->upload( $file, ['disk' => 'test-disk'] );
 
         // Verify media was created
-        expect($media)->toBeInstanceOf(Media::class);
-        expect($media->mime_type)->toBe('image/jpeg');
-        expect($media->width)->toBe(800);
-        expect($media->height)->toBe(600);
+        expect( $media )->toBeInstanceOf( Media::class );
+        expect( $media->mime_type )->toBe( 'image/jpeg' );
+        expect( $media->width )->toBe( 800 );
+        expect( $media->height )->toBe( 600 );
 
         // Verify file was stored
-        Storage::disk('test-disk')->assertExists($media->file_path);
+        Storage::disk( 'test-disk' )->assertExists( $media->file_path );
 
         // Process the image
-        $this->processingService->processImage($media);
+        $this->processingService->processImage( $media );
 
         // Reload media to get updated metadata
         $media->refresh();
 
         // Verify thumbnails were generated and stored in metadata
-        expect($media->metadata)->toBeArray();
-        expect($media->metadata)->toHaveKey('thumbnails');
+        expect( $media->metadata )->toBeArray();
+        expect( $media->metadata )->toHaveKey( 'thumbnails' );
     }
 
     /**
@@ -106,16 +106,16 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_thumbnails_have_correct_dimensions(): void
     {
-        $file = UploadedFile::fake()->image('test-photo.jpg', 800, 600);
+        $file = UploadedFile::fake()->image( 'test-photo.jpg', 800, 600 );
 
-        $media = $this->uploadService->upload($file, ['disk' => 'test-disk']);
+        $media = $this->uploadService->upload( $file, ['disk' => 'test-disk'] );
 
         // Generate thumbnails
-        $thumbnails = $this->processingService->generateThumbnails($media);
+        $thumbnails = $this->processingService->generateThumbnails( $media );
 
         // Should have generated thumbnails for configured sizes
-        expect($thumbnails)->toBeArray();
-        expect($thumbnails)->toHaveKeys(['thumbnail', 'medium']);
+        expect( $thumbnails )->toBeArray();
+        expect( $thumbnails )->toHaveKeys( ['thumbnail', 'medium'] );
     }
 
     /**
@@ -123,21 +123,21 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_modern_format_conversion_creates_webp(): void
     {
-        $file = UploadedFile::fake()->image('test-photo.jpg', 800, 600);
+        $file = UploadedFile::fake()->image( 'test-photo.jpg', 800, 600 );
 
-        $media = $this->uploadService->upload($file, ['disk' => 'test-disk']);
+        $media = $this->uploadService->upload( $file, ['disk' => 'test-disk'] );
 
         // Convert to WebP
-        $webpPath = $this->processingService->convertToModernFormat($media, 'webp');
+        $webpPath = $this->processingService->convertToModernFormat( $media, 'webp' );
 
         // May be null if conversion isn't supported, but shouldn't error
-        if ($webpPath !== null) {
+        if ( null !== $webpPath ) {
             // Verify metadata was updated
             $media->refresh();
-            expect($media->metadata)->toHaveKey('modern_formats');
+            expect( $media->metadata )->toHaveKey( 'modern_formats' );
         }
 
-        expect(true)->toBeTrue();
+        expect( true )->toBeTrue();
     }
 
     /**
@@ -145,15 +145,15 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_process_image_handles_full_pipeline(): void
     {
-        $file = UploadedFile::fake()->image('test-photo.jpg', 800, 600);
+        $file = UploadedFile::fake()->image( 'test-photo.jpg', 800, 600 );
 
-        $media = $this->uploadService->upload($file, ['disk' => 'test-disk']);
+        $media = $this->uploadService->upload( $file, ['disk' => 'test-disk'] );
 
         // Process should handle both thumbnails and modern formats
-        $this->processingService->processImage($media);
+        $this->processingService->processImage( $media );
 
         // Shouldn't throw any exceptions
-        expect(true)->toBeTrue();
+        expect( true )->toBeTrue();
     }
 
     /**
@@ -161,21 +161,21 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_svg_images_skip_processing(): void
     {
-        $file = UploadedFile::fake()->create('test.svg', 10, 'image/svg+xml');
+        $file = UploadedFile::fake()->create( 'test.svg', 10, 'image/svg+xml' );
 
-        $media = Media::factory()->create([
+        $media = Media::factory()->create( [
             'mime_type' => 'image/svg+xml',
             'file_path' => 'uploads/test.svg',
-            'disk' => 'test-disk',
-        ]);
+            'disk'      => 'test-disk',
+        ] );
 
         // Store the file
-        Storage::disk('test-disk')->put($media->file_path, '<svg></svg>');
+        Storage::disk( 'test-disk' )->put( $media->file_path, '<svg></svg>' );
 
         // Process should handle SVG gracefully
-        $this->processingService->processImage($media);
+        $this->processingService->processImage( $media );
 
-        expect(true)->toBeTrue();
+        expect( true )->toBeTrue();
     }
 
     /**
@@ -183,21 +183,21 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_non_images_skip_processing(): void
     {
-        $file = UploadedFile::fake()->create('test.pdf', 100, 'application/pdf');
+        $file = UploadedFile::fake()->create( 'test.pdf', 100, 'application/pdf' );
 
-        $media = Media::factory()->create([
+        $media = Media::factory()->create( [
             'mime_type' => 'application/pdf',
             'file_path' => 'uploads/test.pdf',
-            'disk' => 'test-disk',
-        ]);
+            'disk'      => 'test-disk',
+        ] );
 
         // Store the file
-        Storage::disk('test-disk')->put($media->file_path, 'PDF content');
+        Storage::disk( 'test-disk' )->put( $media->file_path, 'PDF content' );
 
         // Process should skip non-images
-        $this->processingService->processImage($media);
+        $this->processingService->processImage( $media );
 
-        expect(true)->toBeTrue();
+        expect( true )->toBeTrue();
     }
 
     /**
@@ -205,16 +205,16 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_processing_with_thumbnails_disabled(): void
     {
-        config(['artisanpack.media.enable_thumbnails' => false]);
+        config( ['artisanpack.media.enable_thumbnails' => false] );
 
-        $file = UploadedFile::fake()->image('test-photo.jpg', 800, 600);
+        $file = UploadedFile::fake()->image( 'test-photo.jpg', 800, 600 );
 
-        $media = $this->uploadService->upload($file, ['disk' => 'test-disk']);
+        $media = $this->uploadService->upload( $file, ['disk' => 'test-disk'] );
 
-        $this->processingService->processImage($media);
+        $this->processingService->processImage( $media );
 
         // Should complete without errors
-        expect(true)->toBeTrue();
+        expect( true )->toBeTrue();
     }
 
     /**
@@ -222,16 +222,16 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_processing_with_modern_formats_disabled(): void
     {
-        config(['artisanpack.media.enable_modern_formats' => false]);
+        config( ['artisanpack.media.enable_modern_formats' => false] );
 
-        $file = UploadedFile::fake()->image('test-photo.jpg', 800, 600);
+        $file = UploadedFile::fake()->image( 'test-photo.jpg', 800, 600 );
 
-        $media = $this->uploadService->upload($file, ['disk' => 'test-disk']);
+        $media = $this->uploadService->upload( $file, ['disk' => 'test-disk'] );
 
-        $this->processingService->processImage($media);
+        $this->processingService->processImage( $media );
 
         // Should complete without errors
-        expect(true)->toBeTrue();
+        expect( true )->toBeTrue();
     }
 
     /**
@@ -239,22 +239,22 @@ class ImageProcessingPipelineTest extends TestCase
      */
     public function test_can_process_multiple_images(): void
     {
-        $file1 = UploadedFile::fake()->image('photo1.jpg', 800, 600);
-        $file2 = UploadedFile::fake()->image('photo2.jpg', 1024, 768);
-        $file3 = UploadedFile::fake()->image('photo3.jpg', 500, 500);
+        $file1 = UploadedFile::fake()->image( 'photo1.jpg', 800, 600 );
+        $file2 = UploadedFile::fake()->image( 'photo2.jpg', 1024, 768 );
+        $file3 = UploadedFile::fake()->image( 'photo3.jpg', 500, 500 );
 
-        $media1 = $this->uploadService->upload($file1, ['disk' => 'test-disk']);
-        $media2 = $this->uploadService->upload($file2, ['disk' => 'test-disk']);
-        $media3 = $this->uploadService->upload($file3, ['disk' => 'test-disk']);
+        $media1 = $this->uploadService->upload( $file1, ['disk' => 'test-disk'] );
+        $media2 = $this->uploadService->upload( $file2, ['disk' => 'test-disk'] );
+        $media3 = $this->uploadService->upload( $file3, ['disk' => 'test-disk'] );
 
         // Process all images
-        $this->processingService->processImage($media1);
-        $this->processingService->processImage($media2);
-        $this->processingService->processImage($media3);
+        $this->processingService->processImage( $media1 );
+        $this->processingService->processImage( $media2 );
+        $this->processingService->processImage( $media3);
 
         // All files should exist
-        Storage::disk('test-disk')->assertExists($media1->file_path);
-        Storage::disk('test-disk')->assertExists($media2->file_path);
-        Storage::disk('test-disk')->assertExists($media3->file_path);
+        Storage::disk( 'test-disk')->assertExists( $media1->file_path);
+        Storage::disk( 'test-disk')->assertExists( $media2->file_path);
+        Storage::disk( 'test-disk')->assertExists( $media3->file_path);
     }
 }

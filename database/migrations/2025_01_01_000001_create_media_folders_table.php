@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Schema;
  * @since 1.0.0
  * @since 1.1.0 Added upgrade support for existing installations.
  */
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Runs the migrations.
      *
@@ -25,35 +24,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('media_folders')) {
+        if ( Schema::hasTable( 'media_folders' ) ) {
             // Upgrade existing table - add any missing columns
-            Schema::table('media_folders', function (Blueprint $table) {
-                if (! Schema::hasColumn('media_folders', 'description')) {
-                    $table->text('description')->nullable()->after('slug');
+            Schema::table( 'media_folders', function ( Blueprint $table ): void {
+                if ( ! Schema::hasColumn( 'media_folders', 'description' ) ) {
+                    $table->text( 'description' )->nullable()->after( 'slug' );
                 }
 
-                if (! Schema::hasColumn('media_folders', 'created_by')) {
-                    $table->foreignId('created_by')->nullable()->after('parent_id')->constrained('users')->cascadeOnDelete();
+                if ( ! Schema::hasColumn( 'media_folders', 'created_by' ) ) {
+                    $table->foreignId( 'created_by' )->nullable()->after( 'parent_id' )->constrained( 'users' )->cascadeOnDelete();
                 }
-            });
+            } );
 
             return;
         }
 
         // Fresh install - create the table
-        Schema::create('media_folders', function (Blueprint $table) {
+        Schema::create( 'media_folders', function ( Blueprint $table ): void {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->foreignId('parent_id')->nullable()->constrained('media_folders')->cascadeOnDelete();
-            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->string( 'name' );
+            $table->string( 'slug' )->unique();
+            $table->text( 'description' )->nullable();
+            $table->foreignId( 'parent_id' )->nullable()->constrained( 'media_folders' )->cascadeOnDelete();
+            $table->foreignId( 'created_by' )->constrained( 'users' )->cascadeOnDelete();
             $table->timestamps();
 
             // Indexes
-            $table->index('slug');
-            $table->index('parent_id');
-        });
+            $table->index( 'slug' );
+            $table->index( 'parent_id' );
+        } );
     }
 
     /**
@@ -63,6 +62,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('media_folders');
+        Schema::dropIfExists( 'media_folders');
     }
 };

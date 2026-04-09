@@ -56,18 +56,6 @@ class MediaFolder extends Model
     ];
 
     /**
-     * Create a new factory instance for the model.
-     *
-     * @since 1.0.0
-     *
-     * @return MediaFolderFactory The model factory instance.
-     */
-    protected static function newFactory(): MediaFolderFactory
-    {
-        return MediaFolderFactory::new();
-    }
-
-    /**
      * Parent folder relationship.
      *
      * @since 1.0.0
@@ -141,7 +129,7 @@ class MediaFolder extends Model
     public function fullPath(): string
     {
         $ancestors = $this->ancestors()->pluck( 'name' )->toArray();
-        $parts     = array_map( static fn( string $name ): string => trim( $name ), $ancestors );
+        $parts     = array_map( static fn ( string $name ): string => trim( $name ), $ancestors );
         $parts[]   = $this->name;
 
         return implode( '/', $parts );
@@ -159,7 +147,7 @@ class MediaFolder extends Model
         $ancestors = collect();
         $current   = $this->parent;
 
-        while ( $current !== null ) {
+        while ( null !== $current ) {
             $ancestors->prepend( $current );
             $current = $current->parent;
         }
@@ -196,18 +184,19 @@ class MediaFolder extends Model
      * @since 1.0.0
      *
      * @param int|null $parentId The ID of the new parent folder or null for root.
+     *
      * @return bool True if the move was successful, false otherwise.
      */
     public function moveTo( ?int $parentId ): bool
     {
-        if ( $parentId === null ) {
+        if ( null === $parentId ) {
             $this->parent_id = null;
 
             return $this->save();
         }
 
         $newParent = self::find( $parentId );
-        if ( $newParent === null ) {
+        if ( null === $newParent ) {
             return false;
         }
 
@@ -217,7 +206,7 @@ class MediaFolder extends Model
         }
 
         $cursor = $newParent->parent;
-        while ( $cursor !== null ) {
+        while ( null !== $cursor ) {
             if ( $cursor->id === $this->id ) {
                 return false;
             }
@@ -227,5 +216,17 @@ class MediaFolder extends Model
         $this->parent_id = $parentId;
 
         return $this->save();
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaFolderFactory The model factory instance.
+     */
+    protected static function newFactory(): MediaFolderFactory
+    {
+        return MediaFolderFactory::new();
     }
 }

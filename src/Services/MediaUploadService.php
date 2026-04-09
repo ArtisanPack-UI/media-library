@@ -20,6 +20,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 /**
  * Media Upload Service
@@ -69,9 +70,10 @@ class MediaUploadService
      * @param UploadedFile         $file       The file to upload.
      * @param array<string, mixed> $options    Optional parameters (title, alt_text, caption, description, folder_id,
      *                                         tags).
-     * @return Media The created media instance.
      *
      * @throws ValidationException If file validation fails.
+     *
+     * @return Media The created media instance.
      */
     public function upload( UploadedFile $file, array $options = [] ): Media
     {
@@ -124,55 +126,13 @@ class MediaUploadService
     }
 
     /**
-     * Resolve the uploaded_by user ID based on authentication and config.
-     *
-     * This method determines the appropriate user ID for the uploaded_by field:
-     * 1. If explicitly provided in options, use that value
-     * 2. If user is authenticated, use their ID
-     * 3. If guest uploads are allowed, use the configured guest_user_id (or null)
-     * 4. If guest uploads are not allowed and user is not authenticated, throw an exception
-     *
-     * @param  array<string, mixed>  $options  Upload options that may contain 'uploaded_by'.
-     *
-     * @return int|null The user ID or null for guest uploads.
-     *
-     * @throws \RuntimeException If guest uploads are not allowed and user is not authenticated.
-     *
-     * @since 1.1.0
-     */
-    protected function resolveUploadedBy( array $options ): ?int
-    {
-        // If explicitly provided, use that value
-        if ( isset( $options['uploaded_by'] ) ) {
-            return $options['uploaded_by'];
-        }
-
-        // If user is authenticated, use their ID
-        $userId = Auth::id();
-        if ( null !== $userId ) {
-            return $userId;
-        }
-
-        // User is not authenticated - check if guest uploads are allowed
-        $allowGuestUploads = config( 'artisanpack.media.allow_guest_uploads', false );
-
-        if ( ! $allowGuestUploads ) {
-            throw new \RuntimeException(
-                __( 'Authentication required. Guest uploads are not enabled. Set MEDIA_ALLOW_GUEST_UPLOADS=true in your .env file to allow guest uploads.' )
-            );
-        }
-
-        // Guest uploads are allowed - return the configured guest user ID (may be null)
-        return config( 'artisanpack.media.guest_user_id' );
-    }
-
-    /**
      * Validate the uploaded file.
      *
      * @param UploadedFile $file The file to validate.
-     * @return bool True if validation passes.
      *
      * @throws ValidationException If validation fails.
+     *
+     * @return bool True if validation passes.
      */
     public function validateFile( UploadedFile $file ): bool
     {
@@ -202,6 +162,7 @@ class MediaUploadService
      * Generate a unique file name for the uploaded file.
      *
      * @param UploadedFile $file The uploaded file.
+     *
      * @return string The generated unique file name.
      */
     public function generateFileName( UploadedFile $file ): string
@@ -222,6 +183,7 @@ class MediaUploadService
      * Get the upload path based on the configured format.
      *
      * @param array<string, mixed> $options Upload options.
+     *
      * @return string The generated upload path.
      */
     public function getUploadPath( array $options = [] ): string
@@ -244,6 +206,7 @@ class MediaUploadService
      * @param UploadedFile $file       The uploaded file.
      * @param string       $storedPath The path where the file was stored.
      * @param string       $disk       The storage disk used.
+     *
      * @return array<string, mixed> The extracted metadata.
      */
     public function extractMetadata( UploadedFile $file, string $storedPath, string $disk ): array
@@ -258,18 +221,18 @@ class MediaUploadService
         $mimeType = $file->getMimeType();
 
         // Extract image dimensions
-        if ( $mimeType !== null && str_starts_with( $mimeType, 'image/' ) ) {
+        if ( null !== $mimeType && str_starts_with( $mimeType, 'image/' ) ) {
             $imageData = $this->extractImageDimensions( $file );
-            if ( $imageData !== null ) {
+            if ( null !== $imageData ) {
                 $metadata['width']  = $imageData['width'];
                 $metadata['height'] = $imageData['height'];
             }
         }
 
         // Extract video dimensions and duration
-        if ( $mimeType !== null && str_starts_with( $mimeType, 'video/' ) ) {
+        if ( null !== $mimeType && str_starts_with( $mimeType, 'video/' ) ) {
             $videoData = $this->extractVideoMetadata( $storedPath, $disk );
-            if ( $videoData !== null ) {
+            if ( null !== $videoData ) {
                 $metadata['width']    = $videoData['width'] ?? null;
                 $metadata['height']   = $videoData['height'] ?? null;
                 $metadata['duration'] = $videoData['duration'] ?? null;
@@ -283,18 +246,19 @@ class MediaUploadService
      * Extract dimensions from an image file.
      *
      * @param UploadedFile $file The uploaded image file.
+     *
      * @return array<string, int>|null Array with width and height, or null if unable to extract.
      */
     public function extractImageDimensions( UploadedFile $file ): ?array
     {
         try {
             $imagePath = $file->getRealPath();
-            if ( $imagePath === false ) {
+            if ( false === $imagePath ) {
                 return null;
             }
 
             $imageSize = getimagesize( $imagePath );
-            if ( $imageSize === false ) {
+            if ( false === $imageSize ) {
                 return null;
             }
 
@@ -312,6 +276,7 @@ class MediaUploadService
      *
      * @param string $storedPath The stored file path.
      * @param string $disk       The storage disk.
+     *
      * @return array<string, mixed>|null Video metadata or null if unable to extract.
      */
     public function extractVideoMetadata( string $storedPath, string $disk ): ?array
@@ -323,5 +288,48 @@ class MediaUploadService
         $metadata = $this->videoService->extractMetadata( $storedPath, $disk );
 
         return empty( $metadata ) ? null : $metadata;
+    }
+
+    /**
+     * Resolve the uploaded_by user ID based on authentication and config.
+     *
+     * This method determines the appropriate user ID for the uploaded_by field:
+     * 1. If explicitly provided in options, use that value
+     * 2. If user is authenticated, use their ID
+     * 3. If guest uploads are allowed, use the configured guest_user_id (or null)
+     * 4. If guest uploads are not allowed and user is not authenticated, throw an exception
+     *
+     * @param  array<string, mixed>  $options  Upload options that may contain 'uploaded_by'.
+     *
+     * @throws RuntimeException If guest uploads are not allowed and user is not authenticated.
+     *
+     * @return int|null The user ID or null for guest uploads.
+     *
+     * @since 1.1.0
+     */
+    protected function resolveUploadedBy( array $options ): ?int
+    {
+        // If explicitly provided, use that value
+        if ( isset( $options['uploaded_by'] ) ) {
+            return $options['uploaded_by'];
+        }
+
+        // If user is authenticated, use their ID
+        $userId = Auth::id();
+        if ( null !== $userId ) {
+            return $userId;
+        }
+
+        // User is not authenticated - check if guest uploads are allowed
+        $allowGuestUploads = config( 'artisanpack.media.allow_guest_uploads', false );
+
+        if ( ! $allowGuestUploads ) {
+            throw new RuntimeException(
+                __( 'Authentication required. Guest uploads are not enabled. Set MEDIA_ALLOW_GUEST_UPLOADS=true in your .env file to allow guest uploads.' ),
+            );
+        }
+
+        // Guest uploads are allowed - return the configured guest user ID (may be null)
+        return config( 'artisanpack.media.guest_user_id' );
     }
 }

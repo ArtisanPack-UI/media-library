@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Unit;
 
@@ -30,7 +30,7 @@ class MediaStorageServiceTest extends TestCase
         $this->service = new MediaStorageService;
 
         // Setup test disk
-        Storage::fake('test-disk');
+        Storage::fake( 'test-disk' );
     }
 
     /**
@@ -38,13 +38,13 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_store_file(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
-        $storedPath = $this->service->store($file, $path, 'test-disk');
+        $storedPath = $this->service->store( $file, $path, 'test-disk' );
 
-        Storage::disk('test-disk')->assertExists($storedPath);
-        expect($storedPath)->toBe($path);
+        Storage::disk( 'test-disk' )->assertExists( $storedPath );
+        expect( $storedPath )->toBe( $path );
     }
 
     /**
@@ -52,18 +52,18 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_delete_file(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
         // Store first
-        $this->service->store($file, $path, 'test-disk');
-        Storage::disk('test-disk')->assertExists($path);
+        $this->service->store( $file, $path, 'test-disk' );
+        Storage::disk( 'test-disk' )->assertExists( $path );
 
         // Delete
-        $result = $this->service->delete($path, 'test-disk');
+        $result = $this->service->delete( $path, 'test-disk' );
 
-        expect($result)->toBeTrue();
-        Storage::disk('test-disk')->assertMissing($path);
+        expect( $result )->toBeTrue();
+        Storage::disk( 'test-disk' )->assertMissing( $path );
     }
 
     /**
@@ -71,17 +71,17 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_check_file_exists(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
         // File doesn't exist yet
-        expect($this->service->exists($path, 'test-disk'))->toBeFalse();
+        expect( $this->service->exists( $path, 'test-disk' ) )->toBeFalse();
 
         // Store the file
-        $this->service->store($file, $path, 'test-disk');
+        $this->service->store( $file, $path, 'test-disk' );
 
         // Now it exists
-        expect($this->service->exists($path, 'test-disk'))->toBeTrue();
+        expect( $this->service->exists( $path, 'test-disk' ) )->toBeTrue();
     }
 
     /**
@@ -89,14 +89,14 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_get_file_url(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
-        $this->service->store($file, $path, 'test-disk');
-        $url = $this->service->url($path, 'test-disk');
+        $this->service->store( $file, $path, 'test-disk' );
+        $url = $this->service->url( $path, 'test-disk' );
 
-        expect($url)->toBeString();
-        expect($url)->toContain('test.jpg');
+        expect( $url )->toBeString();
+        expect( $url )->toContain( 'test.jpg' );
     }
 
     /**
@@ -105,13 +105,13 @@ class MediaStorageServiceTest extends TestCase
     public function test_can_get_file_contents(): void
     {
         $content = 'Test file content';
-        $path = 'uploads/test.txt';
+        $path    = 'uploads/test.txt';
 
-        Storage::disk('test-disk')->put($path, $content);
+        Storage::disk( 'test-disk' )->put( $path, $content );
 
-        $retrieved = $this->service->get($path, 'test-disk');
+        $retrieved = $this->service->get( $path, 'test-disk' );
 
-        expect($retrieved)->toBe($content);
+        expect( $retrieved )->toBe( $content );
     }
 
     /**
@@ -120,13 +120,13 @@ class MediaStorageServiceTest extends TestCase
     public function test_can_put_file_contents(): void
     {
         $content = 'Test file content';
-        $path = 'uploads/test.txt';
+        $path    = 'uploads/test.txt';
 
-        $result = $this->service->put($path, $content, 'test-disk');
+        $result = $this->service->put( $path, $content, 'test-disk' );
 
-        expect($result)->toBeTrue();
-        Storage::disk('test-disk')->assertExists($path);
-        expect(Storage::disk('test-disk')->get($path))->toBe($content);
+        expect( $result )->toBeTrue();
+        Storage::disk( 'test-disk' )->assertExists( $path );
+        expect( Storage::disk( 'test-disk' )->get( $path ) )->toBe( $content );
     }
 
     /**
@@ -134,14 +134,14 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_get_file_size(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
-        $this->service->store($file, $path, 'test-disk');
-        $size = $this->service->size($path, 'test-disk');
+        $this->service->store( $file, $path, 'test-disk' );
+        $size = $this->service->size( $path, 'test-disk' );
 
-        expect($size)->toBeInt();
-        expect($size)->toBeGreaterThan(0);
+        expect( $size )->toBeInt();
+        expect( $size )->toBeGreaterThan( 0 );
     }
 
     /**
@@ -149,14 +149,14 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_get_mime_type(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
-        $this->service->store($file, $path, 'test-disk');
-        $mimeType = $this->service->mimeType($path, 'test-disk');
+        $this->service->store( $file, $path, 'test-disk' );
+        $mimeType = $this->service->mimeType( $path, 'test-disk' );
 
-        expect($mimeType)->toBeString();
-        expect($mimeType)->toContain('image');
+        expect( $mimeType )->toBeString();
+        expect( $mimeType )->toContain( 'image' );
     }
 
     /**
@@ -164,16 +164,16 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_copy_file(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file     = UploadedFile::fake()->image( 'test.jpg' );
         $fromPath = 'uploads/test.jpg';
-        $toPath = 'uploads/test-copy.jpg';
+        $toPath   = 'uploads/test-copy.jpg';
 
-        $this->service->store($file, $fromPath, 'test-disk');
-        $result = $this->service->copy($fromPath, $toPath, 'test-disk');
+        $this->service->store( $file, $fromPath, 'test-disk' );
+        $result = $this->service->copy( $fromPath, $toPath, 'test-disk' );
 
-        expect($result)->toBeTrue();
-        Storage::disk('test-disk')->assertExists($fromPath);
-        Storage::disk('test-disk')->assertExists($toPath);
+        expect( $result )->toBeTrue();
+        Storage::disk( 'test-disk' )->assertExists( $fromPath );
+        Storage::disk( 'test-disk' )->assertExists( $toPath );
     }
 
     /**
@@ -181,16 +181,16 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_can_move_file(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file     = UploadedFile::fake()->image( 'test.jpg' );
         $fromPath = 'uploads/test.jpg';
-        $toPath = 'uploads/moved/test.jpg';
+        $toPath   = 'uploads/moved/test.jpg';
 
-        $this->service->store($file, $fromPath, 'test-disk');
-        $result = $this->service->move($fromPath, $toPath, 'test-disk');
+        $this->service->store( $file, $fromPath, 'test-disk' );
+        $result = $this->service->move( $fromPath, $toPath, 'test-disk' );
 
-        expect($result)->toBeTrue();
-        Storage::disk('test-disk')->assertMissing($fromPath);
-        Storage::disk('test-disk')->assertExists($toPath);
+        expect( $result )->toBeTrue();
+        Storage::disk( 'test-disk' )->assertMissing( $fromPath );
+        Storage::disk( 'test-disk' )->assertExists( $toPath );
     }
 
     /**
@@ -198,13 +198,13 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_resolves_default_disk(): void
     {
-        config(['artisanpack.media.disk' => 'test-disk']);
+        config( ['artisanpack.media.disk' => 'test-disk']);
 
-        $file = UploadedFile::fake()->image('test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg');
         $path = 'uploads/test.jpg';
 
-        $storedPath = $this->service->store($file, $path, null);
+        $storedPath = $this->service->store( $file, $path, null);
 
-        Storage::disk('test-disk')->assertExists($storedPath);
+        Storage::disk( 'test-disk')->assertExists( $storedPath);
     }
 }

@@ -114,7 +114,7 @@ class FolderManager extends Component
      *
      * @since 1.0.0
      *
-     * @return array<int, array{key: string|int, label: string}>
+     * @return array<int, array{key: int|string, label: string}>
      */
     #[Computed]
     public function parentFolderOptions(): array

@@ -52,7 +52,7 @@ class MediaController extends Controller
      *
      * @param  MediaUploadService  $uploadService  The media upload service.
      */
-    public function __construct(MediaUploadService $uploadService)
+    public function __construct( MediaUploadService $uploadService )
     {
         $this->uploadService = $uploadService;
     }
@@ -65,58 +65,59 @@ class MediaController extends Controller
      * @since 1.0.0
      *
      * @param  Request  $request  The HTTP request instance.
+     *
      * @return AnonymousResourceCollection The paginated media collection.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index( Request $request ): AnonymousResourceCollection
     {
-        $this->authorize('viewAny', Media::class);
+        $this->authorize( 'viewAny', Media::class );
 
-        $perPage = $request->input('per_page', 15);
-        $query = Media::query()->with(['folder', 'uploadedBy', 'tags']);
+        $perPage = $request->input( 'per_page', 15 );
+        $query   = Media::query()->with( ['folder', 'uploadedBy', 'tags'] );
 
         // Filter by folder
-        if ($request->filled('folder_id')) {
-            $query->where('folder_id', $request->input('folder_id'));
+        if ( $request->filled( 'folder_id' ) ) {
+            $query->where( 'folder_id', $request->input( 'folder_id' ) );
         }
 
         // Filter by tag
-        if ($request->filled('tag')) {
-            $query->withTag($request->input('tag'));
+        if ( $request->filled( 'tag' ) ) {
+            $query->withTag( $request->input( 'tag' ) );
         }
 
         // Filter by type (mime_type)
-        if ($request->filled('type')) {
-            $type = $request->input('type');
-            if ($type === 'image') {
+        if ( $request->filled( 'type' ) ) {
+            $type = $request->input( 'type' );
+            if ( 'image' === $type ) {
                 $query->images();
-            } elseif ($type === 'video') {
+            } elseif ( 'video' === $type ) {
                 $query->videos();
-            } elseif ($type === 'audio') {
+            } elseif ( 'audio' === $type ) {
                 $query->audios();
-            } elseif ($type === 'document') {
+            } elseif ( 'document' === $type ) {
                 $query->documents();
             } else {
-                $query->byType($type);
+                $query->byType( $type );
             }
         }
 
         // Search by title or file_name
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%'.$search.'%')
-                    ->orWhere('file_name', 'like', '%'.$search.'%');
-            });
+        if ( $request->filled( 'search' ) ) {
+            $search = $request->input( 'search' );
+            $query->where( function ( $q ) use ( $search ): void {
+                $q->where( 'title', 'like', '%' . $search . '%' )
+                    ->orWhere( 'file_name', 'like', '%' . $search . '%' );
+            } );
         }
 
         // Sort by column and direction
-        $sortBy = $request->input('sort_by', 'created_at');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+        $sortBy    = $request->input( 'sort_by', 'created_at' );
+        $sortOrder = $request->input( 'sort_order', 'desc' );
+        $query->orderBy( $sortBy, $sortOrder );
 
-        $media = $query->paginate($perPage);
+        $media = $query->paginate( $perPage );
 
-        return MediaResource::collection($media);
+        return MediaResource::collection( $media );
     }
 
     /**
@@ -125,28 +126,29 @@ class MediaController extends Controller
      * @since 1.0.0
      *
      * @param  MediaStoreRequest  $request  The validated store request.
+     *
      * @return JsonResponse The created media resource.
      */
-    public function store(MediaStoreRequest $request): JsonResponse
+    public function store( MediaStoreRequest $request ): JsonResponse
     {
-        $this->authorize('create', Media::class);
+        $this->authorize( 'create', Media::class );
 
-        $file = $request->file('file');
+        $file = $request->file( 'file' );
 
         $options = [
-            'title' => $request->input('title'),
-            'alt_text' => $request->input('alt_text'),
-            'caption' => $request->input('caption'),
-            'description' => $request->input('description'),
-            'folder_id' => $request->input('folder_id'),
-            'tags' => $request->input('tags'),
+            'title'       => $request->input( 'title' ),
+            'alt_text'    => $request->input( 'alt_text' ),
+            'caption'     => $request->input( 'caption' ),
+            'description' => $request->input( 'description' ),
+            'folder_id'   => $request->input( 'folder_id' ),
+            'tags'        => $request->input( 'tags' ),
         ];
 
-        $media = $this->uploadService->upload($file, $options);
+        $media = $this->uploadService->upload( $file, $options );
 
-        return (new MediaResource($media))
+        return (new MediaResource( $media ))
             ->response()
-            ->setStatusCode(201);
+            ->setStatusCode( 201 );
     }
 
     /**
@@ -155,15 +157,16 @@ class MediaController extends Controller
      * @since 1.0.0
      *
      * @param  int  $id  The media ID.
+     *
      * @return MediaResource The media resource.
      */
-    public function show(int $id): MediaResource
+    public function show( int $id ): MediaResource
     {
-        $media = Media::with(['folder', 'uploadedBy', 'tags'])->findOrFail($id);
+        $media = Media::with( ['folder', 'uploadedBy', 'tags'] )->findOrFail( $id );
 
-        $this->authorize('view', $media);
+        $this->authorize( 'view', $media );
 
-        return new MediaResource($media);
+        return new MediaResource( $media );
     }
 
     /**
@@ -173,32 +176,33 @@ class MediaController extends Controller
      *
      * @param  MediaUpdateRequest  $request  The validated update request.
      * @param  int  $id  The media ID.
+     *
      * @return MediaResource The updated media resource.
      */
-    public function update(MediaUpdateRequest $request, int $id): MediaResource
+    public function update( MediaUpdateRequest $request, int $id ): MediaResource
     {
-        $media = Media::findOrFail($id);
+        $media = Media::findOrFail( $id );
 
-        $this->authorize('update', $media);
+        $this->authorize( 'update', $media );
 
         // Update basic fields
-        $media->update($request->only([
+        $media->update( $request->only( [
             'title',
             'alt_text',
             'caption',
             'description',
             'folder_id',
-        ]));
+        ] ) );
 
         // Sync tags if provided
-        if ($request->has('tags')) {
-            $tags = $request->input('tags', []);
-            $media->tags()->sync($tags);
+        if ( $request->has( 'tags' ) ) {
+            $tags = $request->input( 'tags', [] );
+            $media->tags()->sync( $tags );
         }
 
-        $media->load(['folder', 'uploadedBy', 'tags']);
+        $media->load( ['folder', 'uploadedBy', 'tags'] );
 
-        return new MediaResource($media);
+        return new MediaResource( $media );
     }
 
     /**
@@ -207,13 +211,14 @@ class MediaController extends Controller
      * @since 1.0.0
      *
      * @param  int  $id  The media ID.
+     *
      * @return Response No content response.
      */
-    public function destroy(int $id): Response
+    public function destroy( int $id ): Response
     {
-        $media = Media::findOrFail($id);
+        $media = Media::findOrFail( $id );
 
-        $this->authorize('delete', $media);
+        $this->authorize( 'delete', $media );
 
         $media->delete();
 
@@ -227,21 +232,22 @@ class MediaController extends Controller
      * @since 1.1.1 Added authorization check and file existence validation.
      *
      * @param  int  $id  The media ID.
+     *
      * @return StreamedResponse The file download response.
      */
-    public function download(int $id): StreamedResponse
+    public function download( int $id ): StreamedResponse
     {
-        $media = Media::findOrFail($id);
+        $media = Media::findOrFail( $id );
 
-        $this->authorize('view', $media);
+        $this->authorize( 'view', $media );
 
-        $disk = $media->disk ?? config('artisanpack.media.disk', 'public');
+        $disk = $media->disk ?? config( 'artisanpack.media.disk', 'public' );
 
         // Validate file exists on disk before attempting download
-        if (! Storage::disk($disk)->exists($media->file_path)) {
-            abort(404, __('File not found on storage.'));
+        if ( ! Storage::disk( $disk)->exists( $media->file_path)) {
+            abort( 404, __( 'File not found on storage.'));
         }
 
-        return Storage::disk($disk)->download($media->file_path, $media->file_name);
+        return Storage::disk( $disk)->download( $media->file_path, $media->file_name);
     }
 }
