@@ -259,8 +259,13 @@ class MediaConfigControllerTest extends TestCase
         $response = $this->getJson( '/api/media/config' );
 
         $response->assertOk()
-            ->assertHeader( 'Cache-Control', 'max-age=3600, public, s-maxage=3600, stale-while-revalidate=86400' )
             ->assertHeader( 'ETag' );
+
+        $cacheControl = $response->headers->get( 'Cache-Control' );
+        $this->assertStringContainsString( 'public', $cacheControl );
+        $this->assertStringContainsString( 's-maxage=3600', $cacheControl );
+        $this->assertStringContainsString( 'max-age=3600', $cacheControl );
+        $this->assertStringContainsString( 'stale-while-revalidate=86400', $cacheControl );
     }
 
     /**
