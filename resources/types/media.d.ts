@@ -344,6 +344,25 @@ export interface UploadConfig {
 }
 
 /**
+ * Response shape for GET /api/media/config.
+ *
+ * @since 1.2.0
+ */
+export interface MediaConfigResponse {
+    upload: {
+        max_file_size: number;
+        max_file_size_human: string;
+        allowed_mime_types: Record<string, string[]>;
+        allowed_extensions: string[];
+    };
+    image_sizes: Record<string, ImageSizeConfig>;
+    features: {
+        webp_conversion: boolean;
+        avif_conversion: boolean;
+    };
+}
+
+/**
  * Block media requirements as defined in config/artisanpack/media.php.
  */
 export interface BlockMediaRequirements {
