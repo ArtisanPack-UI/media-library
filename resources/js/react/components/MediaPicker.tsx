@@ -12,7 +12,7 @@ import React, { useState, useCallback } from 'react';
 import { Button, Card } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media, MediaType } from '../../../types/media';
+import type { Media, MediaType } from '../types/media';
 
 import { MediaModal } from './MediaModal';
 

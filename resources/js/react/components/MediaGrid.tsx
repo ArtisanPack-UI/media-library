@@ -11,7 +11,7 @@
 import React from 'react';
 import { Grid, Pagination, EmptyState, Loading } from '@artisanpack-ui/react';
 
-import type { Media, PaginationMeta } from '../../../types/media';
+import type { Media, PaginationMeta } from '../types/media';
 
 import { MediaItem } from './MediaItem';
 
@@ -79,7 +79,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ( {
     return (
         <div className={ className }>
             { viewMode === 'grid' ? (
-                <Grid cols={ 2 } colsSm={ 3 } colsMd={ 4 } colsLg={ 6 } gap={ 4 }>
+                <Grid cols={ 2 } colsSm={ 3 } colsMd={ 4 } colsLg={ 6 } gap={ 4 } role="listbox" aria-label="Media items">
                     { media.map( ( item, index ) => (
                         <MediaItem
                             key={ item.id }

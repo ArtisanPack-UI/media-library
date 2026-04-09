@@ -13,7 +13,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import type {
     Media,
     MediaConfigResponse,
-} from '../../../types/media';
+} from '../types/media';
 
 import { uploadMedia, fetchMediaConfig } from '../utils/api';
 
@@ -104,11 +104,17 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ): UseMediaU
     } = options;
 
     const [ queue, setQueue ]                       = useState<UploadQueueItem[]>( [] );
+    const queueRef                                  = useRef<UploadQueueItem[]>( [] );
     const [ isUploading, setIsUploading ]           = useState( false );
     const [ isDragging, setIsDragging ]             = useState( false );
     const [ config, setConfig ]                     = useState<MediaConfigResponse | null>( null );
     const [ validationErrors, setValidationErrors ] = useState<string[]>( [] );
     const [ uploadedMedia, setUploadedMedia ]       = useState<Media[]>( [] );
+
+    // Keep queueRef in sync for stable reads inside startUpload
+    useEffect( () => {
+        queueRef.current = queue;
+    }, [ queue ] );
 
     const dragCounter  = useRef( 0 );
     const optionsRef   = useRef( options );
@@ -179,9 +185,10 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ): UseMediaU
 
     /**
      * Start uploading all pending files in the queue.
+     * Reads from queueRef so it always sees the latest state.
      */
     const startUpload = useCallback( async () => {
-        const pendingItems = queue.filter( ( item ) => item.status === 'pending' );
+        const pendingItems = queueRef.current.filter( ( item ) => item.status === 'pending' );
         if ( pendingItems.length === 0 ) {
             return;
         }
@@ -246,10 +253,8 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ): UseMediaU
         }
 
         setIsUploading( false );
-        if ( results.length > 0 ) {
-            optionsRef.current.onQueueComplete?.( results );
-        }
-    }, [ queue ] );
+        optionsRef.current.onQueueComplete?.( results );
+    }, [] );
 
     const removeFromQueue = useCallback( ( queueId: string ) => {
         setQueue( ( prev ) => prev.filter( ( item ) => item.id !== queueId ) );

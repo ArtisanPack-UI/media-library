@@ -12,7 +12,7 @@ import React, { useRef } from 'react';
 import { Button, Alert, Progress, Card } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media } from '../../../types/media';
+import type { Media } from '../types/media';
 
 import { useMediaUpload } from '../hooks/useMediaUpload';
 import type { UseMediaUploadOptions, UploadQueueItem } from '../hooks/useMediaUpload';
@@ -37,7 +37,8 @@ export interface MediaUploadProps extends UseMediaUploadOptions {
 const QueueItem: React.FC<{
     item: UploadQueueItem;
     onRemove: ( id: string ) => void;
-}> = ( { item, onRemove } ) => (
+    disabled?: boolean;
+}> = ( { item, onRemove, disabled = false } ) => (
     <div className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
         <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{ item.file.name }</p>
@@ -67,6 +68,7 @@ const QueueItem: React.FC<{
                 size="sm"
                 color="ghost"
                 onClick={ () => onRemove( item.id ) }
+                disabled={ disabled }
                 aria-label={ `Remove ${ item.file.name }` }
             >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>
@@ -212,6 +214,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ( {
                                 key={ item.id }
                                 item={ item }
                                 onRemove={ removeFromQueue }
+                                disabled={ isUploading }
                             />
                         ) ) }
                     </div>

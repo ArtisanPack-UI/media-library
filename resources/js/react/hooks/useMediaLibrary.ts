@@ -19,7 +19,7 @@ import type {
     MediaSortField,
     SortDirection,
     PaginationMeta,
-} from '../../../types/media';
+} from '../types/media';
 
 import {
     fetchMedia,
@@ -168,21 +168,19 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ): UseMedi
         }
     }, [] );
 
-    // Auto-fetch on mount
+    // Auto-fetch on mount + refetch when filters change
     useEffect( () => {
-        if ( autoFetch && ! mounted.current ) {
+        if ( ! mounted.current ) {
             mounted.current = true;
-            loadMedia( filters );
-            loadRelatedData();
+            if ( autoFetch ) {
+                loadMedia( filters );
+                loadRelatedData();
+            }
+            return;
         }
-    }, [ autoFetch, filters, loadMedia, loadRelatedData ] );
 
-    // Refetch when filters change (after initial mount)
-    useEffect( () => {
-        if ( mounted.current ) {
-            loadMedia( filters );
-        }
-    }, [ filters, loadMedia ] );
+        loadMedia( filters );
+    }, [ autoFetch, filters, loadMedia, loadRelatedData ] );
 
     /**
      * Update filters and reset to page 1.

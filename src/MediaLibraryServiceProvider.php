@@ -158,7 +158,8 @@ class MediaLibraryServiceProvider extends ServiceProvider
     {
         if ( $this->app->runningInConsole() ) {
             $this->publishes( [
-                __DIR__ . '/../resources/js/react' => resource_path( 'js/vendor/media-library' ),
+                __DIR__ . '/../resources/js/react'         => resource_path( 'js/vendor/media-library' ),
+                __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'js/vendor/media-library/types/media.d.ts' ),
             ], 'media-react' );
         }
     }

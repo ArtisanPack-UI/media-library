@@ -376,7 +376,7 @@ class ReactComponentsTest extends TestCase
                 dirname( __DIR__, 2 ) . '/resources/js/react/hooks/' . $file,
             );
 
-            expect( $contents )->toContain( "from '../../../types/media'" );
+            expect( $contents )->toContain( "from '../types/media'" );
         }
     }
 
@@ -389,7 +389,37 @@ class ReactComponentsTest extends TestCase
             dirname( __DIR__, 2 ) . '/resources/js/react/utils/api.ts',
         );
 
-        expect( $contents )->toContain( "from '../../types/media'" );
+        expect( $contents )->toContain( "from '../types/media'" );
+    }
+
+    /**
+     * Test the types re-export file exists.
+     */
+    public function test_types_reexport_file_exists(): void
+    {
+        $path = dirname( __DIR__, 2 ) . '/resources/js/react/types/media.d.ts';
+
+        expect( file_exists( $path ) )->toBeTrue();
+    }
+
+    /**
+     * Test the React publish tag includes types alongside components.
+     */
+    public function test_react_publish_includes_types(): void
+    {
+        $publishGroups = \Illuminate\Support\ServiceProvider::$publishGroups;
+        $mediaReact    = $publishGroups['media-react'];
+
+        $sourceKeys = array_keys( $mediaReact );
+        $hasTypes   = false;
+        foreach ( $sourceKeys as $key ) {
+            if ( str_ends_with( $key, 'resources/types/media.d.ts' ) ) {
+                $hasTypes = true;
+                break;
+            }
+        }
+
+        expect( $hasTypes )->toBeTrue();
     }
 
     /**

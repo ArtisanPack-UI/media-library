@@ -21,7 +21,7 @@ import type {
     FolderListResponse,
     TagListResponse,
     MediaConfigResponse,
-} from '../../types/media';
+} from '../types/media';
 
 /**
  * Optional Bearer token for Sanctum token-based authentication.
@@ -115,10 +115,13 @@ async function apiFetch<T>(
 ): Promise<T> {
     await ensureCsrfCookie();
 
+    const defaultHeaders = buildHeaders( isFormData );
+    const customHeaders  = ( options.headers ?? {} ) as Record<string, string>;
+
     const response = await fetch( url, {
         credentials: 'include',
         ...options,
-        headers: buildHeaders( isFormData ),
+        headers: { ...defaultHeaders, ...customHeaders },
     } );
 
     if ( ! response.ok ) {
@@ -127,7 +130,13 @@ async function apiFetch<T>(
         throw new Error( message );
     }
 
-    return response.json();
+    // Handle empty responses (e.g. 204 No Content)
+    const text = await response.text();
+    if ( ! text ) {
+        return null as T;
+    }
+
+    return JSON.parse( text );
 }
 
 /**
@@ -225,10 +234,22 @@ export async function uploadMedia(
 
             xhr.addEventListener( 'load', () => {
                 if ( xhr.status >= 200 && xhr.status < 300 ) {
-                    resolve( JSON.parse( xhr.responseText ) );
+                    try {
+                        resolve( JSON.parse( xhr.responseText ) );
+                    } catch {
+                        reject( new Error( 'Invalid JSON response from server' ) );
+                    }
                 } else {
-                    const body = JSON.parse( xhr.responseText || '{}' );
-                    reject( new Error( body.message || `Upload failed: ${ xhr.status }` ) );
+                    let message = `Upload failed: ${ xhr.status }`;
+                    try {
+                        const body = JSON.parse( xhr.responseText );
+                        if ( body.message ) {
+                            message = body.message;
+                        }
+                    } catch {
+                        // Non-JSON error response; keep default message
+                    }
+                    reject( new Error( message ) );
                 }
             } );
 

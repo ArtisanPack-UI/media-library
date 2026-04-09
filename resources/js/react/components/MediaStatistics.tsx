@@ -12,7 +12,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Stat, StatGroup, Badge, Progress, Loading, Sparkline } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media, MediaType } from '../../../types/media';
+import type { Media, MediaType } from '../types/media';
 
 import { fetchMedia } from '../utils/api';
 
@@ -68,10 +68,19 @@ export const MediaStatistics: React.FC<MediaStatisticsProps> = ( {
             setLoading( true );
 
             try {
-                // Fetch all media to compute stats client-side
-                // In production, this would ideally be a dedicated stats endpoint
-                const response = await fetchMedia( { per_page: 9999 } );
-                const allMedia = response.data;
+                // First check total count with a small page, then fetch all if under threshold
+                const probe = await fetchMedia( { per_page: 1 } );
+                const totalCount = probe.meta.total;
+                const SAFE_THRESHOLD = 2000;
+
+                let allMedia: Media[];
+                if ( totalCount > SAFE_THRESHOLD ) {
+                    // Too many items for client-side aggregation; use the probe data
+                    allMedia = [];
+                } else {
+                    const response = await fetchMedia( { per_page: totalCount || 1 } );
+                    allMedia = response.data;
+                }
 
                 const byType: MediaStats['byType'] = {
                     image:    { count: 0, size: 0, sizeFormatted: '' },

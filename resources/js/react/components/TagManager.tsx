@@ -11,7 +11,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Textarea, Card, Alert, Badge, Modal } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { MediaTag } from '../../../types/media';
+import type { MediaTag } from '../types/media';
 
 import { fetchTags, createTag, updateTag, deleteTag } from '../utils/api';
 import { Portal } from '../utils/Portal';

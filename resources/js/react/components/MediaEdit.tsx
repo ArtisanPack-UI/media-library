@@ -8,11 +8,11 @@
  * @since   1.2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button, Input, Textarea, Select, Card, Alert, Badge, Modal } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media, MediaFolder, MediaTag, MediaUpdatePayload } from '../../../types/media';
+import type { Media, MediaFolder, MediaTag, MediaUpdatePayload } from '../types/media';
 
 import { updateMedia, deleteMedia, fetchFolders, fetchTags } from '../utils/api';
 import { Portal } from '../utils/Portal';
@@ -58,6 +58,22 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
     const [ saving, setSaving ]               = useState( false );
     const [ error, setError ]                 = useState<string | null>( null );
     const [ showDeleteConfirm, setShowDelete ] = useState( false );
+
+    // Sync form state when media prop changes
+    const prevMediaId = useRef( media.id );
+    useEffect( () => {
+        if ( media.id !== prevMediaId.current ) {
+            prevMediaId.current = media.id;
+            setForm( {
+                title:       media.title || '',
+                alt_text:    media.alt_text || '',
+                caption:     media.caption || '',
+                description: media.description || '',
+                folder_id:   media.folder.id,
+            } );
+            setSelectedTagIds( media.tags?.map( ( t ) => t.id ) || [] );
+        }
+    }, [ media ] );
 
     // Load folders and tags
     useEffect( () => {

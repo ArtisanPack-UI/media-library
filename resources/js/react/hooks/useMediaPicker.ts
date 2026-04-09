@@ -15,7 +15,7 @@ import type {
     MediaType,
     MediaFilter,
     PaginationMeta,
-} from '../../../types/media';
+} from '../types/media';
 
 import { fetchMedia } from '../utils/api';
 

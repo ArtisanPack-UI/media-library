@@ -13,7 +13,7 @@ import React from 'react';
 import { Card, Badge, Tooltip } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media } from '../../../types/media';
+import type { Media } from '../types/media';
 
 /**
  * Props for the MediaItem component.

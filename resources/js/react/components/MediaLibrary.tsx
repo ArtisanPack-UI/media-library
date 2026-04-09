@@ -9,11 +9,11 @@
  * @since   1.2.0
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button, Input, Select, Card, Alert } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media, MediaType } from '../../../types/media';
+import type { Media, MediaType } from '../types/media';
 
 import { useMediaLibrary } from '../hooks/useMediaLibrary';
 import type { UseMediaLibraryOptions } from '../hooks/useMediaLibrary';
@@ -66,6 +66,14 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
 
     const [ showUploadPanel, setShowUploadPanel ] = useState( false );
     const [ editingMedia, setEditingMedia ]       = useState<Media | null>( null );
+
+    // Notify parent when selection changes
+    useEffect( () => {
+        if ( onSelectionChange ) {
+            const selected = library.media.filter( ( m ) => library.selectedIds.has( m.id ) );
+            onSelectionChange( selected );
+        }
+    }, [ library.selectedIds, library.media, onSelectionChange ] );
 
     const handleItemClick = useCallback( ( media: Media ) => {
         if ( onMediaClick ) {

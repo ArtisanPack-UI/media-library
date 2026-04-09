@@ -12,7 +12,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Textarea, Select, Card, Alert, Modal } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { MediaFolder } from '../../../types/media';
+import type { MediaFolder } from '../types/media';
 
 import {
     fetchFolders,
@@ -34,6 +34,26 @@ export interface FolderManagerProps {
     selectedFolderId?: number | null;
     /** Additional CSS class names. */
     className?: string;
+}
+
+/**
+ * Collect all descendant IDs of a folder to prevent circular parent moves.
+ */
+function getDescendantIds( folderId: number, folders: MediaFolder[] ): Set<number> {
+    const ids    = new Set<number>();
+    const queue  = [ folderId ];
+
+    while ( queue.length > 0 ) {
+        const parentId = queue.shift()!;
+        for ( const folder of folders ) {
+            if ( folder.parent_id === parentId && ! ids.has( folder.id ) ) {
+                ids.add( folder.id );
+                queue.push( folder.id );
+            }
+        }
+    }
+
+    return ids;
 }
 
 /**
@@ -62,7 +82,7 @@ const FolderTreeItem: React.FC<{
             role="treeitem"
             aria-selected={ selectedId === folder.id }
             className={ cn(
-                'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors',
+                'group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors',
                 'hover:bg-base-200',
                 selectedId === folder.id && 'bg-primary/10 text-primary',
             ) }
@@ -233,11 +253,12 @@ export const FolderManager: React.FC<FolderManagerProps> = ( {
         onFolderSelect?.( selectedFolderId === id ? null : id );
     }, [ selectedFolderId, onFolderSelect ] );
 
-    // Flatten folders for parent options (exclude current editing folder and its children)
+    // Flatten folders for parent options (exclude editing folder and all its descendants)
+    const excludedIds = editing ? getDescendantIds( editing.id, folders ) : new Set<number>();
     const parentOptions = [
         { id: '', name: 'No parent (root)' },
         ...folders
-            .filter( ( f ) => ! editing || f.id !== editing.id )
+            .filter( ( f ) => ! editing || ( f.id !== editing.id && ! excludedIds.has( f.id ) ) )
             .map( ( f ) => ( { id: String( f.id ), name: f.name } ) ),
     ];
 

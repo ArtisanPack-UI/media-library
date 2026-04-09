@@ -12,7 +12,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Input, Select, Tabs, Badge } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media, MediaType, MediaFolder } from '../../../types/media';
+import type { Media, MediaType, MediaFolder } from '../types/media';
 
 import { fetchFolders } from '../utils/api';
 import { Portal } from '../utils/Portal';
@@ -87,8 +87,14 @@ export const MediaModal: React.FC<MediaModalProps> = ( {
         }
     }, [ open ] );
 
-    // Keyboard navigation
+    // Keyboard navigation — skip when focus is inside a form control
     const handleKeyDown = useCallback( ( e: React.KeyboardEvent ) => {
+        const target = e.target as HTMLElement;
+        const tagName = target.tagName.toLowerCase();
+        if ( tagName === 'input' || tagName === 'textarea' || tagName === 'select' || target.isContentEditable ) {
+            return;
+        }
+
         switch ( e.key ) {
             case 'ArrowRight':
                 e.preventDefault();
