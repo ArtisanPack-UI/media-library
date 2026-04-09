@@ -70,7 +70,7 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
         if ( autoFetchConfig ) {
             configPromise = fetchMediaConfig()
                 .then( ( c ) => { config.value = c; } )
-                .catch( () => { /* non-critical */ } );
+                .catch( () => { configPromise = null; } );
         }
     } );
 
@@ -83,7 +83,9 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
         }
         if ( configPromise ) {
             await configPromise;
-            return;
+            if ( config.value ) {
+                return;
+            }
         }
         try {
             config.value = await fetchMediaConfig();
@@ -234,8 +236,8 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
     function onDragLeave( e: DragEvent ) {
         e.preventDefault();
         e.stopPropagation();
-        dragCounter -= 1;
-        if ( dragCounter === 0 ) {
+        dragCounter = Math.max( 0, dragCounter - 1 );
+        if ( dragCounter <= 0 ) {
             isDragging.value = false;
         }
     }

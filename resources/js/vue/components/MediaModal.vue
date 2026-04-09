@@ -57,14 +57,14 @@ const picker = useMediaPicker( {
     },
 } );
 
-// Load folders when modal opens
+// Load folders when modal opens (immediate so it works if open at mount)
 watch( open, ( isOpen ) => {
     if ( isOpen ) {
         fetchFolders()
             .then( ( response ) => { folders.value = response.data; } )
             .catch( () => { /* non-critical */ } );
     }
-} );
+}, { immediate: true } );
 
 function flattenFolders( items: MediaFolder[], depth = 0 ): Array<{ id: string; name: string }> {
     const result: Array<{ id: string; name: string }> = [];
@@ -83,13 +83,19 @@ const folderOptions = computed( () => [
     ...flattenFolders( folders.value ),
 ] );
 
-const typeFilterOptions = [
-    { id: '',         name: 'All Types' },
+const allTypeOptions = [
     { id: 'image',    name: 'Images' },
     { id: 'video',    name: 'Videos' },
     { id: 'audio',    name: 'Audio' },
     { id: 'document', name: 'Documents' },
 ];
+
+const typeFilterOptions = computed( () => {
+    const filtered = props.allowedTypes && props.allowedTypes.length > 0
+        ? allTypeOptions.filter( ( opt ) => props.allowedTypes!.includes( opt.id as MediaType ) )
+        : allTypeOptions;
+    return [ { id: '', name: 'All Types' }, ...filtered ];
+} );
 
 const selectedCount = computed( () => picker.selectedMedia.value.length );
 
