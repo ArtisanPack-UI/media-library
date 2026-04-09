@@ -143,15 +143,14 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ): UseMediaU
             return `${ file.name } exceeds the maximum file size of ${ config.upload.max_file_size_human }`;
         }
 
-        // Check MIME type against config keys (e.g. "image/png", "application/pdf")
-        const allowedMimeKeys = Object.keys( config.upload.allowed_mime_types );
-        if ( allowedMimeKeys.length > 0 && ! allowedMimeKeys.includes( file.type ) ) {
+        // Check MIME type (values are arrays of MIME strings grouped by category)
+        const allowedMimes = Object.values( config.upload.allowed_mime_types ).flat();
+        if ( allowedMimes.length > 0 && ! allowedMimes.includes( file.type ) ) {
             // Fall back to extension check
-            const allowedExtensions = Object.values( config.upload.allowed_mime_types )
-                .flat()
+            const allowedExts = ( config.upload.allowed_extensions || [] )
                 .map( ( ext ) => ext.toLowerCase() );
-            const fileExt = '.' + ( file.name.split( '.' ).pop() || '' ).toLowerCase();
-            if ( allowedExtensions.length > 0 && ! allowedExtensions.includes( fileExt ) ) {
+            const fileExt = ( file.name.split( '.' ).pop() || '' ).toLowerCase();
+            if ( allowedExts.length > 0 && ! allowedExts.includes( fileExt ) ) {
                 return `${ file.name } has an unsupported file type (${ file.type })`;
             }
         }
