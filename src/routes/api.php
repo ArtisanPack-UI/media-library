@@ -1,5 +1,6 @@
 <?php
 
+use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaConfigController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaFolderController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaTagController;
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Route;
  *
  * @since 1.0.0
  */
+
+// Public endpoint — exposes upload constraints for client-side validation.
+Route::get( 'media/config', MediaConfigController::class )->name( 'api.media.config' );
+
 Route::middleware( ['auth:sanctum'] )->group( function (): void {
     // Media Folder resource routes (before media routes to avoid conflicts)
     Route::post( 'media/folders/{id}/move', [MediaFolderController::class, 'move'] )->name( 'media.folders.move' );
@@ -27,5 +32,5 @@ Route::middleware( ['auth:sanctum'] )->group( function (): void {
     Route::get( 'media/{id}/download', [MediaController::class, 'download'] )->name( 'api.media.download' );
 
     // Media resource routes (last to avoid catching folder/tag routes)
-    Route::apiResource( 'media', MediaController::class);
-});
+    Route::apiResource( 'media', MediaController::class );
+} );
