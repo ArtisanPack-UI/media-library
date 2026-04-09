@@ -104,9 +104,17 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
             return `${ file.name } exceeds the maximum file size of ${ config.value.upload.max_file_size_human }`;
         }
 
-        const allowedTypes = Object.values( config.value.upload.allowed_mime_types ).flat();
-        if ( allowedTypes.length > 0 && ! allowedTypes.includes( file.type ) ) {
-            return `${ file.name } has an unsupported file type (${ file.type })`;
+        // Check MIME type against config keys (e.g. "image/png", "application/pdf")
+        const allowedMimeKeys = Object.keys( config.value.upload.allowed_mime_types );
+        if ( allowedMimeKeys.length > 0 && ! allowedMimeKeys.includes( file.type ) ) {
+            // Fall back to extension check
+            const allowedExtensions = Object.values( config.value.upload.allowed_mime_types )
+                .flat()
+                .map( ( ext ) => ext.toLowerCase() );
+            const fileExt = '.' + ( file.name.split( '.' ).pop() || '' ).toLowerCase();
+            if ( allowedExtensions.length > 0 && ! allowedExtensions.includes( fileExt ) ) {
+                return `${ file.name } has an unsupported file type (${ file.type })`;
+            }
         }
 
         return null;
@@ -187,7 +195,12 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
 
                 uploadedMedia.value = [ ...uploadedMedia.value, response.data ];
                 results.push( response.data );
-                currentOptions.onUploadComplete?.( response.data );
+
+                try {
+                    currentOptions.onUploadComplete?.( response.data );
+                } catch {
+                    // Callback error should not affect upload state
+                }
             } catch ( err ) {
                 queue.value = queue.value.map( ( q ) =>
                     q.id === item.id
