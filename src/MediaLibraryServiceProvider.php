@@ -247,7 +247,21 @@ class MediaLibraryServiceProvider extends ServiceProvider
             return;
         }
 
-        // Register components
+        // Livewire 4 uses namespace-based discovery for namespaced components.
+        // In v4, Livewire::component() stores into classComponents but the resolver
+        // skips classComponents for names with a namespace prefix (e.g. "media::*"),
+        // only checking classNamespaces. Use addNamespace() so the resolver can
+        // derive the class from the namespace + component name.
+        if ( method_exists( Livewire::getFacadeRoot(), 'addNamespace' ) ) {
+            Livewire::addNamespace(
+                'media',
+                classNamespace: 'ArtisanPackUI\\MediaLibrary\\Livewire\\Components',
+            );
+
+            return;
+        }
+
+        // Livewire 3 uses explicit component registration
         Livewire::component( 'media::media-library', MediaLibrary::class );
         Livewire::component( 'media::media-upload', MediaUpload::class );
         Livewire::component( 'media::media-edit', MediaEdit::class );

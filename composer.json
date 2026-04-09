@@ -36,7 +36,7 @@
     "artisanpack-ui/hooks": "^1.1",
     "intervention/image": "^3.0",
     "php-ffmpeg/php-ffmpeg": "^1.0",
-    "livewire/livewire": "^3.6"
+    "livewire/livewire": "^3.6|^4.0"
   },
   "suggest": {
     "phpoffice/phpspreadsheet": "^1.29|^2.0 - Required for XLSX export functionality",
