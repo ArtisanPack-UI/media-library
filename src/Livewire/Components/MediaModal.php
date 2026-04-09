@@ -201,24 +201,14 @@ class MediaModal extends Component
         bool $inlineMode = false,
         bool $quickUploadSelect = true,
     ): void {
-        $this->multiSelect = $multiSelect;
-        $this->maxSelections = $maxSelections;
-        $this->selectedMedia = $selectedMedia;
-        $this->context = $context;
-        $this->inlineMode = $inlineMode;
+        $this->multiSelect       = $multiSelect;
+        $this->maxSelections     = $maxSelections;
+        $this->selectedMedia     = $selectedMedia;
+        $this->context           = $context;
+        $this->inlineMode        = $inlineMode;
         $this->quickUploadSelect = $quickUploadSelect;
 
         $this->loadRecentlyUsed();
-    }
-
-    /**
-     * Load recently used media IDs from session.
-     *
-     * @since 1.1.0
-     */
-    protected function loadRecentlyUsed(): void
-    {
-        $this->recentlyUsed = session('media.recently_used', []);
     }
 
     /**
@@ -228,20 +218,20 @@ class MediaModal extends Component
      *
      * @param  int  $mediaId  The media ID to track.
      */
-    public function trackUsage(int $mediaId): void
+    public function trackUsage( int $mediaId ): void
     {
-        $recent = session('media.recently_used', []);
+        $recent = session( 'media.recently_used', [] );
 
         // Remove if already exists (to move to front)
-        $recent = array_values(array_diff($recent, [$mediaId]));
+        $recent = array_values( array_diff( $recent, [$mediaId] ) );
 
         // Add to front
-        array_unshift($recent, $mediaId);
+        array_unshift( $recent, $mediaId );
 
         // Keep only last 10
-        $recent = array_slice($recent, 0, 10);
+        $recent = array_slice( $recent, 0, 10 );
 
-        session(['media.recently_used' => $recent]);
+        session( ['media.recently_used' => $recent] );
         $this->recentlyUsed = $recent;
     }
 
@@ -255,15 +245,15 @@ class MediaModal extends Component
     #[Computed]
     public function recentlyUsedMedia(): Collection
     {
-        if (empty($this->recentlyUsed)) {
+        if ( empty( $this->recentlyUsed ) ) {
             return collect();
         }
 
-        return Media::whereIn('id', $this->recentlyUsed)
+        return Media::whereIn( 'id', $this->recentlyUsed )
             ->get()
-            ->sortBy(function ($media) {
-                return array_search($media->id, $this->recentlyUsed, true);
-            })
+            ->sortBy( function ( $media ) {
+                return array_search( $media->id, $this->recentlyUsed, true );
+            } )
             ->values();
     }
 
@@ -280,46 +270,46 @@ class MediaModal extends Component
         $query = Media::query();
 
         // Apply search filter
-        if (! empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('file_name', 'like', '%'.$this->search.'%')
-                    ->orWhere('alt_text', 'like', '%'.$this->search.'%');
-            });
+        if ( ! empty( $this->search ) ) {
+            $query->where( function ( $q ): void {
+                $q->where( 'title', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'file_name', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'alt_text', 'like', '%' . $this->search . '%' );
+            } );
         }
 
         // Apply folder filter
-        if ($this->folderId !== null) {
-            $query->where('folder_id', $this->folderId);
+        if ( null !== $this->folderId ) {
+            $query->where( 'folder_id', $this->folderId );
         }
 
         // Apply type filter
-        if (! empty($this->typeFilter)) {
-            switch ($this->typeFilter) {
+        if ( ! empty( $this->typeFilter ) ) {
+            switch ( $this->typeFilter ) {
                 case 'image':
-                    $query->where('mime_type', 'like', 'image/%');
+                    $query->where( 'mime_type', 'like', 'image/%' );
                     break;
                 case 'video':
-                    $query->where('mime_type', 'like', 'video/%');
+                    $query->where( 'mime_type', 'like', 'video/%' );
                     break;
                 case 'audio':
-                    $query->where('mime_type', 'like', 'audio/%');
+                    $query->where( 'mime_type', 'like', 'audio/%' );
                     break;
                 case 'document':
-                    $query->whereIn('mime_type', [
+                    $query->whereIn( 'mime_type', [
                         'application/pdf',
                         'application/msword',
                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                         'application/vnd.ms-excel',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    ]);
+                    ] );
                     break;
             }
         }
 
-        return $query->with(['folder', 'uploadedBy'])
+        return $query->with( ['folder', 'uploadedBy'] )
             ->latest()
-            ->paginate($this->perPage);
+            ->paginate( $this->perPage );
     }
 
     /**
@@ -332,7 +322,7 @@ class MediaModal extends Component
     #[Computed]
     public function folders(): Collection
     {
-        return MediaFolder::orderBy('name')->get();
+        return MediaFolder::orderBy( 'name' )->get();
     }
 
     /**
@@ -347,24 +337,24 @@ class MediaModal extends Component
     {
         return [
             [
-                'key' => '',
-                'label' => __('All Types'),
+                'key'   => '',
+                'label' => __( 'All Types' ),
             ],
             [
-                'key' => 'image',
-                'label' => __('Images'),
+                'key'   => 'image',
+                'label' => __( 'Images' ),
             ],
             [
-                'key' => 'video',
-                'label' => __('Videos'),
+                'key'   => 'video',
+                'label' => __( 'Videos' ),
             ],
             [
-                'key' => 'audio',
-                'label' => __('Audio'),
+                'key'   => 'audio',
+                'label' => __( 'Audio' ),
             ],
             [
-                'key' => 'document',
-                'label' => __('Documents'),
+                'key'   => 'document',
+                'label' => __( 'Documents' ),
             ],
         ];
     }
@@ -374,21 +364,21 @@ class MediaModal extends Component
      *
      * @since 1.0.0
      *
-     * @return array<int, array{key: string|int, label: string}>
+     * @return array<int, array{key: int|string, label: string}>
      */
     #[Computed]
     public function folderOptions(): array
     {
         $options = [
             [
-                'key' => '',
-                'label' => __('All Folders'),
+                'key'   => '',
+                'label' => __( 'All Folders' ),
             ],
         ];
 
-        foreach ($this->folders as $folder) {
+        foreach ( $this->folders as $folder ) {
             $options[] = [
-                'key' => $folder->id,
+                'key'   => $folder->id,
                 'label' => $folder->name,
             ];
         }
@@ -403,11 +393,11 @@ class MediaModal extends Component
      *
      * @param  string  $context  The context to open (optional).
      */
-    #[On('open-media-modal')]
-    public function open(string $context = ''): void
+    #[On( 'open-media-modal' )]
+    public function open( string $context = '' ): void
     {
         // Only open if context matches or if both are empty (backward compatibility)
-        if ($context === '' || $this->context === '' || $context === $this->context) {
+        if ( '' === $context || '' === $this->context || $context === $this->context ) {
             $this->isOpen = true;
             $this->resetFilters();
         }
@@ -420,8 +410,8 @@ class MediaModal extends Component
      */
     public function resetFilters(): void
     {
-        $this->search = '';
-        $this->folderId = null;
+        $this->search     = '';
+        $this->folderId   = null;
         $this->typeFilter = '';
         $this->resetPage();
     }
@@ -433,7 +423,7 @@ class MediaModal extends Component
      *
      * @param  string  $tab  The tab to switch to.
      */
-    public function switchTab(string $tab): void
+    public function switchTab( string $tab ): void
     {
         $this->activeTab = $tab;
     }
@@ -445,22 +435,22 @@ class MediaModal extends Component
      *
      * @param  int  $mediaId  The media ID to toggle.
      */
-    public function toggleSelect(int $mediaId): void
+    public function toggleSelect( int $mediaId ): void
     {
-        if (in_array($mediaId, $this->selectedMedia, true)) {
+        if ( in_array( $mediaId, $this->selectedMedia, true ) ) {
             // Deselect
-            $this->selectedMedia = array_values(array_diff($this->selectedMedia, [$mediaId]));
+            $this->selectedMedia = array_values( array_diff( $this->selectedMedia, [$mediaId] ) );
         } else {
             // Select
-            if (! $this->multiSelect) {
+            if ( ! $this->multiSelect ) {
                 // Single select mode - replace selection
                 $this->selectedMedia = [$mediaId];
             } else {
                 // Multi select mode - add to selection
-                if ($this->maxSelections === 0 || count($this->selectedMedia) < $this->maxSelections) {
+                if ( 0 === $this->maxSelections || count( $this->selectedMedia ) < $this->maxSelections ) {
                     $this->selectedMedia[] = $mediaId;
                 } else {
-                    $this->error(__('Maximum :count selections allowed', ['count' => $this->maxSelections]));
+                    $this->error( __( 'Maximum :count selections allowed', ['count' => $this->maxSelections] ) );
                 }
             }
         }
@@ -483,30 +473,30 @@ class MediaModal extends Component
      */
     public function confirmSelection(): void
     {
-        if (empty($this->selectedMedia)) {
-            $this->error(__('Please select at least one media item'));
+        if ( empty( $this->selectedMedia ) ) {
+            $this->error( __( 'Please select at least one media item' ) );
 
             return;
         }
 
         // Track usage for recently used feature
-        foreach ($this->selectedMedia as $mediaId) {
-            $this->trackUsage($mediaId);
+        foreach ( $this->selectedMedia as $mediaId ) {
+            $this->trackUsage( $mediaId );
         }
 
         // Get the actual media objects
-        $media = Media::whereIn('id', $this->selectedMedia)->get();
+        $media = Media::whereIn( 'id', $this->selectedMedia )->get();
 
         // Store count before close() clears the selection
-        $selectedCount = count($this->selectedMedia);
+        $selectedCount = count( $this->selectedMedia );
 
         // Emit event with selected media and context
-        $this->dispatch('media-selected', media: $media->toArray(), context: $this->context);
+        $this->dispatch( 'media-selected', media: $media->toArray(), context: $this->context );
 
         // Close the modal
         $this->close();
 
-        $this->success(__(':count media item(s) selected', ['count' => $selectedCount]));
+        $this->success( __( ':count media item(s) selected', ['count' => $selectedCount] ) );
     }
 
     /**
@@ -516,7 +506,7 @@ class MediaModal extends Component
      */
     public function close(): void
     {
-        $this->isOpen = false;
+        $this->isOpen        = false;
         $this->selectedMedia = [];
         $this->resetFilters();
     }
@@ -528,20 +518,20 @@ class MediaModal extends Component
      *
      * @param  int|null  $mediaId  The ID of the uploaded media (if available).
      */
-    #[On('media-uploaded')]
-    public function handleMediaUploaded(?int $mediaId = null): void
+    #[On( 'media-uploaded' )]
+    public function handleMediaUploaded( ?int $mediaId = null ): void
     {
         // Refresh the media list
-        unset($this->media);
+        unset( $this->media );
 
         // Switch to library tab to show uploaded media
         $this->activeTab = 'library';
 
         // Quick upload select - auto-select the uploaded media
-        if ($this->quickUploadSelect && $mediaId !== null) {
+        if ( $this->quickUploadSelect && null !== $mediaId ) {
             $this->lastUploadedMediaId = $mediaId;
 
-            if (! $this->multiSelect) {
+            if ( ! $this->multiSelect ) {
                 // Single select mode - select and confirm immediately
                 $this->selectedMedia = [$mediaId];
                 $this->confirmSelection();
@@ -550,18 +540,18 @@ class MediaModal extends Component
             }
 
             // Multi-select mode - add to selection
-            if (! in_array($mediaId, $this->selectedMedia, true)) {
-                if ($this->maxSelections === 0 || count($this->selectedMedia) < $this->maxSelections) {
+            if ( ! in_array( $mediaId, $this->selectedMedia, true ) ) {
+                if ( 0 === $this->maxSelections || count( $this->selectedMedia ) < $this->maxSelections ) {
                     $this->selectedMedia[] = $mediaId;
                 }
             }
 
-            $this->success(__('Media uploaded and selected.'));
+            $this->success( __( 'Media uploaded and selected.' ) );
 
             return;
         }
 
-        $this->success(__('Media uploaded successfully. You can now select it.'));
+        $this->success( __( 'Media uploaded successfully. You can now select it.' ) );
     }
 
     /**
@@ -573,11 +563,11 @@ class MediaModal extends Component
     {
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
-        $this->focusedIndex = ($this->focusedIndex + 1) % $mediaCount;
+        $this->focusedIndex = ( $this->focusedIndex + 1 ) % $mediaCount;
     }
 
     /**
@@ -588,13 +578,13 @@ class MediaModal extends Component
     public function focusPrevious(): void
     {
         // Guard: no-op when no item is focused (consistent with focusUp/focusDown)
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -610,16 +600,16 @@ class MediaModal extends Component
      *
      * @param  int  $columnsPerRow  Number of columns in the grid.
      */
-    public function focusDown(int $columnsPerRow = 5): void
+    public function focusDown( int $columnsPerRow = 5 ): void
     {
         // Guard: no-op when no item is focused (mirror focusUp behavior)
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -637,9 +627,9 @@ class MediaModal extends Component
      *
      * @param  int  $columnsPerRow  Number of columns in the grid.
      */
-    public function focusUp(int $columnsPerRow = 5): void
+    public function focusUp( int $columnsPerRow = 5 ): void
     {
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
@@ -659,7 +649,7 @@ class MediaModal extends Component
     {
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -675,7 +665,7 @@ class MediaModal extends Component
     {
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -689,18 +679,18 @@ class MediaModal extends Component
      */
     public function selectFocused(): void
     {
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
         $mediaItems = $this->media;
 
-        if ($this->focusedIndex >= $mediaItems->count()) {
+        if ( $this->focusedIndex >= $mediaItems->count() ) {
             return;
         }
 
-        $mediaItem = $mediaItems->values()[$this->focusedIndex];
-        $this->toggleSelect($mediaItem->id);
+        $mediaItem = $mediaItems->values()[ $this->focusedIndex ];
+        $this->toggleSelect( $mediaItem->id );
     }
 
     /**
@@ -756,18 +746,18 @@ class MediaModal extends Component
     public function toJSON(): array
     {
         return [
-            'isOpen' => $this->isOpen,
-            'multiSelect' => $this->multiSelect,
-            'maxSelections' => $this->maxSelections,
-            'selectedMedia' => $this->selectedMedia,
-            'activeTab' => $this->activeTab,
-            'search' => $this->search,
-            'folderId' => $this->folderId,
-            'typeFilter' => $this->typeFilter,
-            'context' => $this->context,
-            'inlineMode' => $this->inlineMode,
-            'quickUploadSelect' => $this->quickUploadSelect,
-            'focusedIndex' => $this->focusedIndex,
+            'isOpen'              => $this->isOpen,
+            'multiSelect'         => $this->multiSelect,
+            'maxSelections'       => $this->maxSelections,
+            'selectedMedia'       => $this->selectedMedia,
+            'activeTab'           => $this->activeTab,
+            'search'              => $this->search,
+            'folderId'            => $this->folderId,
+            'typeFilter'          => $this->typeFilter,
+            'context'             => $this->context,
+            'inlineMode'          => $this->inlineMode,
+            'quickUploadSelect'   => $this->quickUploadSelect,
+            'focusedIndex'        => $this->focusedIndex,
             'lastUploadedMediaId' => $this->lastUploadedMediaId,
         ];
     }
@@ -781,6 +771,16 @@ class MediaModal extends Component
      */
     public function render(): View
     {
-        return view('media::livewire.components.media-modal');
+        return view( 'media::livewire.components.media-modal');
+    }
+
+    /**
+     * Load recently used media IDs from session.
+     *
+     * @since 1.1.0
+     */
+    protected function loadRecentlyUsed(): void
+    {
+        $this->recentlyUsed = session( 'media.recently_used', []);
     }
 }

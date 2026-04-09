@@ -38,12 +38,12 @@ class MediaManager
      * @param  int  $height  The maximum height in pixels.
      * @param  bool  $crop  Whether to crop to exact dimensions.
      */
-    public function registerImageSize(string $name, int $width, int $height, bool $crop = false): void
+    public function registerImageSize( string $name, int $width, int $height, bool $crop = false ): void
     {
-        $this->customImageSizes[$name] = [
-            'width' => $width,
+        $this->customImageSizes[ $name ] = [
+            'width'  => $width,
             'height' => $height,
-            'crop' => $crop,
+            'crop'   => $crop,
         ];
     }
 
@@ -59,9 +59,9 @@ class MediaManager
      */
     public function getImageSizes(): array
     {
-        $defaultSizes = config('artisanpack.media.image_sizes', []);
+        $defaultSizes = config( 'artisanpack.media.image_sizes', [] );
 
-        return array_merge($defaultSizes, $this->customImageSizes);
+        return array_merge( $defaultSizes, $this->customImageSizes );
     }
 
     /**
@@ -77,7 +77,7 @@ class MediaManager
      */
     public function getAllowedMimeTypes(): array
     {
-        return config('artisanpack.media.allowed_mime_types', []);
+        return config( 'artisanpack.media.allowed_mime_types', [] );
     }
 
     /**
@@ -89,11 +89,12 @@ class MediaManager
      * @since 1.0.0
      *
      * @param  string  $mimeType  The MIME type to check.
+     *
      * @return bool True if the MIME type is allowed, false otherwise.
      */
-    public function isAllowedMimeType(string $mimeType): bool
+    public function isAllowedMimeType( string $mimeType ): bool
     {
-        return in_array($mimeType, $this->getAllowedMimeTypes(), true);
+        return in_array( $mimeType, $this->getAllowedMimeTypes(), true );
     }
 
     /**
@@ -107,7 +108,7 @@ class MediaManager
      */
     public function getMaxFileSize(): int
     {
-        return (int) config('artisanpack.media.max_file_size', 10240);
+        return (int) config( 'artisanpack.media.max_file_size', 10240 );
     }
 
     /**
@@ -121,7 +122,7 @@ class MediaManager
      */
     public function getDisk(): string
     {
-        return config('artisanpack.media.disk', 'public');
+        return config( 'artisanpack.media.disk', 'public' );
     }
 
     /**
@@ -135,7 +136,7 @@ class MediaManager
      */
     public function getUploadPathFormat(): string
     {
-        return config('artisanpack.media.upload_path_format', '{year}/{month}');
+        return config( 'artisanpack.media.upload_path_format', '{year}/{month}' );
     }
 
     /**
@@ -150,7 +151,7 @@ class MediaManager
      */
     public function isModernFormatsEnabled(): bool
     {
-        return (bool) config('artisanpack.media.enable_modern_formats', true);
+        return (bool) config( 'artisanpack.media.enable_modern_formats', true );
     }
 
     /**
@@ -164,7 +165,7 @@ class MediaManager
      */
     public function getModernFormat(): string
     {
-        return config('artisanpack.media.modern_format', 'webp');
+        return config( 'artisanpack.media.modern_format', 'webp' );
     }
 
     /**
@@ -178,7 +179,7 @@ class MediaManager
      */
     public function getImageQuality(): int
     {
-        return (int) config('artisanpack.media.image_quality', 85);
+        return (int) config( 'artisanpack.media.image_quality', 85 );
     }
 
     /**
@@ -192,7 +193,7 @@ class MediaManager
      */
     public function isThumbnailsEnabled(): bool
     {
-        return (bool) config('artisanpack.media.enable_thumbnails', true);
+        return (bool) config( 'artisanpack.media.enable_thumbnails', true );
     }
 
     /**
@@ -206,6 +207,6 @@ class MediaManager
      */
     public function getUserModel(): string
     {
-        return config('artisanpack.media.user_model', 'App\Models\User');
+        return config( 'artisanpack.media.user_model', 'App\Models\User');
     }
 }

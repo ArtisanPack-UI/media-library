@@ -40,23 +40,6 @@ class ImageOptimizationService
     }
 
     /**
-     * Creates an Intervention Image manager with the best available driver.
-     *
-     * @since 1.0.0
-     *
-     * @return ImageManager The image manager instance.
-     */
-    protected function createImageManager(): ImageManager
-    {
-        // Prefer Imagick over GD if available
-        if ( extension_loaded( 'imagick' ) ) {
-            return new ImageManager( new ImagickDriver );
-        }
-
-        return new ImageManager( new GdDriver );
-    }
-
-    /**
      * Resizes an image file.
      *
      * @since 1.0.0
@@ -75,10 +58,10 @@ class ImageOptimizationService
             $image = $this->imageManager->read( $path );
 
             // Resize based on options
-            if ( $crop && $width !== null && $height !== null ) {
+            if ( $crop && null !== $width && null !== $height ) {
                 // Crop to exact dimensions
                 $image->cover( $width, $height );
-            } elseif ( $width !== null || $height !== null ) {
+            } elseif ( null !== $width || null !== $height ) {
                 // Scale maintaining aspect ratio
                 $image->scale( $width, $height );
             }
@@ -89,14 +72,14 @@ class ImageOptimizationService
 
             $encoded = match ( $extension ) {
                 'jpg', 'jpeg' => $image->toJpeg( $quality ),
-                'png' => $image->toPng(),
-                'webp' => $image->toWebp( $quality ),
-                'avif' => $image->toAvif( $quality ),
-                'gif' => $image->toGif(),
+                'png'   => $image->toPng(),
+                'webp'  => $image->toWebp( $quality ),
+                'avif'  => $image->toAvif( $quality ),
+                'gif'   => $image->toGif(),
                 default => null,
             };
 
-            if ( $encoded === null ) {
+            if ( null === $encoded ) {
                 return false;
             }
 
@@ -136,14 +119,14 @@ class ImageOptimizationService
             // Encode to the target format
             $encoded = match ( $format ) {
                 'jpg', 'jpeg' => $image->toJpeg( $quality ),
-                'png' => $image->toPng(),
-                'webp' => $image->toWebp( $quality ),
-                'avif' => $image->toAvif( $quality ),
-                'gif' => $image->toGif(),
+                'png'   => $image->toPng(),
+                'webp'  => $image->toWebp( $quality ),
+                'avif'  => $image->toAvif( $quality ),
+                'gif'   => $image->toGif(),
                 default => null,
             };
 
-            if ( $encoded === null ) {
+            if ( null === $encoded ) {
                 return null;
             }
 
@@ -196,14 +179,14 @@ class ImageOptimizationService
             // Encode with quality and save back to the same path
             $encoded = match ( $extension ) {
                 'jpg', 'jpeg' => $image->toJpeg( $quality ),
-                'png' => $image->toPng(),
-                'webp' => $image->toWebp( $quality ),
-                'avif' => $image->toAvif( $quality ),
-                'gif' => $image->toGif(),
+                'png'   => $image->toPng(),
+                'webp'  => $image->toWebp( $quality ),
+                'avif'  => $image->toAvif( $quality ),
+                'gif'   => $image->toGif(),
                 default => null,
             };
 
-            if ( $encoded === null ) {
+            if ( null === $encoded ) {
                 return false;
             }
 
@@ -214,5 +197,22 @@ class ImageOptimizationService
         } catch ( Exception $e ) {
             return false;
         }
+    }
+
+    /**
+     * Creates an Intervention Image manager with the best available driver.
+     *
+     * @since 1.0.0
+     *
+     * @return ImageManager The image manager instance.
+     */
+    protected function createImageManager(): ImageManager
+    {
+        // Prefer Imagick over GD if available
+        if ( extension_loaded( 'imagick' ) ) {
+            return new ImageManager( new ImagickDriver );
+        }
+
+        return new ImageManager( new GdDriver );
     }
 }

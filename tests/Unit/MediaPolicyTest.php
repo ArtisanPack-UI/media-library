@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Unit;
 
@@ -37,8 +37,8 @@ class MediaPolicyTest extends TestCase
         $this->defineDatabaseMigrations();
 
         // Create test user and media
-        $this->user = User::factory()->create();
-        $this->media = Media::factory()->create(['uploaded_by' => $this->user->id]);
+        $this->user  = User::factory()->create();
+        $this->media = Media::factory()->create( ['uploaded_by' => $this->user->id] );
 
         $this->policy = new MediaPolicy;
     }
@@ -49,15 +49,15 @@ class MediaPolicyTest extends TestCase
     public function test_view_any_checks_capability(): void
     {
         // Mock the user's can method
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.view'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.view' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->viewAny($userMock);
+        $result = $this->policy->viewAny( $userMock );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -65,15 +65,15 @@ class MediaPolicyTest extends TestCase
      */
     public function test_view_checks_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.view'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.view' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->view($userMock, $this->media);
+        $result = $this->policy->view( $userMock, $this->media );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -81,15 +81,15 @@ class MediaPolicyTest extends TestCase
      */
     public function test_create_checks_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.upload'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.upload' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->create($userMock);
+        $result = $this->policy->create( $userMock );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -97,15 +97,15 @@ class MediaPolicyTest extends TestCase
      */
     public function test_update_checks_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.edit'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.edit' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->update($userMock, $this->media);
+        $result = $this->policy->update( $userMock, $this->media );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -113,15 +113,15 @@ class MediaPolicyTest extends TestCase
      */
     public function test_delete_checks_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.delete'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.delete' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->delete($userMock, $this->media);
+        $result = $this->policy->delete( $userMock, $this->media );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -129,15 +129,15 @@ class MediaPolicyTest extends TestCase
      */
     public function test_restore_checks_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.delete'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.delete' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->restore($userMock, $this->media);
+        $result = $this->policy->restore( $userMock, $this->media );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -145,15 +145,15 @@ class MediaPolicyTest extends TestCase
      */
     public function test_force_delete_checks_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-            ->method('can')
-            ->with($this->equalTo('media.delete'))
-            ->willReturn(true);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->once() )
+            ->method( 'can' )
+            ->with( $this->equalTo( 'media.delete' ) )
+            ->willReturn( true );
 
-        $result = $this->policy->forceDelete($userMock, $this->media);
+        $result = $this->policy->forceDelete( $userMock, $this->media );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -161,17 +161,17 @@ class MediaPolicyTest extends TestCase
      */
     public function test_returns_false_when_no_capability(): void
     {
-        $userMock = $this->createMock(User::class);
-        $userMock->expects($this->exactly(7))
-            ->method('can')
-            ->willReturn(false);
+        $userMock = $this->createMock( User::class );
+        $userMock->expects( $this->exactly( 7 ) )
+            ->method( 'can' )
+            ->willReturn( false );
 
-        expect($this->policy->viewAny($userMock))->toBeFalse();
-        expect($this->policy->view($userMock, $this->media))->toBeFalse();
-        expect($this->policy->create($userMock))->toBeFalse();
-        expect($this->policy->update($userMock, $this->media))->toBeFalse();
-        expect($this->policy->delete($userMock, $this->media))->toBeFalse();
-        expect($this->policy->restore($userMock, $this->media))->toBeFalse();
-        expect($this->policy->forceDelete($userMock, $this->media))->toBeFalse();
+        expect( $this->policy->viewAny( $userMock ) )->toBeFalse();
+        expect( $this->policy->view( $userMock, $this->media ) )->toBeFalse();
+        expect( $this->policy->create( $userMock ) )->toBeFalse();
+        expect( $this->policy->update( $userMock, $this->media ) )->toBeFalse();
+        expect( $this->policy->delete( $userMock, $this->media))->toBeFalse();
+        expect( $this->policy->restore( $userMock, $this->media))->toBeFalse();
+        expect( $this->policy->forceDelete( $userMock, $this->media))->toBeFalse();
     }
 }

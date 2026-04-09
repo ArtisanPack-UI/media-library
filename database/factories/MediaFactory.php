@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Database\Factories;
 
@@ -21,7 +21,7 @@ class MediaFactory extends Factory
     /**
      * The name of the factory's corresponding model.
      *
-     * @var class-string<\ArtisanPackUI\MediaLibrary\Models\Media>
+     * @var class-string<Media>
      */
     protected $model = Media::class;
 
@@ -34,24 +34,24 @@ class MediaFactory extends Factory
      */
     public function definition(): array
     {
-        $fileName = fake()->word().'.jpg';
+        $fileName = fake()->word() . '.jpg';
 
         return [
-            'title' => fake()->sentence(3),
-            'file_name' => $fileName,
-            'file_path' => date('Y').'/'.date('m').'/'.$fileName,
-            'disk' => 'public',
-            'mime_type' => 'image/jpeg',
-            'file_size' => fake()->numberBetween(10000, 5000000),
-            'alt_text' => fake()->sentence(),
-            'caption' => fake()->sentence(),
+            'title'       => fake()->sentence( 3 ),
+            'file_name'   => $fileName,
+            'file_path'   => date( 'Y' ) . '/' . date( 'm' ) . '/' . $fileName,
+            'disk'        => 'public',
+            'mime_type'   => 'image/jpeg',
+            'file_size'   => fake()->numberBetween( 10000, 5000000 ),
+            'alt_text'    => fake()->sentence(),
+            'caption'     => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'width' => fake()->numberBetween(100, 4000),
-            'height' => fake()->numberBetween(100, 4000),
-            'duration' => null,
-            'folder_id' => null,
+            'width'       => fake()->numberBetween( 100, 4000 ),
+            'height'      => fake()->numberBetween( 100, 4000 ),
+            'duration'    => null,
+            'folder_id'   => null,
             'uploaded_by' => 1, // Default to user ID 1, override with uploadedBy() state
-            'metadata' => [],
+            'metadata'    => [],
         ];
     }
 
@@ -62,19 +62,19 @@ class MediaFactory extends Factory
      */
     public function image(): static
     {
-        return $this->state(function (array $attributes) {
-            $extension = fake()->randomElement(['jpg', 'png', 'gif', 'webp']);
-            $fileName = fake()->word().'.'.$extension;
+        return $this->state( function ( array $attributes ) {
+            $extension = fake()->randomElement( ['jpg', 'png', 'gif', 'webp'] );
+            $fileName  = fake()->word() . '.' . $extension;
 
             return [
-                'mime_type' => fake()->randomElement(['image/jpeg', 'image/png', 'image/gif', 'image/webp']),
+                'mime_type' => fake()->randomElement( ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] ),
                 'file_name' => $fileName,
-                'file_path' => date('Y').'/'.date('m').'/'.$fileName,
-                'width' => fake()->numberBetween(100, 4000),
-                'height' => fake()->numberBetween(100, 4000),
-                'duration' => null,
+                'file_path' => date( 'Y' ) . '/' . date( 'm' ) . '/' . $fileName,
+                'width'     => fake()->numberBetween( 100, 4000 ),
+                'height'    => fake()->numberBetween( 100, 4000 ),
+                'duration'  => null,
             ];
-        });
+        } );
     }
 
     /**
@@ -84,19 +84,19 @@ class MediaFactory extends Factory
      */
     public function video(): static
     {
-        return $this->state(function (array $attributes) {
-            $extension = fake()->randomElement(['mp4', 'webm', 'mov']);
-            $fileName = fake()->word().'.'.$extension;
+        return $this->state( function ( array $attributes ) {
+            $extension = fake()->randomElement( ['mp4', 'webm', 'mov'] );
+            $fileName  = fake()->word() . '.' . $extension;
 
             return [
-                'mime_type' => fake()->randomElement(['video/mp4', 'video/webm', 'video/quicktime']),
+                'mime_type' => fake()->randomElement( ['video/mp4', 'video/webm', 'video/quicktime'] ),
                 'file_name' => $fileName,
-                'file_path' => date('Y').'/'.date('m').'/'.$fileName,
-                'width' => fake()->numberBetween(640, 1920),
-                'height' => fake()->numberBetween(480, 1080),
-                'duration' => fake()->numberBetween(10, 3600),
+                'file_path' => date( 'Y' ) . '/' . date( 'm' ) . '/' . $fileName,
+                'width'     => fake()->numberBetween( 640, 1920 ),
+                'height'    => fake()->numberBetween( 480, 1080 ),
+                'duration'  => fake()->numberBetween( 10, 3600 ),
             ];
-        });
+        } );
     }
 
     /**
@@ -106,19 +106,19 @@ class MediaFactory extends Factory
      */
     public function audio(): static
     {
-        return $this->state(function (array $attributes) {
-            $extension = fake()->randomElement(['mp3', 'wav', 'ogg']);
-            $fileName = fake()->word().'.'.$extension;
+        return $this->state( function ( array $attributes ) {
+            $extension = fake()->randomElement( ['mp3', 'wav', 'ogg'] );
+            $fileName  = fake()->word() . '.' . $extension;
 
             return [
-                'mime_type' => fake()->randomElement(['audio/mpeg', 'audio/wav', 'audio/ogg']),
+                'mime_type' => fake()->randomElement( ['audio/mpeg', 'audio/wav', 'audio/ogg'] ),
                 'file_name' => $fileName,
-                'file_path' => date('Y').'/'.date('m').'/'.$fileName,
-                'width' => null,
-                'height' => null,
-                'duration' => fake()->numberBetween(30, 600),
+                'file_path' => date( 'Y' ) . '/' . date( 'm' ) . '/' . $fileName,
+                'width'     => null,
+                'height'    => null,
+                'duration'  => fake()->numberBetween( 30, 600 ),
             ];
-        });
+        } );
     }
 
     /**
@@ -128,23 +128,23 @@ class MediaFactory extends Factory
      */
     public function document(): static
     {
-        return $this->state(function (array $attributes) {
-            $extension = fake()->randomElement(['pdf', 'doc', 'docx']);
-            $fileName = fake()->word().'.'.$extension;
+        return $this->state( function ( array $attributes ) {
+            $extension = fake()->randomElement( ['pdf', 'doc', 'docx'] );
+            $fileName  = fake()->word() . '.' . $extension;
 
             return [
-                'mime_type' => fake()->randomElement([
+                'mime_type' => fake()->randomElement( [
                     'application/pdf',
                     'application/msword',
                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                ]),
+                ] ),
                 'file_name' => $fileName,
-                'file_path' => date('Y').'/'.date('m').'/'.$fileName,
-                'width' => null,
-                'height' => null,
-                'duration' => null,
+                'file_path' => date( 'Y' ) . '/' . date( 'm' ) . '/' . $fileName,
+                'width'     => null,
+                'height'    => null,
+                'duration'  => null,
             ];
-        });
+        } );
     }
 
     /**
@@ -154,13 +154,13 @@ class MediaFactory extends Factory
      *
      * @since 1.0.0
      */
-    public function inFolder(int|MediaFolder $folder): static
+    public function inFolder( int|MediaFolder $folder ): static
     {
         $folderId = $folder instanceof MediaFolder ? $folder->id : $folder;
 
-        return $this->state(fn (array $attributes) => [
+        return $this->state( fn ( array $attributes ) => [
             'folder_id' => $folderId,
-        ]);
+        ] );
     }
 
     /**
@@ -170,11 +170,11 @@ class MediaFactory extends Factory
      *
      * @since 1.0.0
      */
-    public function uploadedBy(int|Model $user): static
+    public function uploadedBy( int|Model $user ): static
     {
         $userId = $user instanceof Model ? $user->id : $user;
 
-        return $this->state(fn (array $attributes) => [
+        return $this->state( fn ( array $attributes) => [
             'uploaded_by' => $userId,
         ]);
     }

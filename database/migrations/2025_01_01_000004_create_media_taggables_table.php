@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,8 +22,7 @@ use Illuminate\Support\Facades\Schema;
  * @since 1.0.0
  * @since 1.1.0 Added upgrade support for existing installations.
  */
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Runs the migrations.
      *
@@ -33,29 +32,39 @@ return new class extends Migration
     public function up(): void
     {
         // Check if old pivot table exists and migrate data
-        if (Schema::hasTable('media_media_tag') && ! Schema::hasTable('media_taggables')) {
+        if ( Schema::hasTable( 'media_media_tag' ) && ! Schema::hasTable( 'media_taggables' ) ) {
             $this->migrateFromOldPivotTable();
 
             return;
         }
 
         // Check if media_taggables already exists (upgrade scenario)
-        if (Schema::hasTable('media_taggables')) {
+        if ( Schema::hasTable( 'media_taggables' ) ) {
             $this->upgradeExistingTable();
 
             return;
         }
 
         // Fresh install - create the table
-        Schema::create('media_taggables', function (Blueprint $table) {
+        Schema::create( 'media_taggables', function ( Blueprint $table ): void {
             $table->id();
-            $table->foreignId('media_id')->constrained('media')->cascadeOnDelete();
-            $table->foreignId('media_tag_id')->constrained('media_tags')->cascadeOnDelete();
+            $table->foreignId( 'media_id' )->constrained( 'media' )->cascadeOnDelete();
+            $table->foreignId( 'media_tag_id' )->constrained( 'media_tags' )->cascadeOnDelete();
             $table->timestamps();
 
             // Composite unique constraint
-            $table->unique(['media_id', 'media_tag_id']);
-        });
+            $table->unique( ['media_id', 'media_tag_id'] );
+        } );
+    }
+
+    /**
+     * Reverses the migrations.
+     *
+     * @since 1.0.0
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists( 'media_taggables' );
     }
 
     /**
@@ -66,27 +75,27 @@ return new class extends Migration
     protected function migrateFromOldPivotTable(): void
     {
         // Create new table
-        Schema::create('media_taggables', function (Blueprint $table) {
+        Schema::create( 'media_taggables', function ( Blueprint $table ): void {
             $table->id();
-            $table->foreignId('media_id')->constrained('media')->cascadeOnDelete();
-            $table->foreignId('media_tag_id')->constrained('media_tags')->cascadeOnDelete();
+            $table->foreignId( 'media_id' )->constrained( 'media' )->cascadeOnDelete();
+            $table->foreignId( 'media_tag_id' )->constrained( 'media_tags' )->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['media_id', 'media_tag_id']);
-        });
+            $table->unique( ['media_id', 'media_tag_id'] );
+        } );
 
         // Migrate data from old table
         // Using CURRENT_TIMESTAMP for DB-agnostic SQL (works on SQLite/Postgres/MySQL)
-        $oldColumnName = Schema::hasColumn('media_media_tag', 'tag_id') ? 'tag_id' : 'media_tag_id';
+        $oldColumnName = Schema::hasColumn( 'media_media_tag', 'tag_id' ) ? 'tag_id' : 'media_tag_id';
 
-        DB::statement("
+        DB::statement( "
 			INSERT INTO media_taggables (media_id, media_tag_id, created_at, updated_at)
 			SELECT media_id, {$oldColumnName}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 			FROM media_media_tag
-		");
+		" );
 
         // Drop old table
-        Schema::dropIfExists('media_media_tag');
+        Schema::dropIfExists( 'media_media_tag' );
     }
 
     /**
@@ -96,31 +105,21 @@ return new class extends Migration
      */
     protected function upgradeExistingTable(): void
     {
-        Schema::table('media_taggables', function (Blueprint $table) {
+        Schema::table( 'media_taggables', function ( Blueprint $table ): void {
             // Add id column if missing
-            if (! Schema::hasColumn('media_taggables', 'id')) {
+            if ( ! Schema::hasColumn( 'media_taggables', 'id' ) ) {
                 $table->id()->first();
             }
 
             // Rename tag_id to media_tag_id if needed
-            if (Schema::hasColumn('media_taggables', 'tag_id') && ! Schema::hasColumn('media_taggables', 'media_tag_id')) {
-                $table->renameColumn('tag_id', 'media_tag_id');
+            if ( Schema::hasColumn( 'media_taggables', 'tag_id' ) && ! Schema::hasColumn( 'media_taggables', 'media_tag_id' ) ) {
+                $table->renameColumn( 'tag_id', 'media_tag_id' );
             }
 
             // Add timestamps if missing
-            if (! Schema::hasColumn('media_taggables', 'created_at')) {
+            if ( ! Schema::hasColumn( 'media_taggables', 'created_at')) {
                 $table->timestamps();
             }
         });
-    }
-
-    /**
-     * Reverses the migrations.
-     *
-     * @since 1.0.0
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('media_taggables');
     }
 };

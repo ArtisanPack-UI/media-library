@@ -22,6 +22,7 @@ class MediaResource extends JsonResource
      * @since 1.0.0
      *
      * @param Request $request The HTTP request instance.
+     *
      * @return array<string, mixed> The resource array representation.
      */
     public function toArray( Request $request ): array

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Database\Factories;
 
@@ -21,7 +21,7 @@ class MediaFolderFactory extends Factory
     /**
      * The name of the factory's corresponding model.
      *
-     * @var class-string<\ArtisanPackUI\MediaLibrary\Models\MediaFolder>
+     * @var class-string<MediaFolder>
      */
     protected $model = MediaFolder::class;
 
@@ -34,14 +34,14 @@ class MediaFolderFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->words(2, true);
+        $name = fake()->words( 2, true );
 
         return [
-            'name' => $name,
-            'slug' => Str::slug($name),
+            'name'        => $name,
+            'slug'        => Str::slug( $name ),
             'description' => fake()->sentence(),
-            'parent_id' => null,
-            'created_by' => 1, // Default to user ID 1, override with createdBy() state
+            'parent_id'   => null,
+            'created_by'  => 1, // Default to user ID 1, override with createdBy() state
         ];
     }
 
@@ -52,13 +52,13 @@ class MediaFolderFactory extends Factory
      *
      * @since 1.0.0
      */
-    public function childOf(int|MediaFolder $parent): static
+    public function childOf( int|MediaFolder $parent ): static
     {
         $parentId = $parent instanceof MediaFolder ? $parent->id : $parent;
 
-        return $this->state(fn (array $attributes) => [
+        return $this->state( fn ( array $attributes ) => [
             'parent_id' => $parentId,
-        ]);
+        ] );
     }
 
     /**
@@ -68,11 +68,11 @@ class MediaFolderFactory extends Factory
      *
      * @since 1.0.0
      */
-    public function createdBy(int|Model $user): static
+    public function createdBy( int|Model $user ): static
     {
         $userId = $user instanceof Model ? $user->id : $user;
 
-        return $this->state(fn (array $attributes) => [
+        return $this->state( fn ( array $attributes ) => [
             'created_by' => $userId,
         ]);
     }

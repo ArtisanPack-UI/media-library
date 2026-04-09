@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Database\Factories;
 
@@ -20,7 +20,7 @@ class MediaTagFactory extends Factory
     /**
      * The name of the factory's corresponding model.
      *
-     * @var class-string<\ArtisanPackUI\MediaLibrary\Models\MediaTag>
+     * @var class-string<MediaTag>
      */
     protected $model = MediaTag::class;
 
@@ -37,7 +37,7 @@ class MediaTagFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name),
+            'slug' => Str::slug( $name ),
         ];
     }
 }

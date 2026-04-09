@@ -43,8 +43,8 @@ class MediaPickerButton extends Component
         public int $loadCount = 20,
         public bool $withPicker = true,
     ) {
-        if ($this->label === '') {
-            $this->label = __('Select Media');
+        if ( '' === $this->label ) {
+            $this->label = __( 'Select Media' );
         }
     }
 
@@ -55,6 +55,6 @@ class MediaPickerButton extends Component
      */
     public function render(): View
     {
-        return view('media::components.media-picker-button');
+        return view( 'media::components.media-picker-button' );
     }
 }

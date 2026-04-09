@@ -59,8 +59,8 @@ class MediaStatistics extends Component
      */
     public function mount(): void
     {
-        $this->topItemsLimit = $this->clampTopItemsLimit($this->topItemsLimit);
-        $this->recentDays = $this->clampRecentDays($this->recentDays);
+        $this->topItemsLimit = $this->clampTopItemsLimit( $this->topItemsLimit );
+        $this->recentDays    = $this->clampRecentDays( $this->recentDays );
     }
 
     /**
@@ -68,9 +68,9 @@ class MediaStatistics extends Component
      *
      * @since 1.1.0
      */
-    public function updatedTopItemsLimit(mixed $value): void
+    public function updatedTopItemsLimit( mixed $value ): void
     {
-        $this->topItemsLimit = $this->clampTopItemsLimit($value);
+        $this->topItemsLimit = $this->clampTopItemsLimit( $value );
     }
 
     /**
@@ -78,39 +78,9 @@ class MediaStatistics extends Component
      *
      * @since 1.1.0
      */
-    public function updatedRecentDays(mixed $value): void
+    public function updatedRecentDays( mixed $value ): void
     {
-        $this->recentDays = $this->clampRecentDays($value);
-    }
-
-    /**
-     * Clamp topItemsLimit to a safe range (1-100).
-     *
-     * @since 1.1.0
-     *
-     * @param  mixed  $value  The value to clamp.
-     * @return int The clamped value.
-     */
-    protected function clampTopItemsLimit(mixed $value): int
-    {
-        $intValue = (int) $value;
-
-        return max(1, min(100, $intValue));
-    }
-
-    /**
-     * Clamp recentDays to a safe range (1-365).
-     *
-     * @since 1.1.0
-     *
-     * @param  mixed  $value  The value to clamp.
-     * @return int The clamped value.
-     */
-    protected function clampRecentDays(mixed $value): int
-    {
-        $intValue = (int) $value;
-
-        return max(1, min(365, $intValue));
+        $this->recentDays = $this->clampRecentDays( $value );
     }
 
     /**
@@ -136,7 +106,7 @@ class MediaStatistics extends Component
     #[Computed]
     public function totalStorageBytes(): int
     {
-        return (int) Media::sum('file_size');
+        return (int) Media::sum( 'file_size' );
     }
 
     /**
@@ -149,7 +119,7 @@ class MediaStatistics extends Component
     #[Computed]
     public function totalStorageFormatted(): string
     {
-        return $this->formatBytes($this->totalStorageBytes);
+        return $this->formatBytes( $this->totalStorageBytes );
     }
 
     /**
@@ -163,9 +133,9 @@ class MediaStatistics extends Component
     public function mediaByType(): array
     {
         return [
-            'images' => Media::images()->count(),
-            'videos' => Media::videos()->count(),
-            'audio' => Media::audios()->count(),
+            'images'    => Media::images()->count(),
+            'videos'    => Media::videos()->count(),
+            'audio'     => Media::audios()->count(),
             'documents' => Media::documents()->count(),
         ];
     }
@@ -180,27 +150,27 @@ class MediaStatistics extends Component
     #[Computed]
     public function storageByType(): array
     {
-        $imageBytes = (int) Media::images()->sum('file_size');
-        $videoBytes = (int) Media::videos()->sum('file_size');
-        $audioBytes = (int) Media::audios()->sum('file_size');
-        $documentBytes = (int) Media::documents()->sum('file_size');
+        $imageBytes    = (int) Media::images()->sum( 'file_size' );
+        $videoBytes    = (int) Media::videos()->sum( 'file_size' );
+        $audioBytes    = (int) Media::audios()->sum( 'file_size' );
+        $documentBytes = (int) Media::documents()->sum( 'file_size' );
 
         return [
             'images' => [
-                'bytes' => $imageBytes,
-                'formatted' => $this->formatBytes($imageBytes),
+                'bytes'     => $imageBytes,
+                'formatted' => $this->formatBytes( $imageBytes ),
             ],
             'videos' => [
-                'bytes' => $videoBytes,
-                'formatted' => $this->formatBytes($videoBytes),
+                'bytes'     => $videoBytes,
+                'formatted' => $this->formatBytes( $videoBytes ),
             ],
             'audio' => [
-                'bytes' => $audioBytes,
-                'formatted' => $this->formatBytes($audioBytes),
+                'bytes'     => $audioBytes,
+                'formatted' => $this->formatBytes( $audioBytes ),
             ],
             'documents' => [
-                'bytes' => $documentBytes,
-                'formatted' => $this->formatBytes($documentBytes),
+                'bytes'     => $documentBytes,
+                'formatted' => $this->formatBytes( $documentBytes ),
             ],
         ];
     }
@@ -215,9 +185,9 @@ class MediaStatistics extends Component
     #[Computed]
     public function recentUploadsCount(): int
     {
-        $days = $this->clampRecentDays($this->recentDays);
+        $days = $this->clampRecentDays( $this->recentDays );
 
-        return Media::where('created_at', '>=', Carbon::now()->subDays($days))->count();
+        return Media::where( 'created_at', '>=', Carbon::now()->subDays( $days ) )->count();
     }
 
     /**
@@ -230,22 +200,22 @@ class MediaStatistics extends Component
     #[Computed]
     public function dailyUploadCounts(): array
     {
-        $days = $this->clampRecentDays($this->recentDays);
-        $startDate = Carbon::now()->subDays($days - 1)->startOfDay();
+        $days      = $this->clampRecentDays( $this->recentDays );
+        $startDate = Carbon::now()->subDays( $days - 1 )->startOfDay();
 
         $uploads = Media::query()
-            ->where('created_at', '>=', $startDate)
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('count', 'date')
+            ->where( 'created_at', '>=', $startDate )
+            ->select( DB::raw( 'DATE(created_at) as date' ), DB::raw( 'COUNT(*) as count' ) )
+            ->groupBy( 'date' )
+            ->orderBy( 'date' )
+            ->pluck( 'count', 'date' )
             ->toArray();
 
         // Fill in missing days with zeros
         $counts = [];
-        for ($i = 0; $i < $days; $i++) {
-            $date = $startDate->copy()->addDays($i)->format('Y-m-d');
-            $counts[] = $uploads[$date] ?? 0;
+        for ( $i = 0; $i < $days; $i++ ) {
+            $date     = $startDate->copy()->addDays( $i )->format( 'Y-m-d' );
+            $counts[] = $uploads[ $date ] ?? 0;
         }
 
         return $counts;
@@ -261,12 +231,12 @@ class MediaStatistics extends Component
     #[Computed]
     public function topFolders(): Collection
     {
-        $limit = $this->clampTopItemsLimit($this->topItemsLimit);
+        $limit = $this->clampTopItemsLimit( $this->topItemsLimit );
 
         return MediaFolder::query()
-            ->withCount('media')
-            ->orderByDesc('media_count')
-            ->limit($limit)
+            ->withCount( 'media' )
+            ->orderByDesc( 'media_count' )
+            ->limit( $limit )
             ->get();
     }
 
@@ -280,12 +250,12 @@ class MediaStatistics extends Component
     #[Computed]
     public function topTags(): Collection
     {
-        $limit = $this->clampTopItemsLimit($this->topItemsLimit);
+        $limit = $this->clampTopItemsLimit( $this->topItemsLimit );
 
         return MediaTag::query()
-            ->withCount('media')
-            ->orderByDesc('media_count')
-            ->limit($limit)
+            ->withCount( 'media' )
+            ->orderByDesc( 'media_count' )
+            ->limit( $limit )
             ->get();
     }
 
@@ -325,9 +295,9 @@ class MediaStatistics extends Component
     #[Computed]
     public function averageFileSize(): string
     {
-        $avg = (int) Media::avg('file_size');
+        $avg = (int) Media::avg( 'file_size' );
 
-        return $this->formatBytes($avg);
+        return $this->formatBytes( $avg );
     }
 
     /**
@@ -341,31 +311,8 @@ class MediaStatistics extends Component
     public function largestFile(): ?Media
     {
         return Media::query()
-            ->orderByDesc('file_size')
+            ->orderByDesc( 'file_size' )
             ->first();
-    }
-
-    /**
-     * Format bytes to human-readable string.
-     *
-     * @since 1.1.0
-     *
-     * @param  int  $bytes  The number of bytes.
-     * @return string The formatted size string.
-     */
-    protected function formatBytes(int $bytes): string
-    {
-        if ($bytes === 0) {
-            return '0 B';
-        }
-
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-        for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
-            $bytes /= 1024;
-        }
-
-        return round($bytes, 2).' '.$units[$i];
     }
 
     /**
@@ -377,6 +324,62 @@ class MediaStatistics extends Component
      */
     public function render(): View
     {
-        return view('media::livewire.components.media-statistics');
+        return view( 'media::livewire.components.media-statistics' );
+    }
+
+    /**
+     * Clamp topItemsLimit to a safe range (1-100).
+     *
+     * @since 1.1.0
+     *
+     * @param  mixed  $value  The value to clamp.
+     *
+     * @return int The clamped value.
+     */
+    protected function clampTopItemsLimit( mixed $value ): int
+    {
+        $intValue = (int) $value;
+
+        return max( 1, min( 100, $intValue ) );
+    }
+
+    /**
+     * Clamp recentDays to a safe range (1-365).
+     *
+     * @since 1.1.0
+     *
+     * @param  mixed  $value  The value to clamp.
+     *
+     * @return int The clamped value.
+     */
+    protected function clampRecentDays( mixed $value ): int
+    {
+        $intValue = (int) $value;
+
+        return max( 1, min( 365, $intValue ) );
+    }
+
+    /**
+     * Format bytes to human-readable string.
+     *
+     * @since 1.1.0
+     *
+     * @param  int  $bytes  The number of bytes.
+     *
+     * @return string The formatted size string.
+     */
+    protected function formatBytes( int $bytes ): string
+    {
+        if ( 0 === $bytes ) {
+            return '0 B';
+        }
+
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        for ( $i = 0; $bytes >= 1024 && $i < count( $units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round( $bytes, 2) . ' ' . $units[ $i ];
     }
 }

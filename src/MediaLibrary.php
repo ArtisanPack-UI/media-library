@@ -11,4 +11,6 @@ namespace ArtisanPackUI\MediaLibrary;
  *
  * @package ArtisanPackUI\MediaLibrary
  */
-class MediaLibrary {}
+class MediaLibrary
+{
+}

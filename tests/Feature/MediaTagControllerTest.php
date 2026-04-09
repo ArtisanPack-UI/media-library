@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature;
 
@@ -35,14 +35,14 @@ class MediaTagControllerTest extends TestCase
 
         $this->user = User::factory()->create();
 
-        Storage::fake('test-disk');
+        Storage::fake( 'test-disk' );
 
-        config([
-            'artisanpack.media.disk' => 'test-disk',
+        config( [
+            'artisanpack.media.disk'       => 'test-disk',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     /**
@@ -50,14 +50,14 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_index_returns_all_tags(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        MediaTag::factory()->count(3)->create();
+        MediaTag::factory()->count( 3 )->create();
 
-        $response = $this->getJson('/api/media/tags');
+        $response = $this->getJson( '/api/media/tags' );
 
         $response->assertOk()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount( 3, 'data' );
     }
 
     /**
@@ -65,16 +65,16 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_index_returns_tags_with_media_count(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->count(2)->create();
-        $tag->media()->attach($media->pluck('id'));
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->count( 2 )->create();
+        $tag->media()->attach( $media->pluck( 'id' ) );
 
-        $response = $this->getJson('/api/media/tags');
+        $response = $this->getJson( '/api/media/tags' );
 
         $response->assertOk()
-            ->assertJsonPath('data.0.media_count', 2);
+            ->assertJsonPath( 'data.0.media_count', 2 );
     }
 
     /**
@@ -82,21 +82,21 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_store_creates_new_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $response = $this->postJson('/api/media/tags', [
-            'name' => 'Test Tag',
+        $response = $this->postJson( '/api/media/tags', [
+            'name'        => 'Test Tag',
             'description' => 'A test tag',
-        ]);
+        ] );
 
         $response->assertCreated()
-            ->assertJsonPath('data.name', 'Test Tag')
-            ->assertJsonPath('message', 'Tag created successfully');
+            ->assertJsonPath( 'data.name', 'Test Tag' )
+            ->assertJsonPath( 'message', 'Tag created successfully' );
 
-        $this->assertDatabaseHas('media_tags', [
+        $this->assertDatabaseHas( 'media_tags', [
             'name' => 'Test Tag',
             'slug' => 'test-tag',
-        ]);
+        ] );
     }
 
     /**
@@ -104,12 +104,12 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_store_validates_required_name(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $response = $this->postJson('/api/media/tags', []);
+        $response = $this->postJson( '/api/media/tags', [] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name']);
+            ->assertJsonValidationErrors( ['name'] );
     }
 
     /**
@@ -117,15 +117,15 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_show_returns_single_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->getJson('/api/media/tags/'.$tag->id);
+        $response = $this->getJson( '/api/media/tags/' . $tag->id );
 
         $response->assertOk()
-            ->assertJsonPath('data.id', $tag->id)
-            ->assertJsonPath('data.name', $tag->name);
+            ->assertJsonPath( 'data.id', $tag->id )
+            ->assertJsonPath( 'data.name', $tag->name );
     }
 
     /**
@@ -133,9 +133,9 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_show_returns_404_for_non_existent_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $response = $this->getJson('/api/media/tags/99999');
+        $response = $this->getJson( '/api/media/tags/99999' );
 
         $response->assertNotFound();
     }
@@ -145,23 +145,23 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_update_modifies_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create([
+        $tag = MediaTag::factory()->create( [
             'name' => 'Original Name',
-        ]);
+        ] );
 
-        $response = $this->putJson('/api/media/tags/'.$tag->id, [
-            'name' => 'Updated Name',
+        $response = $this->putJson( '/api/media/tags/' . $tag->id, [
+            'name'        => 'Updated Name',
             'description' => 'Updated description',
-        ]);
+        ] );
 
         $response->assertOk()
-            ->assertJsonPath('data.name', 'Updated Name')
-            ->assertJsonPath('message', 'Tag updated successfully');
+            ->assertJsonPath( 'data.name', 'Updated Name' )
+            ->assertJsonPath( 'message', 'Tag updated successfully' );
 
         $tag->refresh();
-        expect($tag->name)->toBe('Updated Name');
+        expect( $tag->name )->toBe( 'Updated Name' );
     }
 
     /**
@@ -169,15 +169,15 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_destroy_deletes_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->deleteJson('/api/media/tags/'.$tag->id);
+        $response = $this->deleteJson( '/api/media/tags/' . $tag->id );
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('media_tags', ['id' => $tag->id]);
+        $this->assertDatabaseMissing( 'media_tags', ['id' => $tag->id] );
     }
 
     /**
@@ -185,18 +185,18 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_destroy_detaches_media_before_deleting(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->create();
-        $tag->media()->attach($media->id);
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
+        $tag->media()->attach( $media->id );
 
-        $response = $this->deleteJson('/api/media/tags/'.$tag->id);
+        $response = $this->deleteJson( '/api/media/tags/' . $tag->id );
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('media_tags', ['id' => $tag->id]);
-        $this->assertDatabaseMissing('media_taggables', ['media_tag_id' => $tag->id]);
+        $this->assertDatabaseMissing( 'media_tags', ['id' => $tag->id] );
+        $this->assertDatabaseMissing( 'media_taggables', ['media_tag_id' => $tag->id] );
     }
 
     /**
@@ -204,19 +204,19 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_attach_tag_to_media(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->count(2)->create();
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->count( 2 )->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/attach', [
-            'media_ids' => $media->pluck('id')->toArray(),
-        ]);
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/attach', [
+            'media_ids' => $media->pluck( 'id' )->toArray(),
+        ] );
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Tag attached to media successfully');
+            ->assertJsonPath( 'message', 'Tag attached to media successfully' );
 
-        expect($tag->media()->count())->toBe(2);
+        expect( $tag->media()->count() )->toBe( 2 );
     }
 
     /**
@@ -224,19 +224,19 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_attach_handles_already_attached_media(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->create();
-        $tag->media()->attach($media->id);
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
+        $tag->media()->attach( $media->id );
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/attach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/attach', [
             'media_ids' => [$media->id],
-        ]);
+        ] );
 
         $response->assertOk();
 
-        expect($tag->media()->count())->toBe(1);
+        expect( $tag->media()->count() )->toBe( 1 );
     }
 
     /**
@@ -244,14 +244,14 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_attach_validates_media_ids_required(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/attach', []);
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/attach', [] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['media_ids']);
+            ->assertJsonValidationErrors( ['media_ids'] );
     }
 
     /**
@@ -259,16 +259,16 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_attach_validates_media_ids_are_array(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/attach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/attach', [
             'media_ids' => 'not-an-array',
-        ]);
+        ] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['media_ids']);
+            ->assertJsonValidationErrors( ['media_ids'] );
     }
 
     /**
@@ -276,16 +276,16 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_attach_validates_media_exists(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/attach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/attach', [
             'media_ids' => [99999],
-        ]);
+        ] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['media_ids.0']);
+            ->assertJsonValidationErrors( ['media_ids.0'] );
     }
 
     /**
@@ -293,20 +293,20 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_tag_from_media(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->count(2)->create();
-        $tag->media()->attach($media->pluck('id'));
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->count( 2 )->create();
+        $tag->media()->attach( $media->pluck( 'id' ) );
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/detach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/detach', [
             'media_ids' => [$media[0]->id],
-        ]);
+        ] );
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Tag detached from media successfully');
+            ->assertJsonPath( 'message', 'Tag detached from media successfully' );
 
-        expect($tag->media()->count())->toBe(1);
+        expect( $tag->media()->count() )->toBe( 1 );
     }
 
     /**
@@ -314,14 +314,14 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_handles_not_attached_media(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/detach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/detach', [
             'media_ids' => [$media->id],
-        ]);
+        ] );
 
         $response->assertOk();
     }
@@ -331,14 +331,14 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_validates_media_ids_required(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/detach', []);
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/detach', [] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['media_ids']);
+            ->assertJsonValidationErrors( ['media_ids'] );
     }
 
     /**
@@ -346,16 +346,16 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_validates_media_ids_are_array(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/detach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/detach', [
             'media_ids' => 'not-an-array',
-        ]);
+        ] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['media_ids']);
+            ->assertJsonValidationErrors( ['media_ids'] );
     }
 
     /**
@@ -363,16 +363,16 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_validates_media_exists(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
         $tag = MediaTag::factory()->create();
 
-        $response = $this->postJson('/api/media/tags/'.$tag->id.'/detach', [
+        $response = $this->postJson( '/api/media/tags/' . $tag->id . '/detach', [
             'media_ids' => [99999],
-        ]);
+        ] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['media_ids.0']);
+            ->assertJsonValidationErrors( ['media_ids.0'] );
     }
 
     /**
@@ -380,7 +380,7 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_unauthorized_requests_are_rejected(): void
     {
-        $response = $this->getJson('/api/media/tags');
+        $response = $this->getJson( '/api/media/tags' );
 
         $response->assertUnauthorized();
     }
@@ -390,19 +390,19 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_store_validates_unique_name(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        MediaTag::factory()->create([
+        MediaTag::factory()->create( [
             'name' => 'Test Tag',
             'slug' => 'test-tag',
-        ]);
+        ] );
 
-        $response = $this->postJson('/api/media/tags', [
+        $response = $this->postJson( '/api/media/tags', [
             'name' => 'Test Tag',
-        ]);
+        ] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name']);
+            ->assertJsonValidationErrors( ['name'] );
     }
 
     /**
@@ -410,24 +410,24 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_update_validates_unique_name_when_changing(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        MediaTag::factory()->create([
+        MediaTag::factory()->create( [
             'name' => 'Existing Tag',
             'slug' => 'existing-tag',
-        ]);
+        ] );
 
-        $tag = MediaTag::factory()->create([
+        $tag = MediaTag::factory()->create( [
             'name' => 'Original Tag',
             'slug' => 'original-tag',
-        ]);
+        ] );
 
-        $response = $this->putJson('/api/media/tags/'.$tag->id, [
+        $response = $this->putJson( '/api/media/tags/' . $tag->id, [
             'name' => 'Existing Tag',
-        ]);
+        ] );
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name']);
+            ->assertJsonValidationErrors( ['name'] );
     }
 
     /**
@@ -435,13 +435,13 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_attach_returns_404_for_non_existent_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $response = $this->postJson('/api/media/tags/99999/attach', [
+        $response = $this->postJson( '/api/media/tags/99999/attach', [
             'media_ids' => [$media->id],
-        ]);
+        ] );
 
         $response->assertNotFound();
     }
@@ -451,11 +451,11 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_returns_404_for_non_existent_tag(): void
     {
-        Sanctum::actingAs($this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*']);
 
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user)->create();
 
-        $response = $this->postJson('/api/media/tags/99999/detach', [
+        $response = $this->postJson( '/api/media/tags/99999/detach', [
             'media_ids' => [$media->id],
         ]);
 

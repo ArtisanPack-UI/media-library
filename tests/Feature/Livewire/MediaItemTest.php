@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature\Livewire;
 
@@ -28,16 +28,16 @@ class MediaItemTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
+        Storage::fake( 'public' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'public',
+        config( [
+            'artisanpack.media.disk'       => 'public',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     /**
@@ -45,11 +45,11 @@ class MediaItemTest extends TestCase
      */
     public function test_component_renders(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -57,12 +57,12 @@ class MediaItemTest extends TestCase
      */
     public function test_component_loads_media_on_mount(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create(['title' => 'Test Media']);
+        $media = Media::factory()->uploadedBy( $this->user )->create( ['title' => 'Test Media'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] );
 
-        expect($component->get('media')->title)->toBe('Test Media');
+        expect( $component->get( 'media' )->title )->toBe( 'Test Media' );
     }
 
     /**
@@ -70,11 +70,11 @@ class MediaItemTest extends TestCase
      */
     public function test_default_selected_state_is_false(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertSet('selected', false);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertSet( 'selected', false );
     }
 
     /**
@@ -82,11 +82,11 @@ class MediaItemTest extends TestCase
      */
     public function test_can_mount_with_selected_state_true(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media, 'selected' => true])
-            ->assertSet('selected', true);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media, 'selected' => true] )
+            ->assertSet( 'selected', true );
     }
 
     /**
@@ -94,11 +94,11 @@ class MediaItemTest extends TestCase
      */
     public function test_default_bulk_select_mode_is_false(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertSet('bulkSelectMode', false);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertSet( 'bulkSelectMode', false );
     }
 
     /**
@@ -106,11 +106,11 @@ class MediaItemTest extends TestCase
      */
     public function test_can_enable_bulk_select_mode(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media, 'bulkSelectMode' => true])
-            ->assertSet('bulkSelectMode', true);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media, 'bulkSelectMode' => true] )
+            ->assertSet( 'bulkSelectMode', true );
     }
 
     /**
@@ -118,15 +118,15 @@ class MediaItemTest extends TestCase
      */
     public function test_toggle_select_changes_state(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertSet('selected', false)
-            ->call('toggleSelect')
-            ->assertSet('selected', true)
-            ->call('toggleSelect')
-            ->assertSet('selected', false);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertSet( 'selected', false )
+            ->call( 'toggleSelect' )
+            ->assertSet( 'selected', true )
+            ->call( 'toggleSelect' )
+            ->assertSet( 'selected', false );
     }
 
     /**
@@ -134,12 +134,12 @@ class MediaItemTest extends TestCase
      */
     public function test_toggle_select_dispatches_event(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->call('toggleSelect')
-            ->assertDispatched('media-selected', mediaId: $media->id, selected: true);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->call( 'toggleSelect' )
+            ->assertDispatched( 'media-selected', mediaId: $media->id, selected: true );
     }
 
     /**
@@ -147,12 +147,12 @@ class MediaItemTest extends TestCase
      */
     public function test_toggle_select_dispatches_deselect_event(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media, 'selected' => true])
-            ->call('toggleSelect')
-            ->assertDispatched('media-selected', mediaId: $media->id, selected: false);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media, 'selected' => true] )
+            ->call( 'toggleSelect' )
+            ->assertDispatched( 'media-selected', mediaId: $media->id, selected: false );
     }
 
     /**
@@ -160,15 +160,15 @@ class MediaItemTest extends TestCase
      */
     public function test_delete_removes_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media   = Media::factory()->uploadedBy( $this->user )->create();
         $mediaId = $media->id;
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->call('delete')
-            ->assertDispatched('media-updated');
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->call( 'delete' )
+            ->assertDispatched( 'media-updated' );
 
-        $this->assertSoftDeleted('media', ['id' => $mediaId]);
+        $this->assertSoftDeleted( 'media', ['id' => $mediaId] );
     }
 
     /**
@@ -183,21 +183,21 @@ class MediaItemTest extends TestCase
      */
     public function test_delete_method_exists(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media   = Media::factory()->uploadedBy( $this->user )->create();
         $mediaId = $media->id;
 
         // Verify the component has the delete method and it dispatches the event
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] );
 
         // The component should have the delete method
-        expect(method_exists($component->instance(), 'delete'))->toBeTrue();
+        expect( method_exists( $component->instance(), 'delete' ) )->toBeTrue();
 
         // When called with proper authorization (setUp allows all), it should work
-        $component->call('delete')
-            ->assertDispatched('media-updated');
+        $component->call( 'delete' )
+            ->assertDispatched( 'media-updated' );
 
-        $this->assertSoftDeleted('media', ['id' => $mediaId]);
+        $this->assertSoftDeleted( 'media', ['id' => $mediaId] );
     }
 
     /**
@@ -205,12 +205,12 @@ class MediaItemTest extends TestCase
      */
     public function test_copy_url_dispatches_event(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->call('copyUrl')
-            ->assertDispatched('copy-to-clipboard');
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->call( 'copyUrl' )
+            ->assertDispatched( 'copy-to-clipboard' );
     }
 
     /**
@@ -218,12 +218,12 @@ class MediaItemTest extends TestCase
      */
     public function test_download_dispatches_event(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create(['file_name' => 'test-file.jpg']);
+        $media = Media::factory()->uploadedBy( $this->user )->create( ['file_name' => 'test-file.jpg'] );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->call('download')
-            ->assertDispatched('download-file', filename: 'test-file.jpg');
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->call( 'download' )
+            ->assertDispatched( 'download-file', filename: 'test-file.jpg' );
     }
 
     /**
@@ -231,11 +231,11 @@ class MediaItemTest extends TestCase
      */
     public function test_component_displays_image_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -243,11 +243,11 @@ class MediaItemTest extends TestCase
      */
     public function test_component_displays_video_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -255,11 +255,11 @@ class MediaItemTest extends TestCase
      */
     public function test_component_displays_audio_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->audio()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->audio()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -267,10 +267,10 @@ class MediaItemTest extends TestCase
      */
     public function test_component_displays_document_media(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->document()->create();
+        $media = Media::factory()->uploadedBy( $this->user)->document()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaItem::class, ['media' => $media])
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user)
+            ->test( MediaItem::class, ['media' => $media])
+            ->assertStatus( 200);
     }
 }
