@@ -47,7 +47,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    name: Test
+    name: Test (Livewire ${{ matrix.livewire }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        livewire: ['3.6', '4.0']
 
     steps:
       - uses: actions/checkout@v4
@@ -67,11 +72,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+          key: ${{ runner.os }}-composer-lw${{ matrix.livewire }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-lw${{ matrix.livewire }}-
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
+
+      - name: Install Livewire ${{ matrix.livewire }}
+        run: composer require livewire/livewire:"^${{ matrix.livewire }}" -W --no-interaction
 
       - name: Run Unit tests
         env:
