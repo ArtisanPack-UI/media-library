@@ -144,7 +144,11 @@ async function handleDelete() {
     error.value  = null;
 
     try {
-        await deleteFolder( deleting.value.id );
+        const deletedId = deleting.value.id;
+        await deleteFolder( deletedId );
+        if ( props.selectedFolderId === deletedId ) {
+            emit( 'folderSelect', null );
+        }
         deleting.value          = null;
         showDeleteConfirm.value = false;
         await loadFolders();
@@ -183,26 +187,25 @@ const parentOptions = computed( () => [
 
         <Alert v-if="error" color="error" class="mb-3">{{ error }}</Alert>
 
-        <!-- All media option -->
-        <div
-            role="treeitem"
-            :aria-selected="selectedFolderId === null"
-            :class="cn(
-                'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-base-200',
-                selectedFolderId === null && 'bg-primary/10 text-primary',
-            )"
-            tabindex="0"
-            @click="handleSelect( null )"
-            @keydown.enter="handleSelect( null )"
-        >
-            <svg class="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-            </svg>
-            <span class="flex-1 text-sm">All Media</span>
-        </div>
-
-        <!-- Folder tree -->
+        <!-- Folder tree (includes All Media as first item) -->
         <div class="mt-1" role="tree" aria-label="Folder tree">
+            <div
+                role="treeitem"
+                :aria-selected="selectedFolderId === null"
+                :class="cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-base-200',
+                    selectedFolderId === null && 'bg-primary/10 text-primary',
+                )"
+                tabindex="0"
+                @click="handleSelect( null )"
+                @keydown.enter="handleSelect( null )"
+            >
+                <svg class="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                </svg>
+                <span class="flex-1 text-sm">All Media</span>
+            </div>
+
             <template v-for="folder in folders.filter( ( f ) => ! f.parent_id )" :key="folder.id">
                 <FolderNode
                     :folder="folder"

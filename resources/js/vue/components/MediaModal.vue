@@ -66,9 +66,21 @@ watch( open, ( isOpen ) => {
     }
 } );
 
+function flattenFolders( items: MediaFolder[], depth = 0 ): Array<{ id: string; name: string }> {
+    const result: Array<{ id: string; name: string }> = [];
+    for ( const folder of items ) {
+        const prefix = depth > 0 ? '\u2003'.repeat( depth ) + '\u2014 ' : '';
+        result.push( { id: String( folder.id ), name: `${ prefix }${ folder.name }` } );
+        if ( folder.children && folder.children.length > 0 ) {
+            result.push( ...flattenFolders( folder.children, depth + 1 ) );
+        }
+    }
+    return result;
+}
+
 const folderOptions = computed( () => [
     { id: '', name: 'All Folders' },
-    ...folders.value.map( ( f ) => ( { id: String( f.id ), name: f.name } ) ),
+    ...flattenFolders( folders.value ),
 ] );
 
 const typeFilterOptions = [

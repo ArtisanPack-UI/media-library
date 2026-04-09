@@ -76,10 +76,10 @@ async function handleSave() {
 
     try {
         const payload: MediaUpdatePayload = {
-            title:       form.title || undefined,
-            alt_text:    form.alt_text || undefined,
-            caption:     form.caption || undefined,
-            description: form.description || undefined,
+            title:       form.title,
+            alt_text:    form.alt_text,
+            caption:     form.caption,
+            description: form.description,
             folder_id:   form.folder_id,
             tags:        selectedTagIds.value,
         };
@@ -184,6 +184,7 @@ const folderOptions = () => [
                                 v-for="tag in tags"
                                 :key="tag.id"
                                 type="button"
+                                :aria-pressed="selectedTagIds.includes( tag.id )"
                                 @click="toggleTag( tag.id )"
                             >
                                 <Badge

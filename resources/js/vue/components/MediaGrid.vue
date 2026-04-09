@@ -8,6 +8,7 @@
 -->
 
 <script setup lang="ts">
+import { watch } from 'vue';
 import { Grid, Pagination, EmptyState, Loading } from '@artisanpack-ui/vue';
 
 import type { Media, PaginationMeta } from '../types/media';
@@ -37,7 +38,13 @@ const emit = defineEmits<{
     pageChange: [page: number];
 }>();
 
-const currentPage = defineModel<number>( 'currentPage', { default: 1 } );
+const currentPage = defineModel<number>( 'currentPage', { default: props.pagination?.current_page ?? 1 } );
+
+watch( () => props.pagination?.current_page, ( newPage ) => {
+    if ( newPage !== undefined && newPage !== currentPage.value ) {
+        currentPage.value = newPage;
+    }
+} );
 
 function handlePageChange( page: number ) {
     currentPage.value = page;

@@ -227,7 +227,7 @@ function handleTagChange( value: string | number ) {
 
         <!-- Upload panel -->
         <Card v-if="showUploadPanel">
-            <MediaUpload auto-upload @upload-complete="lib.refresh()" />
+            <MediaUpload auto-upload @queue-complete="lib.refresh()" />
         </Card>
 
         <!-- Media grid -->

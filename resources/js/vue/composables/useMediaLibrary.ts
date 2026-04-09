@@ -103,7 +103,7 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ) {
     }
 
     // Refetch when filters change after the initial load
-    let initialised = false;
+    let initialised = autoFetch;
     watch(
         () => ( { ...filters } ),
         () => {
@@ -116,29 +116,34 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ) {
     );
 
     function setSearch( search: string ) {
-        filters.search = search || undefined;
-        filters.page   = 1;
+        filters.search    = search || undefined;
+        filters.page      = 1;
+        selectedIds.value = new Set();
     }
 
     function setFolderId( folderId: number | undefined ) {
         filters.folder_id = folderId;
         filters.page      = 1;
+        selectedIds.value = new Set();
     }
 
     function setType( type: MediaType | undefined ) {
-        filters.type = type;
-        filters.page = 1;
+        filters.type      = type;
+        filters.page      = 1;
+        selectedIds.value = new Set();
     }
 
     function setTag( tag: string | undefined ) {
-        filters.tag  = tag;
-        filters.page = 1;
+        filters.tag       = tag;
+        filters.page      = 1;
+        selectedIds.value = new Set();
     }
 
     function setSort( field: MediaSortField, direction?: SortDirection ) {
         filters.sort_by    = field;
         filters.sort_order = direction ?? ( filters.sort_by === field && filters.sort_order === 'asc' ? 'desc' : 'asc' );
         filters.page       = 1;
+        selectedIds.value  = new Set();
     }
 
     function goToPage( page: number ) {
@@ -209,11 +214,15 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ) {
             }
             selectedIds.value = remaining;
 
-            if ( failedIds.length > 0 ) {
-                error.value = `Failed to delete ${ failedIds.length } item(s)`;
-            }
+            const deleteError = failedIds.length > 0
+                ? `Failed to delete ${ failedIds.length } item(s)`
+                : null;
 
             await loadMedia();
+
+            if ( deleteError ) {
+                error.value = deleteError;
+            }
         } catch ( err ) {
             error.value = err instanceof Error ? err.message : 'Failed to delete media';
         } finally {

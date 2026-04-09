@@ -79,6 +79,7 @@ class VueComponentsTest extends TestCase
             'MediaItem.vue',
             'MediaEdit.vue',
             'FolderManager.vue',
+            'FolderNode.vue',
             'TagManager.vue',
             'MediaStatistics.vue',
         ];

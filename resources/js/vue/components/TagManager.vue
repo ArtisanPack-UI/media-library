@@ -143,12 +143,12 @@ async function handleDelete() {
 
         <!-- Tag list -->
         <div class="flex flex-wrap gap-2">
-            <button type="button" @click="emit( 'tagSelect', null )">
+            <button type="button" :aria-pressed="selectedTag === null" @click="emit( 'tagSelect', null )">
                 <Badge value="All" :color="selectedTag === null ? 'primary' : 'neutral'" />
             </button>
 
             <div v-for="tag in tags" :key="tag.id" class="group relative inline-flex" tabindex="0">
-                <button type="button" @click="emit( 'tagSelect', tag.slug )">
+                <button type="button" :aria-pressed="selectedTag === tag.slug" @click="emit( 'tagSelect', tag.slug )">
                     <Badge
                         :value="`${ tag.name }${ tag.media_count !== undefined ? ` (${ tag.media_count })` : '' }`"
                         :color="selectedTag === tag.slug ? 'primary' : 'neutral'"

@@ -91,18 +91,25 @@ onMounted( async () => {
             byType[type].sizeFormatted = formatBytes( byType[type].size );
         }
 
-        const cutoff        = new Date();
-        cutoff.setDate( cutoff.getDate() - props.recentDays );
-        const recentUploads = allMedia.filter( ( m ) => m.created_at && new Date( m.created_at ) >= cutoff ).length;
+        let recentUploads = 0;
+        let dailyUploads: number[] = [];
 
-        const dailyUploads: number[] = [];
-        for ( let d = props.recentDays - 1; d >= 0; d-- ) {
-            const dayStart = new Date();
-            dayStart.setDate( dayStart.getDate() - d );
-            dayStart.setHours( 0, 0, 0, 0 );
-            const dayEnd = new Date( dayStart );
-            dayEnd.setDate( dayEnd.getDate() + 1 );
-            dailyUploads.push( allMedia.filter( ( m ) => m.created_at && new Date( m.created_at ) >= dayStart && new Date( m.created_at ) < dayEnd ).length );
+        if ( detailsUnavailable ) {
+            recentUploads = 0;
+            dailyUploads  = [];
+        } else {
+            const cutoff = new Date();
+            cutoff.setDate( cutoff.getDate() - props.recentDays );
+            recentUploads = allMedia.filter( ( m ) => m.created_at && new Date( m.created_at ) >= cutoff ).length;
+
+            for ( let d = props.recentDays - 1; d >= 0; d-- ) {
+                const dayStart = new Date();
+                dayStart.setDate( dayStart.getDate() - d );
+                dayStart.setHours( 0, 0, 0, 0 );
+                const dayEnd = new Date( dayStart );
+                dayEnd.setDate( dayEnd.getDate() + 1 );
+                dailyUploads.push( allMedia.filter( ( m ) => m.created_at && new Date( m.created_at ) >= dayStart && new Date( m.created_at ) < dayEnd ).length );
+            }
         }
 
         stats.value = {

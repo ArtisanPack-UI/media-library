@@ -120,6 +120,10 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
     }
 
     async function startUpload() {
+        if ( isUploading.value ) {
+            return;
+        }
+
         const pendingItems = queue.value.filter( ( item ) => item.status === 'pending' );
         if ( pendingItems.length === 0 ) {
             return;
