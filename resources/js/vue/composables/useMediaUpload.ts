@@ -106,14 +106,20 @@ export function useMediaUpload( options: UseMediaUploadOptions = {} ) {
 
         // Check MIME type (values are arrays of MIME strings grouped by category)
         const allowedMimes = Object.values( config.value.upload.allowed_mime_types ).flat();
-        if ( allowedMimes.length > 0 && ! allowedMimes.includes( file.type ) ) {
-            // Fall back to extension check
-            const allowedExts = ( config.value.upload.allowed_extensions || [] )
-                .map( ( ext ) => ext.toLowerCase() );
-            const fileExt = ( file.name.split( '.' ).pop() || '' ).toLowerCase();
-            if ( allowedExts.length > 0 && ! allowedExts.includes( fileExt ) ) {
-                return `${ file.name } has an unsupported file type (${ file.type })`;
-            }
+        const allowedExts  = ( config.value.upload.allowed_extensions || [] )
+            .map( ( ext ) => ext.toLowerCase() );
+        const fileExt      = ( file.name.split( '.' ).pop() || '' ).toLowerCase();
+        const mimeOk       = allowedMimes.length === 0 || allowedMimes.includes( file.type );
+        const extOk        = allowedExts.length === 0 || allowedExts.includes( fileExt );
+
+        // Reject if MIME fails and extension also fails (or isn't configured)
+        if ( ! mimeOk && ! extOk ) {
+            return `${ file.name } has an unsupported file type (${ file.type })`;
+        }
+
+        // If no MIME types configured, enforce extensions alone
+        if ( allowedMimes.length === 0 && ! extOk ) {
+            return `${ file.name } has an unsupported file type (${ file.type })`;
         }
 
         return null;
