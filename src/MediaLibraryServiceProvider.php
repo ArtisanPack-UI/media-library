@@ -12,6 +12,7 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Console\Commands\InstallFrontendCommand;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\FolderManager;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaEdit;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
@@ -94,6 +95,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerLivewireComponents();
         $this->registerBladeComponents();
+        $this->registerCommands();
     }
 
     /**
@@ -266,5 +268,19 @@ class MediaLibraryServiceProvider extends ServiceProvider
     protected function registerBladeComponents(): void
     {
         Blade::component( 'media-picker-button', MediaPickerButton::class );
+    }
+
+    /**
+     * Register Artisan commands.
+     *
+     * @since 1.2.0
+     */
+    protected function registerCommands(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->commands( [
+                InstallFrontendCommand::class,
+            ] );
+        }
     }
 }
