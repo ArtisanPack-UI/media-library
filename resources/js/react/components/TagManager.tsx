@@ -176,7 +176,7 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                 </button>
 
                 { tags.map( ( tag ) => (
-                    <div key={ tag.id } className="group relative inline-flex">
+                    <div key={ tag.id } className="group relative inline-flex" tabIndex={ 0 }>
                         <button
                             type="button"
                             onClick={ () => onTagSelect?.( tag.slug ) }
@@ -187,7 +187,7 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                             />
                         </button>
 
-                        <div className="absolute -top-1 -right-1 hidden group-hover:flex gap-0.5">
+                        <div className="absolute -top-1 -right-1 invisible flex gap-0.5 group-hover:visible group-focus-within:visible">
                             <button
                                 type="button"
                                 className="w-4 h-4 rounded-full bg-base-300 flex items-center justify-center"

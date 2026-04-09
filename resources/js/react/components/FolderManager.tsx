@@ -37,6 +37,22 @@ export interface FolderManagerProps {
 }
 
 /**
+ * Flatten a folder tree (including nested children) into a single array.
+ */
+function flattenFolders( folders: MediaFolder[] ): MediaFolder[] {
+    const result: MediaFolder[] = [];
+
+    for ( const folder of folders ) {
+        result.push( folder );
+        if ( folder.children && folder.children.length > 0 ) {
+            result.push( ...flattenFolders( folder.children ) );
+        }
+    }
+
+    return result;
+}
+
+/**
  * Collect all descendant IDs of a folder to prevent circular parent moves.
  */
 function getDescendantIds( folderId: number, folders: MediaFolder[] ): Set<number> {
@@ -103,7 +119,7 @@ const FolderTreeItem: React.FC<{
                 <span className="text-xs text-base-content/40">{ folder.media_count }</span>
             ) }
 
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 hover:opacity-100">
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hover:opacity-100">
                 <button
                     type="button"
                     className="btn btn-ghost btn-xs"
@@ -253,11 +269,12 @@ export const FolderManager: React.FC<FolderManagerProps> = ( {
         onFolderSelect?.( selectedFolderId === id ? null : id );
     }, [ selectedFolderId, onFolderSelect ] );
 
-    // Flatten folders for parent options (exclude editing folder and all its descendants)
-    const excludedIds = editing ? getDescendantIds( editing.id, folders ) : new Set<number>();
+    // Flatten nested folder tree and exclude editing folder + all its descendants
+    const allFolders  = flattenFolders( folders );
+    const excludedIds = editing ? getDescendantIds( editing.id, allFolders ) : new Set<number>();
     const parentOptions = [
         { id: '', name: 'No parent (root)' },
-        ...folders
+        ...allFolders
             .filter( ( f ) => ! editing || ( f.id !== editing.id && ! excludedIds.has( f.id ) ) )
             .map( ( f ) => ( { id: String( f.id ), name: f.name } ) ),
     ];

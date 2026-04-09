@@ -26,6 +26,8 @@ interface MediaStats {
     byType: Record<MediaType, { count: number; size: number; sizeFormatted: string }>;
     recentUploads: number;
     dailyUploads: number[];
+    /** True when there are too many items for client-side aggregation. */
+    detailsUnavailable: boolean;
 }
 
 /**
@@ -72,10 +74,10 @@ export const MediaStatistics: React.FC<MediaStatisticsProps> = ( {
                 const probe = await fetchMedia( { per_page: 1 } );
                 const totalCount = probe.meta.total;
                 const SAFE_THRESHOLD = 2000;
+                const detailsUnavailable = totalCount > SAFE_THRESHOLD;
 
                 let allMedia: Media[];
-                if ( totalCount > SAFE_THRESHOLD ) {
-                    // Too many items for client-side aggregation; use the probe data
+                if ( detailsUnavailable ) {
                     allMedia = [];
                 } else {
                     const response = await fetchMedia( { per_page: totalCount || 1 } );
@@ -142,12 +144,13 @@ export const MediaStatistics: React.FC<MediaStatisticsProps> = ( {
                 }
 
                 setStats( {
-                    totalCount:         allMedia.length,
+                    totalCount:         detailsUnavailable ? totalCount : allMedia.length,
                     totalSize,
-                    totalSizeFormatted: formatBytes( totalSize ),
+                    totalSizeFormatted: detailsUnavailable ? 'N/A' : formatBytes( totalSize ),
                     byType,
                     recentUploads,
                     dailyUploads,
+                    detailsUnavailable,
                 } );
             } catch {
                 // Stats are non-critical; just show empty state
@@ -202,6 +205,16 @@ export const MediaStatistics: React.FC<MediaStatisticsProps> = ( {
                 />
             </StatGroup>
 
+            { stats.detailsUnavailable && (
+                <div className="alert alert-warning">
+                    <span>
+                        Detailed breakdown is unavailable for libraries with more than 2,000 items.
+                        Total file count is shown above.
+                    </span>
+                </div>
+            ) }
+
+            { ! stats.detailsUnavailable && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 { /* Type breakdown */ }
                 <Card title="By Type">
@@ -247,6 +260,7 @@ export const MediaStatistics: React.FC<MediaStatisticsProps> = ( {
                     </p>
                 </Card>
             </div>
+            ) }
         </div>
     );
 };

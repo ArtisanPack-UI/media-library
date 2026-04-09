@@ -68,6 +68,9 @@ async function ensureCsrfCookie(): Promise<void> {
             credentials: 'include',
         } ).then( () => {
             csrfInitialized = true;
+        } ).catch( ( err ) => {
+            csrfPromise = null;
+            throw err;
         } );
     }
 

@@ -13,7 +13,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Button, Input, Select, Card, Alert } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
-import type { Media, MediaType } from '../types/media';
+import type { Media, MediaType, MediaSortField, SortDirection } from '../types/media';
 
 import { useMediaLibrary } from '../hooks/useMediaLibrary';
 import type { UseMediaLibraryOptions } from '../hooks/useMediaLibrary';
@@ -163,8 +163,8 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                         onChange={ ( e ) => {
                             const [ field, direction ] = e.target.value.split( ':' );
                             library.setSort(
-                                field as import( '../../../types/media' ).MediaSortField,
-                                direction as import( '../../../types/media' ).SortDirection,
+                                field as MediaSortField,
+                                direction as SortDirection,
                             );
                         } }
                         optionValue="id"
