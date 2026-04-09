@@ -67,6 +67,13 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
     const [ showUploadPanel, setShowUploadPanel ] = useState( false );
     const [ editingMedia, setEditingMedia ]       = useState<Media | null>( null );
 
+    // Close upload panel when parent disables showUpload
+    useEffect( () => {
+        if ( ! showUpload ) {
+            setShowUploadPanel( false );
+        }
+    }, [ showUpload ] );
+
     // Notify parent when selection changes
     useEffect( () => {
         if ( onSelectionChange ) {
@@ -112,11 +119,12 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                     { /* Search */ }
                     <div className="flex-1 min-w-48">
                         <Input
+                            aria-label="Search media"
                             placeholder="Search media..."
                             value={ library.filters.search || '' }
                             onChange={ ( e ) => library.setSearch( e.target.value ) }
                             icon={
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>
+                                <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             }
@@ -125,6 +133,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
 
                     { /* Filters */ }
                     <Select
+                        aria-label="Filter by folder"
                         options={ folderOptions }
                         value={ library.filters.folder_id ? String( library.filters.folder_id ) : '' }
                         onChange={ ( e ) => {
@@ -136,6 +145,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                     />
 
                     <Select
+                        aria-label="Filter by type"
                         options={ TYPE_FILTER_OPTIONS }
                         value={ ( library.filters.type as string ) || '' }
                         onChange={ ( e ) => {
@@ -147,6 +157,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                     />
 
                     <Select
+                        aria-label="Filter by tag"
                         options={ tagOptions }
                         value={ library.filters.tag || '' }
                         onChange={ ( e ) => {
@@ -158,6 +169,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                     />
 
                     <Select
+                        aria-label="Sort media"
                         options={ SORT_OPTIONS }
                         value={ currentSort }
                         onChange={ ( e ) => {
@@ -222,8 +234,9 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                             ) }
                             onClick={ () => library.viewMode !== 'grid' && library.toggleViewMode() }
                             aria-label="Grid view"
+                            aria-pressed={ library.viewMode === 'grid' }
                         >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>
+                            <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                             </svg>
                         </button>
@@ -235,6 +248,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ( {
                             ) }
                             onClick={ () => library.viewMode !== 'list' && library.toggleViewMode() }
                             aria-label="List view"
+                            aria-pressed={ library.viewMode === 'list' }
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />

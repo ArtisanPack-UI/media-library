@@ -8,7 +8,7 @@
  * @since   1.2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button, Input, Textarea, Select, Card, Alert, Modal } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
@@ -185,18 +185,21 @@ export const FolderManager: React.FC<FolderManagerProps> = ( {
         parent_id:   null as number | null,
     } );
 
+    const onFoldersChangeRef   = useRef( onFoldersChange );
+    onFoldersChangeRef.current = onFoldersChange;
+
     const loadFolders = useCallback( async () => {
         setLoading( true );
         try {
             const response = await fetchFolders();
             setFolders( response.data );
-            onFoldersChange?.( response.data );
+            onFoldersChangeRef.current?.( response.data );
         } catch ( err ) {
             setError( err instanceof Error ? err.message : 'Failed to load folders' );
         } finally {
             setLoading( false );
         }
-    }, [ onFoldersChange ] );
+    }, [] );
 
     useEffect( () => {
         loadFolders();
@@ -337,9 +340,10 @@ export const FolderManager: React.FC<FolderManagerProps> = ( {
             </div>
 
             { /* Create/Edit form */ }
+            { showForm && (
             <Portal>
             <Modal
-                open={ showForm }
+                open
                 onClose={ resetForm }
                 title={ editing ? 'Edit Folder' : 'New Folder' }
                 actions={
@@ -396,11 +400,13 @@ export const FolderManager: React.FC<FolderManagerProps> = ( {
                 </div>
             </Modal>
             </Portal>
+            ) }
 
             { /* Delete confirmation */ }
+            { deleting && (
             <Portal>
             <Modal
-                open={ !! deleting }
+                open
                 onClose={ () => setDeleting( null ) }
                 title="Delete Folder"
                 actions={
@@ -416,14 +422,13 @@ export const FolderManager: React.FC<FolderManagerProps> = ( {
                     </>
                 }
             >
-                { deleting && (
-                    <p>
-                        Are you sure you want to delete the folder <strong>{ deleting.name }</strong>?
-                        Media items in this folder will be moved to the root level.
-                    </p>
-                ) }
+                <p>
+                    Are you sure you want to delete the folder <strong>{ deleting.name }</strong>?
+                    Media items in this folder will be moved to the root level.
+                </p>
             </Modal>
             </Portal>
+            ) }
         </Card>
     );
 };

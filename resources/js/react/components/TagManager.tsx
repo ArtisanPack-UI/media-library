@@ -7,7 +7,7 @@
  * @since   1.2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button, Input, Textarea, Card, Alert, Badge, Modal } from '@artisanpack-ui/react';
 import { cn } from '@artisanpack-ui/tokens';
 
@@ -63,18 +63,21 @@ export const TagManager: React.FC<TagManagerProps> = ( {
         description: '',
     } );
 
+    const onTagsChangeRef   = useRef( onTagsChange );
+    onTagsChangeRef.current = onTagsChange;
+
     const loadTags = useCallback( async () => {
         setLoading( true );
         try {
             const response = await fetchTags();
             setTags( response.data );
-            onTagsChange?.( response.data );
+            onTagsChangeRef.current?.( response.data );
         } catch ( err ) {
             setError( err instanceof Error ? err.message : 'Failed to load tags' );
         } finally {
             setLoading( false );
         }
-    }, [ onTagsChange ] );
+    }, [] );
 
     useEffect( () => {
         loadTags();
@@ -218,9 +221,10 @@ export const TagManager: React.FC<TagManagerProps> = ( {
             </div>
 
             { /* Create/Edit form */ }
+            { showForm && (
             <Portal>
             <Modal
-                open={ showForm }
+                open
                 onClose={ resetForm }
                 title={ editing ? 'Edit Tag' : 'New Tag' }
                 actions={
@@ -266,11 +270,13 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                 </div>
             </Modal>
             </Portal>
+            ) }
 
             { /* Delete confirmation */ }
+            { deleting && (
             <Portal>
             <Modal
-                open={ !! deleting }
+                open
                 onClose={ () => setDeleting( null ) }
                 title="Delete Tag"
                 actions={
@@ -286,14 +292,13 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                     </>
                 }
             >
-                { deleting && (
-                    <p>
-                        Are you sure you want to delete the tag <strong>{ deleting.name }</strong>?
-                        It will be detached from all media items.
-                    </p>
-                ) }
+                <p>
+                    Are you sure you want to delete the tag <strong>{ deleting.name }</strong>?
+                    It will be detached from all media items.
+                </p>
             </Modal>
             </Portal>
+            ) }
         </Card>
     );
 };
