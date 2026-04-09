@@ -250,4 +250,34 @@ class MediaConfigControllerTest extends TestCase
 
         $response->assertOk();
     }
+
+    /**
+     * Test that the response includes cache headers.
+     */
+    public function test_config_response_includes_cache_headers(): void
+    {
+        $response = $this->getJson( '/api/media/config' );
+
+        $response->assertOk()
+            ->assertHeader( 'Cache-Control', 'max-age=3600, public, s-maxage=3600, stale-while-revalidate=86400' )
+            ->assertHeader( 'ETag' );
+    }
+
+    /**
+     * Test that unknown MIME types still produce extensions via Symfony fallback.
+     */
+    public function test_config_extracts_extensions_for_unknown_mime_types(): void
+    {
+        config( [
+            'artisanpack.media.allowed_mime_types' => [
+                'image/tiff',
+            ],
+        ] );
+
+        $response = $this->getJson( '/api/media/config' );
+
+        $extensions = $response->json( 'upload.allowed_extensions' );
+
+        $this->assertContains( 'tiff', $extensions );
+    }
 }

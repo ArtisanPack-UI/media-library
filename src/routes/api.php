@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Route;
 /**
  * Media Library API Routes
  *
- * These routes provide API endpoints for media management operations.
- * All routes require authentication and are prefixed with 'api/'.
+ * These routes provide API endpoints for media management operations
+ * and are prefixed with 'api/'. Most routes require authentication
+ * via Sanctum; public endpoints (e.g. media/config) are listed
+ * before the auth middleware group.
  *
  * @since 1.0.0
  */

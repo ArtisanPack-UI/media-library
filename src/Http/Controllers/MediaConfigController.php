@@ -16,6 +16,7 @@ namespace ArtisanPackUI\MediaLibrary\Http\Controllers;
 use ArtisanPackUI\MediaLibrary\Managers\MediaManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Symfony\Component\Mime\MimeTypes;
 
 /**
  * Media Config Controller
@@ -41,7 +42,7 @@ class MediaConfigController extends Controller
         $maxFileSizeKb = $manager->getMaxFileSize();
         $mimeTypes     = $manager->getAllowedMimeTypes();
 
-        return response()->json( [
+        $data = [
             'upload' => [
                 'max_file_size'       => $maxFileSizeKb,
                 'max_file_size_human' => $this->humanFileSize( $maxFileSizeKb * 1024 ),
@@ -53,7 +54,13 @@ class MediaConfigController extends Controller
                 'webp_conversion' => $manager->isModernFormatsEnabled() && 'webp' === $manager->getModernFormat(),
                 'avif_conversion' => $manager->isModernFormatsEnabled() && 'avif' === $manager->getModernFormat(),
             ],
-        ] );
+        ];
+
+        $etag = '"' . md5( (string) json_encode( $data ) ) . '"';
+
+        return response()->json( $data )
+            ->header( 'Cache-Control', 'public, s-maxage=3600, max-age=3600, stale-while-revalidate=86400' )
+            ->header( 'ETag', $etag );
     }
 
     /**
@@ -117,11 +124,15 @@ class MediaConfigController extends Controller
             'text/plain'                                                              => ['txt'],
         ];
 
-        $extensions = [];
+        $extensions    = [];
+        $mimeGuesser   = MimeTypes::getDefault();
 
         foreach ( $mimeTypes as $mime ) {
             if ( isset( $mimeToExtension[ $mime ] ) ) {
                 $extensions = array_merge( $extensions, $mimeToExtension[ $mime ] );
+            } else {
+                $guessed    = $mimeGuesser->getExtensions( $mime );
+                $extensions = array_merge( $extensions, $guessed );
             }
         }
 
