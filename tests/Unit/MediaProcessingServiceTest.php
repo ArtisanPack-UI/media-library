@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Unit;
 
@@ -43,14 +43,14 @@ class MediaProcessingServiceTest extends TestCase
 
         // Create user for testing
         $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actingAs( $this->user );
 
         // Setup test disk
-        Storage::fake('test-disk');
+        Storage::fake( 'test-disk' );
 
         $this->storageService = new MediaStorageService;
-        $optimizationService = new ImageOptimizationService;
-        $this->service = new MediaProcessingService($this->storageService, $optimizationService);
+        $optimizationService  = new ImageOptimizationService;
+        $this->service        = new MediaProcessingService( $this->storageService, $optimizationService );
     }
 
     /**
@@ -61,9 +61,9 @@ class MediaProcessingServiceTest extends TestCase
         $media = $this->createTestMedia();
 
         // Should not throw exception
-        $this->service->processImage($media);
+        $this->service->processImage( $media );
 
-        $this->assertTrue(true);
+        $this->assertTrue( true );
     }
 
     /**
@@ -71,16 +71,16 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_skips_processing_non_images(): void
     {
-        $media = Media::factory()->create([
-            'mime_type' => 'application/pdf',
-            'file_path' => 'test.pdf',
+        $media = Media::factory()->create( [
+            'mime_type'   => 'application/pdf',
+            'file_path'   => 'test.pdf',
             'uploaded_by' => $this->user->id,
-        ]);
+        ] );
 
         // Should not throw exception and should not process
-        $this->service->processImage($media);
+        $this->service->processImage( $media );
 
-        $this->assertTrue(true);
+        $this->assertTrue( true );
     }
 
     /**
@@ -88,27 +88,27 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_can_generate_thumbnails(): void
     {
-        config([
+        config( [
             'artisanpack.media.enable_thumbnails' => true,
-            'artisanpack.media.image_sizes' => [
+            'artisanpack.media.image_sizes'       => [
                 'thumbnail' => [
-                    'width' => 150,
+                    'width'  => 150,
                     'height' => 150,
-                    'crop' => true,
+                    'crop'   => true,
                 ],
                 'medium' => [
-                    'width' => 300,
+                    'width'  => 300,
                     'height' => 300,
-                    'crop' => false,
+                    'crop'   => false,
                 ],
             ],
-        ]);
+        ] );
 
         $media = $this->createTestMedia();
 
-        $thumbnails = $this->service->generateThumbnails($media);
+        $thumbnails = $this->service->generateThumbnails( $media );
 
-        expect($thumbnails)->toBeArray();
+        expect( $thumbnails )->toBeArray();
     }
 
     /**
@@ -116,15 +116,15 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_skips_thumbnails_for_non_images(): void
     {
-        $media = Media::factory()->create([
-            'mime_type' => 'application/pdf',
-            'file_path' => 'test.pdf',
+        $media = Media::factory()->create( [
+            'mime_type'   => 'application/pdf',
+            'file_path'   => 'test.pdf',
             'uploaded_by' => $this->user->id,
-        ]);
+        ] );
 
-        $thumbnails = $this->service->generateThumbnails($media);
+        $thumbnails = $this->service->generateThumbnails( $media );
 
-        expect($thumbnails)->toBeEmpty();
+        expect( $thumbnails )->toBeEmpty();
     }
 
     /**
@@ -135,10 +135,10 @@ class MediaProcessingServiceTest extends TestCase
         $media = $this->createTestMedia();
 
         // WebP conversion
-        $result = $this->service->convertToModernFormat($media, 'webp');
+        $result = $this->service->convertToModernFormat( $media, 'webp' );
 
         // Result may be null if conversion fails, or a string path if it succeeds
-        $this->assertTrue($result === null || is_string($result));
+        $this->assertTrue( null === $result || is_string( $result ) );
     }
 
     /**
@@ -146,15 +146,15 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_skips_svg_conversion(): void
     {
-        $media = Media::factory()->create([
-            'mime_type' => 'image/svg+xml',
-            'file_path' => 'test.svg',
+        $media = Media::factory()->create( [
+            'mime_type'   => 'image/svg+xml',
+            'file_path'   => 'test.svg',
             'uploaded_by' => $this->user->id,
-        ]);
+        ] );
 
-        $result = $this->service->convertToModernFormat($media, 'webp');
+        $result = $this->service->convertToModernFormat( $media, 'webp' );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -162,15 +162,15 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_skips_conversion_for_modern_formats(): void
     {
-        $media = Media::factory()->create([
-            'mime_type' => 'image/webp',
-            'file_path' => 'test.webp',
+        $media = Media::factory()->create( [
+            'mime_type'   => 'image/webp',
+            'file_path'   => 'test.webp',
             'uploaded_by' => $this->user->id,
-        ]);
+        ] );
 
-        $result = $this->service->convertToModernFormat($media, 'webp');
+        $result = $this->service->convertToModernFormat( $media, 'webp' );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -178,15 +178,15 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_skips_conversion_for_non_images(): void
     {
-        $media = Media::factory()->create([
-            'mime_type' => 'application/pdf',
-            'file_path' => 'test.pdf',
+        $media = Media::factory()->create( [
+            'mime_type'   => 'application/pdf',
+            'file_path'   => 'test.pdf',
             'uploaded_by' => $this->user->id,
-        ]);
+        ] );
 
-        $result = $this->service->convertToModernFormat($media, 'webp');
+        $result = $this->service->convertToModernFormat( $media, 'webp' );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -197,10 +197,10 @@ class MediaProcessingServiceTest extends TestCase
         // Create a test image file
         $imagePath = $this->createTestImageFile();
 
-        $dimensions = $this->service->extractImageDimensions($imagePath);
+        $dimensions = $this->service->extractImageDimensions( $imagePath );
 
         // May be null if image processing fails with fake images, but shouldn't error
-        $this->assertTrue($dimensions === null || (is_array($dimensions) && isset($dimensions['width'], $dimensions['height'])));
+        $this->assertTrue( null === $dimensions || ( is_array( $dimensions ) && isset( $dimensions['width'], $dimensions['height'] ) ) );
     }
 
     /**
@@ -208,9 +208,9 @@ class MediaProcessingServiceTest extends TestCase
      */
     public function test_extract_dimensions_returns_null_for_invalid_path(): void
     {
-        $dimensions = $this->service->extractImageDimensions('/invalid/path/image.jpg');
+        $dimensions = $this->service->extractImageDimensions( '/invalid/path/image.jpg' );
 
-        expect($dimensions)->toBeNull();
+        expect( $dimensions )->toBeNull();
     }
 
     /**
@@ -220,21 +220,21 @@ class MediaProcessingServiceTest extends TestCase
      */
     protected function createTestMedia(): Media
     {
-        $file = UploadedFile::fake()->image('test.jpg', 500, 500);
+        $file = UploadedFile::fake()->image( 'test.jpg', 500, 500 );
         $path = 'uploads/test.jpg';
 
         // Store the file
-        $this->storageService->store($file, $path, 'test-disk');
+        $this->storageService->store( $file, $path, 'test-disk' );
 
         // Create media instance
-        return Media::factory()->create([
-            'mime_type' => 'image/jpeg',
-            'file_path' => $path,
-            'disk' => 'test-disk',
-            'width' => 500,
-            'height' => 500,
+        return Media::factory()->create( [
+            'mime_type'   => 'image/jpeg',
+            'file_path'   => $path,
+            'disk'        => 'test-disk',
+            'width'       => 500,
+            'height'      => 500,
             'uploaded_by' => $this->user->id,
-        ]);
+        ] );
     }
 
     /**
@@ -244,7 +244,7 @@ class MediaProcessingServiceTest extends TestCase
      */
     protected function createTestImageFile(): string
     {
-        $file = UploadedFile::fake()->image('test.jpg', 500, 500);
+        $file = UploadedFile::fake()->image( 'test.jpg', 500, 500 );
 
         return $file->getRealPath();
     }

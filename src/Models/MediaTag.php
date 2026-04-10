@@ -51,18 +51,6 @@ class MediaTag extends Model
     ];
 
     /**
-     * Create a new factory instance for the model.
-     *
-     * @since 1.0.0
-     *
-     * @return MediaTagFactory The model factory instance.
-     */
-    protected static function newFactory(): MediaTagFactory
-    {
-        return MediaTagFactory::new();
-    }
-
-    /**
      * Get count of media items with this tag.
      *
      * @since 1.0.0
@@ -89,5 +77,17 @@ class MediaTag extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany( Media::class, 'media_taggables' );
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaTagFactory The model factory instance.
+     */
+    protected static function newFactory(): MediaTagFactory
+    {
+        return MediaTagFactory::new();
     }
 }

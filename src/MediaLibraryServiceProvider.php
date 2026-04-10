@@ -14,6 +14,7 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Console\Commands\InstallFrontendCommand;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\FolderManager;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaEdit;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaGrid;
@@ -62,17 +63,17 @@ class MediaLibraryServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/media.php',
-            'artisanpack-media-temp'
+            __DIR__ . '/../config/media.php',
+            'artisanpack-media-temp',
         );
 
         // Register services as singletons
-        $this->app->singleton(MediaManager::class);
-        $this->app->singleton(MediaStorageService::class);
-        $this->app->singleton(VideoProcessingService::class);
-        $this->app->singleton(ImageOptimizationService::class);
-        $this->app->singleton(MediaProcessingService::class);
-        $this->app->singleton(MediaUploadService::class);
+        $this->app->singleton( MediaManager::class );
+        $this->app->singleton( MediaStorageService::class );
+        $this->app->singleton( VideoProcessingService::class );
+        $this->app->singleton( ImageOptimizationService::class );
+        $this->app->singleton( MediaProcessingService::class );
+        $this->app->singleton( MediaUploadService::class );
     }
 
     /**
@@ -87,12 +88,16 @@ class MediaLibraryServiceProvider extends ServiceProvider
     {
         $this->mergeConfiguration();
         $this->publishConfiguration();
+        $this->publishTypeDefinitions();
+        $this->publishReactComponents();
+        $this->publishVueComponents();
         $this->registerViews();
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
         $this->registerPolicies();
         $this->registerRoutes();
         $this->registerLivewireComponents();
         $this->registerBladeComponents();
+        $this->registerCommands();
     }
 
     /**
@@ -105,10 +110,10 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function mergeConfiguration(): void
     {
-        $packageDefaults = config('artisanpack-media-temp', []);
-        $userConfig = config('artisanpack.media', []);
-        $mergedConfig = array_replace_recursive($packageDefaults, $userConfig);
-        config(['artisanpack.media' => $mergedConfig]);
+        $packageDefaults = config( 'artisanpack-media-temp', [] );
+        $userConfig      = config( 'artisanpack.media', [] );
+        $mergedConfig    = array_replace_recursive( $packageDefaults, $userConfig );
+        config( ['artisanpack.media' => $mergedConfig] );
     }
 
     /**
@@ -121,10 +126,65 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function publishConfiguration(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../config/media.php' => config_path('artisanpack/media.php'),
-            ], 'artisanpack-package-config');
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                __DIR__ . '/../config/media.php' => config_path( 'artisanpack/media.php' ),
+            ], 'artisanpack-package-config' );
+        }
+    }
+
+    /**
+     * Publish TypeScript type definitions for the media API.
+     *
+     * Publishes type definitions to the application's resources/types directory
+     * so React/Vue consumers have full type safety.
+     *
+     * @since 1.2.0
+     */
+    protected function publishTypeDefinitions(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'types/media.d.ts' ),
+            ], 'media-types' );
+        }
+    }
+
+    /**
+     * Publish React components for the media library.
+     *
+     * Publishes the React component source files to the application's
+     * resources directory so React/Inertia.js consumers can import
+     * and use the media library UI components.
+     *
+     * @since 1.2.0
+     */
+    protected function publishReactComponents(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                __DIR__ . '/../resources/js/react'         => resource_path( 'js/vendor/media-library' ),
+                __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'js/vendor/media-library/types/media.d.ts' ),
+            ], 'media-react' );
+        }
+    }
+
+    /**
+     * Publish Vue components for the media library.
+     *
+     * Publishes the Vue component source files to the application's
+     * resources directory so Vue/Inertia.js consumers can import
+     * and use the media library UI components.
+     *
+     * @since 1.2.0
+     */
+    protected function publishVueComponents(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->publishes( [
+                __DIR__ . '/../resources/js/vue'           => resource_path( 'js/vendor/media-library-vue' ),
+                __DIR__ . '/../resources/types/media.d.ts' => resource_path( 'js/vendor/media-library-vue/types/media.d.ts' ),
+            ], 'media-vue' );
         }
     }
 
@@ -138,11 +198,11 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerViews(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'media');
+        $this->loadViewsFrom( __DIR__ . '/../resources/views', 'media' );
 
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/media'),
-        ], 'media-views');
+        $this->publishes( [
+            __DIR__ . '/../resources/views' => resource_path( 'views/vendor/media' ),
+        ], 'media-views' );
     }
 
     /**
@@ -152,7 +212,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerPolicies(): void
     {
-        Gate::policy(Media::class, MediaPolicy::class);
+        Gate::policy( Media::class, MediaPolicy::class );
     }
 
     /**
@@ -162,17 +222,17 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(): void
     {
-        Route::middleware('api')
-            ->prefix('api')
-            ->group(__DIR__.'/routes/api.php');
+        Route::middleware( 'api' )
+            ->prefix( 'api' )
+            ->group( __DIR__ . '/routes/api.php' );
 
         // Register web route for media downloads (no auth required since files are public)
-        Route::middleware(['web'])
-            ->get('media/{id}/download', [
-                \ArtisanPackUI\MediaLibrary\Http\Controllers\MediaController::class,
+        Route::middleware( ['web'] )
+            ->get( 'media/{id}/download', [
+                Http\Controllers\MediaController::class,
                 'download',
-            ])
-            ->name('media.download');
+            ] )
+            ->name( 'media.download' );
     }
 
     /**
@@ -185,21 +245,35 @@ class MediaLibraryServiceProvider extends ServiceProvider
     protected function registerLivewireComponents(): void
     {
         // Only register Livewire components if Livewire is bound in the container
-        if (! $this->app->bound('livewire')) {
+        if ( ! $this->app->bound( 'livewire' ) ) {
             return;
         }
 
-        // Register components
-        Livewire::component('media::media-library', MediaLibrary::class);
-        Livewire::component('media::media-upload', MediaUpload::class);
-        Livewire::component('media::media-edit', MediaEdit::class);
-        Livewire::component('media::media-grid', MediaGrid::class);
-        Livewire::component('media::media-item', MediaItem::class);
-        Livewire::component('media::media-modal', MediaModal::class);
-        Livewire::component('media::media-picker', MediaPicker::class);
-        Livewire::component('media::folder-manager', FolderManager::class);
-        Livewire::component('media::tag-manager', TagManager::class);
-        Livewire::component('media::media-statistics', MediaStatistics::class);
+        // Livewire 4 uses namespace-based discovery for namespaced components.
+        // In v4, Livewire::component() stores into classComponents but the resolver
+        // skips classComponents for names with a namespace prefix (e.g. "media::*"),
+        // only checking classNamespaces. Use addNamespace() so the resolver can
+        // derive the class from the namespace + component name.
+        if ( method_exists( Livewire::getFacadeRoot(), 'addNamespace' ) ) {
+            Livewire::addNamespace(
+                'media',
+                classNamespace: 'ArtisanPackUI\\MediaLibrary\\Livewire\\Components',
+            );
+
+            return;
+        }
+
+        // Livewire 3 uses explicit component registration
+        Livewire::component( 'media::media-library', MediaLibrary::class );
+        Livewire::component( 'media::media-upload', MediaUpload::class );
+        Livewire::component( 'media::media-edit', MediaEdit::class );
+        Livewire::component( 'media::media-grid', MediaGrid::class );
+        Livewire::component( 'media::media-item', MediaItem::class );
+        Livewire::component( 'media::media-modal', MediaModal::class );
+        Livewire::component( 'media::media-picker', MediaPicker::class );
+        Livewire::component( 'media::folder-manager', FolderManager::class );
+        Livewire::component( 'media::tag-manager', TagManager::class );
+        Livewire::component( 'media::media-statistics', MediaStatistics::class );
     }
 
     /**
@@ -209,6 +283,20 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     protected function registerBladeComponents(): void
     {
-        Blade::component('media-picker-button', MediaPickerButton::class);
+        Blade::component( 'media-picker-button', MediaPickerButton::class );
+    }
+
+    /**
+     * Register Artisan commands.
+     *
+     * @since 1.2.0
+     */
+    protected function registerCommands(): void
+    {
+        if ( $this->app->runningInConsole() ) {
+            $this->commands( [
+                InstallFrontendCommand::class,
+            ] );
+        }
     }
 }

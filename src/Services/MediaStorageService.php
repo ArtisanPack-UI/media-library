@@ -37,22 +37,8 @@ class MediaStorageService
         return $file->storeAs(
             dirname( $path ),
             basename( $path ),
-            [ 'disk' => $disk ]
+            [ 'disk' => $disk ],
         );
-    }
-
-    /**
-     * Resolves the disk name to use, defaulting to the configured disk.
-     *
-     * @since 1.0.0
-     *
-     * @param string|null $disk The disk name or null to use default.
-     *
-     * @return string The resolved disk name.
-     */
-    protected function resolveDisk( ?string $disk = null ): string
-    {
-        return $disk ?? config( 'artisanpack.media.disk', 'public' );
     }
 
     /**
@@ -168,7 +154,7 @@ class MediaStorageService
      * @param string      $path The file path.
      * @param string|null $disk The storage disk to use (defaults to config).
      *
-     * @return string|false The MIME type or false if unable to determine.
+     * @return false|string The MIME type or false if unable to determine.
      */
     public function mimeType( string $path, ?string $disk = null ): string | false
     {
@@ -220,5 +206,19 @@ class MediaStorageService
     public function path( string $path, ?string $disk = null ): string
     {
         return $this->getDisk( $disk )->path( $path );
+    }
+
+    /**
+     * Resolves the disk name to use, defaulting to the configured disk.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $disk The disk name or null to use default.
+     *
+     * @return string The resolved disk name.
+     */
+    protected function resolveDisk( ?string $disk = null ): string
+    {
+        return $disk ?? config( 'artisanpack.media.disk', 'public' );
     }
 }

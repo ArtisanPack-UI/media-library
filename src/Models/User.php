@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * User Model
+ *
+ * Simple user model for testing purposes only.
+ * In production, applications should use their own user model
+ * configured via artisanpack.media.user_model.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Models
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Models;
 
 use ArtisanPackUI\MediaLibrary\Database\Factories\UserFactory;

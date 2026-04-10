@@ -14,7 +14,7 @@
 					// Focus first focusable element after modal opens
 					this.$nextTick(() => {
 						const firstFocusable = this.$root.querySelector(
-							'button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])'
+							'button, [href], input, select, textarea, [tabindex]:not([tabindex=&quot;-1&quot;])'
 						);
 						if (firstFocusable) {
 							firstFocusable.focus();

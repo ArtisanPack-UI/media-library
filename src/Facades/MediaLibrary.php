@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Media Library Facade
+ *
+ * Provides a static interface to the MediaLibrary service.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Facades
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Facades;
 
 use Illuminate\Support\Facades\Facade;

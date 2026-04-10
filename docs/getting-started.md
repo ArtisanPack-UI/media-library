@@ -128,12 +128,49 @@ php artisan test --filter=Media
 
 All tests should pass if the installation is successful.
 
+## React/Vue Frontend (Optional)
+
+If your application uses Inertia.js with React or Vue instead of Livewire, install the frontend components:
+
+```bash
+# React
+php artisan media:install-frontend --stack=react
+npm install react@"^18.0 || ^19.0" react-dom@"^18.0 || ^19.0"
+
+# Vue
+php artisan media:install-frontend --stack=vue
+npm install vue@"^3.4"
+```
+
+Then use the components in your pages:
+
+```tsx
+// React
+import { MediaLibrary } from '@/vendor/media-library';
+export default function MediaPage() {
+    return <MediaLibrary />;
+}
+```
+
+```vue
+<!-- Vue -->
+<script setup>
+import { MediaLibrary } from '@/vendor/media-library-vue';
+</script>
+<template>
+    <MediaLibrary />
+</template>
+```
+
+See [Frontend Components](Frontend-Components) for full documentation.
+
 ## Next Steps
 
 - Read [Installation](Installation-Installation) for detailed setup options
 - Review [Configuration](Installation-Configuration) for all available settings
 - Explore [Helper Functions](Usage-Helper-Functions) for common patterns
-- Check [Livewire Components](Usage-Livewire-Components) for UI integration
+- Check [Livewire Components](Usage-Livewire-Components) for Livewire UI integration
+- Check [Frontend Components](Frontend-Components) for React/Vue UI integration
 - See [CMS Module Integration](Integration-Cms-Module) for Digital Shopfront CMS setup
 
 ## Common First Tasks

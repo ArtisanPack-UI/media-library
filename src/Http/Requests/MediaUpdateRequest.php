@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Media Update Request
+ *
+ * Validates data for updating existing media metadata.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Requests
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;

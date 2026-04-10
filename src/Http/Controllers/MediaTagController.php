@@ -46,6 +46,7 @@ class MediaTagController extends Controller
      * @since 1.0.0
      *
      * @param Request $request The HTTP request instance.
+     *
      * @return JsonResponse The tags collection.
      */
     public function index( Request $request ): JsonResponse
@@ -66,6 +67,7 @@ class MediaTagController extends Controller
      * @since 1.0.0
      *
      * @param MediaTagStoreRequest $request The validated request.
+     *
      * @return JsonResponse The created tag.
      */
     public function store( MediaTagStoreRequest $request ): JsonResponse
@@ -86,7 +88,7 @@ class MediaTagController extends Controller
         $tag = MediaTag::create( $data );
 
         return response()->json( [
-                                     'data' => $tag->loadCount( 'media' ),
+                                     'data'                                                                                                                                                                                                                                                             => $tag->loadCount( 'media' ),
                                                                                                                                                                                                                                                                                               'message' => 'Tag created successfully',
                                  ], 201 );
     }
@@ -97,6 +99,7 @@ class MediaTagController extends Controller
      * @since 1.0.0
      *
      * @param int $id The tag ID.
+     *
      * @return JsonResponse The tag data.
      */
     public function show( int $id ): JsonResponse
@@ -115,6 +118,7 @@ class MediaTagController extends Controller
      *
      * @param MediaTagUpdateRequest $request The validated request.
      * @param int                   $id      The tag ID.
+     *
      * @return JsonResponse The updated tag.
      */
     public function update( MediaTagUpdateRequest $request, int $id ): JsonResponse
@@ -149,6 +153,7 @@ class MediaTagController extends Controller
      * @since 1.0.0
      *
      * @param int $id The tag ID.
+     *
      * @return Response The response with no content.
      */
     public function destroy( int $id ): Response
@@ -170,6 +175,7 @@ class MediaTagController extends Controller
      *
      * @param Request $request The HTTP request instance.
      * @param int     $id      The tag ID.
+     *
      * @return JsonResponse The result.
      */
     public function detach( Request $request, int $id ): JsonResponse
@@ -197,6 +203,7 @@ class MediaTagController extends Controller
      *
      * @param Request $request The HTTP request instance.
      * @param int     $id      The tag ID.
+     *
      * @return JsonResponse The result.
      */
     public function attach( Request $request, int $id ): JsonResponse

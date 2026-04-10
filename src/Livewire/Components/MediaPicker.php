@@ -155,47 +155,21 @@ class MediaPicker extends Component
         string $context = '',
         bool $isOpen = false,
     ): void {
-        $this->multiSelect = $multiSelect;
-        $this->maxSelections = $this->clampMaxSelections($maxSelections);
+        $this->multiSelect   = $multiSelect;
+        $this->maxSelections = $this->clampMaxSelections( $maxSelections );
 
         // Normalize selectedMedia: remove duplicates, reindex, and trim to maxSelections
-        $normalizedMedia = array_values(array_unique($selectedMedia));
-        if ($this->maxSelections > 0 && count($normalizedMedia) > $this->maxSelections) {
-            $normalizedMedia = array_slice($normalizedMedia, 0, $this->maxSelections);
+        $normalizedMedia = array_values( array_unique( $selectedMedia ) );
+        if ( $this->maxSelections > 0 && count( $normalizedMedia ) > $this->maxSelections ) {
+            $normalizedMedia = array_slice( $normalizedMedia, 0, $this->maxSelections );
         }
         $this->selectedMedia = $normalizedMedia;
 
         $this->acceptTypes = $acceptTypes;
-        $this->loadCount = $this->clampLoadCount($loadCount);
+        $this->loadCount   = $this->clampLoadCount( $loadCount );
         $this->loadedCount = $this->loadCount;
-        $this->context = $context;
-        $this->isOpen = $isOpen;
-    }
-
-    /**
-     * Clamp maxSelections to a safe range (0-1000).
-     *
-     * @since 1.1.0
-     *
-     * @param  int  $value  The value to clamp.
-     * @return int The clamped value.
-     */
-    protected function clampMaxSelections(int $value): int
-    {
-        return max(0, min(1000, $value));
-    }
-
-    /**
-     * Clamp loadCount to a safe range (1-100).
-     *
-     * @since 1.1.0
-     *
-     * @param  int  $value  The value to clamp.
-     * @return int The clamped value.
-     */
-    protected function clampLoadCount(int $value): int
-    {
-        return max(1, min(100, $value));
+        $this->context     = $context;
+        $this->isOpen      = $isOpen;
     }
 
     /**
@@ -211,53 +185,28 @@ class MediaPicker extends Component
         $query = Media::query();
 
         // Apply search filter
-        if (! empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('file_name', 'like', '%'.$this->search.'%')
-                    ->orWhere('alt_text', 'like', '%'.$this->search.'%');
-            });
+        if ( ! empty( $this->search ) ) {
+            $query->where( function ( $q ): void {
+                $q->where( 'title', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'file_name', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'alt_text', 'like', '%' . $this->search . '%' );
+            } );
         }
 
         // Apply folder filter
-        if ($this->folderId !== null) {
-            $query->where('folder_id', $this->folderId);
+        if ( null !== $this->folderId ) {
+            $query->where( 'folder_id', $this->folderId );
         }
 
         // Apply MIME type filter based on acceptTypes
-        if (! empty($this->acceptTypes)) {
-            $this->applyTypeFilter($query);
+        if ( ! empty( $this->acceptTypes ) ) {
+            $this->applyTypeFilter( $query );
         }
 
-        return $query->with(['folder', 'uploadedBy'])
+        return $query->with( ['folder', 'uploadedBy'] )
             ->latest()
-            ->take($this->loadedCount)
+            ->take( $this->loadedCount )
             ->get();
-    }
-
-    /**
-     * Apply the MIME type filter based on acceptTypes pattern.
-     *
-     * @since 1.1.0
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query  The query builder instance.
-     */
-    protected function applyTypeFilter($query): void
-    {
-        $types = array_map('trim', explode(',', $this->acceptTypes));
-
-        $query->where(function ($q) use ($types) {
-            foreach ($types as $type) {
-                if (str_ends_with($type, '/*')) {
-                    // Wildcard pattern like 'image/*'
-                    $prefix = str_replace('/*', '/', $type);
-                    $q->orWhere('mime_type', 'like', $prefix.'%');
-                } else {
-                    // Exact match like 'application/pdf'
-                    $q->orWhere('mime_type', $type);
-                }
-            }
-        });
     }
 
     /**
@@ -271,22 +220,22 @@ class MediaPicker extends Component
         $query = Media::query();
 
         // Apply search filter
-        if (! empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('file_name', 'like', '%'.$this->search.'%')
-                    ->orWhere('alt_text', 'like', '%'.$this->search.'%');
-            });
+        if ( ! empty( $this->search ) ) {
+            $query->where( function ( $q ): void {
+                $q->where( 'title', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'file_name', 'like', '%' . $this->search . '%' )
+                    ->orWhere( 'alt_text', 'like', '%' . $this->search . '%' );
+            } );
         }
 
         // Apply folder filter
-        if ($this->folderId !== null) {
-            $query->where('folder_id', $this->folderId);
+        if ( null !== $this->folderId ) {
+            $query->where( 'folder_id', $this->folderId );
         }
 
         // Apply MIME type filter based on acceptTypes
-        if (! empty($this->acceptTypes)) {
-            $this->applyTypeFilter($query);
+        if ( ! empty( $this->acceptTypes ) ) {
+            $this->applyTypeFilter( $query );
         }
 
         return $query->count();
@@ -313,7 +262,7 @@ class MediaPicker extends Component
     #[Computed]
     public function folders(): Collection
     {
-        return MediaFolder::orderBy('name')->get();
+        return MediaFolder::orderBy( 'name' )->get();
     }
 
     /**
@@ -321,18 +270,18 @@ class MediaPicker extends Component
      *
      * @since 1.1.0
      *
-     * @return array<int, array{key: string|int|null, label: string}>
+     * @return array<int, array{key: int|string|null, label: string}>
      */
     #[Computed]
     public function folderOptions(): array
     {
         $options = [
-            ['key' => null, 'label' => __('All Folders')],
+            ['key' => null, 'label' => __( 'All Folders' )],
         ];
 
-        foreach ($this->folders as $folder) {
+        foreach ( $this->folders as $folder ) {
             $options[] = [
-                'key' => $folder->id,
+                'key'   => $folder->id,
                 'label' => $folder->name,
             ];
         }
@@ -347,15 +296,15 @@ class MediaPicker extends Component
      *
      * @param  string  $context  The context to open (optional).
      */
-    #[On('open-media-picker')]
-    public function open(string $context = ''): void
+    #[On( 'open-media-picker' )]
+    public function open( string $context = '' ): void
     {
         // Only open if context matches or if both are empty (backward compatibility)
-        if ($context === '' || $this->context === '' || $context === $this->context) {
-            $this->isOpen = true;
+        if ( '' === $context || '' === $this->context || $context === $this->context ) {
+            $this->isOpen      = true;
             $this->loadedCount = $this->loadCount;
             $this->resetFilters();
-            $this->dispatch('media-picker-opened', context: $this->context);
+            $this->dispatch( 'media-picker-opened', context: $this->context );
         }
     }
 
@@ -366,12 +315,12 @@ class MediaPicker extends Component
      */
     public function close(): void
     {
-        $this->isOpen = false;
+        $this->isOpen        = false;
         $this->selectedMedia = [];
-        $this->loadedCount = $this->loadCount;
-        $this->focusedIndex = -1;
+        $this->loadedCount   = $this->loadCount;
+        $this->focusedIndex  = -1;
         $this->resetFilters();
-        $this->dispatch('media-picker-closed', context: $this->context);
+        $this->dispatch( 'media-picker-closed', context: $this->context );
     }
 
     /**
@@ -381,7 +330,7 @@ class MediaPicker extends Component
      */
     public function resetFilters(): void
     {
-        $this->search = '';
+        $this->search   = '';
         $this->folderId = null;
     }
 
@@ -402,20 +351,20 @@ class MediaPicker extends Component
      *
      * @param  int  $mediaId  The media ID to toggle.
      */
-    public function toggleSelect(int $mediaId): void
+    public function toggleSelect( int $mediaId ): void
     {
-        if (in_array($mediaId, $this->selectedMedia, true)) {
+        if ( in_array( $mediaId, $this->selectedMedia, true ) ) {
             // Deselect
-            $this->selectedMedia = array_values(array_diff($this->selectedMedia, [$mediaId]));
+            $this->selectedMedia = array_values( array_diff( $this->selectedMedia, [$mediaId] ) );
         } else {
             // Select
-            if (! $this->multiSelect) {
+            if ( ! $this->multiSelect ) {
                 // Single select mode - pick immediately
                 $this->selectedMedia = [$mediaId];
                 $this->confirmSelection();
             } else {
                 // Multi select mode - add to selection
-                if ($this->maxSelections === 0 || count($this->selectedMedia) < $this->maxSelections) {
+                if ( 0 === $this->maxSelections || count( $this->selectedMedia ) < $this->maxSelections ) {
                     $this->selectedMedia[] = $mediaId;
                 }
             }
@@ -439,15 +388,15 @@ class MediaPicker extends Component
      */
     public function confirmSelection(): void
     {
-        if (empty($this->selectedMedia)) {
+        if ( empty( $this->selectedMedia ) ) {
             return;
         }
 
         // Get the actual media objects
-        $media = Media::whereIn('id', $this->selectedMedia)->get();
+        $media = Media::whereIn( 'id', $this->selectedMedia )->get();
 
         // Emit event with selected media and context
-        $this->dispatch('media-picked', media: $media->toArray(), context: $this->context);
+        $this->dispatch( 'media-picked', media: $media->toArray(), context: $this->context );
 
         // Close the picker
         $this->close();
@@ -458,12 +407,12 @@ class MediaPicker extends Component
      *
      * @since 1.1.0
      */
-    #[On('media-uploaded')]
+    #[On( 'media-uploaded' )]
     public function handleMediaUploaded(): void
     {
         // Refresh the media list
-        unset($this->media);
-        unset($this->totalCount);
+        unset( $this->media );
+        unset( $this->totalCount );
     }
 
     /**
@@ -475,11 +424,11 @@ class MediaPicker extends Component
     {
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
-        $this->focusedIndex = ($this->focusedIndex + 1) % $mediaCount;
+        $this->focusedIndex = ( $this->focusedIndex + 1 ) % $mediaCount;
     }
 
     /**
@@ -489,13 +438,13 @@ class MediaPicker extends Component
      */
     public function focusPrevious(): void
     {
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -511,15 +460,15 @@ class MediaPicker extends Component
      *
      * @param  int  $columnsPerRow  Number of columns in the grid.
      */
-    public function focusDown(int $columnsPerRow = 5): void
+    public function focusDown( int $columnsPerRow = 5 ): void
     {
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -537,9 +486,9 @@ class MediaPicker extends Component
      *
      * @param  int  $columnsPerRow  Number of columns in the grid.
      */
-    public function focusUp(int $columnsPerRow = 5): void
+    public function focusUp( int $columnsPerRow = 5 ): void
     {
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
@@ -559,7 +508,7 @@ class MediaPicker extends Component
     {
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -575,7 +524,7 @@ class MediaPicker extends Component
     {
         $mediaCount = $this->media->count();
 
-        if ($mediaCount === 0) {
+        if ( 0 === $mediaCount ) {
             return;
         }
 
@@ -589,18 +538,18 @@ class MediaPicker extends Component
      */
     public function selectFocused(): void
     {
-        if ($this->focusedIndex < 0) {
+        if ( $this->focusedIndex < 0 ) {
             return;
         }
 
         $mediaItems = $this->media;
 
-        if ($this->focusedIndex >= $mediaItems->count()) {
+        if ( $this->focusedIndex >= $mediaItems->count() ) {
             return;
         }
 
-        $mediaItem = $mediaItems->values()[$this->focusedIndex];
-        $this->toggleSelect($mediaItem->id);
+        $mediaItem = $mediaItems->values()[ $this->focusedIndex ];
+        $this->toggleSelect( $mediaItem->id );
     }
 
     /**
@@ -642,6 +591,59 @@ class MediaPicker extends Component
      */
     public function render(): View
     {
-        return view('media::livewire.components.media-picker');
+        return view( 'media::livewire.components.media-picker' );
+    }
+
+    /**
+     * Clamp maxSelections to a safe range (0-1000).
+     *
+     * @since 1.1.0
+     *
+     * @param  int  $value  The value to clamp.
+     *
+     * @return int The clamped value.
+     */
+    protected function clampMaxSelections( int $value ): int
+    {
+        return max( 0, min( 1000, $value ) );
+    }
+
+    /**
+     * Clamp loadCount to a safe range (1-100).
+     *
+     * @since 1.1.0
+     *
+     * @param  int  $value  The value to clamp.
+     *
+     * @return int The clamped value.
+     */
+    protected function clampLoadCount( int $value ): int
+    {
+        return max( 1, min( 100, $value ) );
+    }
+
+    /**
+     * Apply the MIME type filter based on acceptTypes pattern.
+     *
+     * @since 1.1.0
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query  The query builder instance.
+     */
+    protected function applyTypeFilter( $query ): void
+    {
+        $types = array_map( 'trim', explode( ',', $this->acceptTypes ) );
+
+        $query->where( function ( $q ) use ( $types ): void {
+            foreach ( $types as $type ) {
+                if ( str_ends_with( $type, '/*' ) ) {
+                    // Wildcard pattern like 'image/*'
+                    $prefix = str_replace( '/*', '/', $type );
+                    $q->orWhere( 'mime_type', 'like', $prefix . '%' );
+                } else {
+                    // Exact match like 'application/pdf'
+                    $q->orWhere( 'mime_type', $type );
+                }
+            }
+        });
     }
 }

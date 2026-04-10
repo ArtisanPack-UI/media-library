@@ -82,18 +82,6 @@ class Media extends Model
     ];
 
     /**
-     * Create a new factory instance for the model.
-     *
-     * @since 1.0.0
-     *
-     * @return MediaFactory The model factory instance.
-     */
-    protected static function newFactory(): MediaFactory
-    {
-        return MediaFactory::new();
-    }
-
-    /**
      * Get the user who uploaded this media.
      *
      * @since 1.0.0
@@ -136,6 +124,7 @@ class Media extends Model
      *
      * @param string               $size       The image size to display. Default 'full'.
      * @param array<string, mixed> $attributes Additional HTML attributes.
+     *
      * @return string The HTML img tag or empty string if not an image.
      */
     public function displayImage( string $size = 'full', array $attributes = [] ): string
@@ -173,6 +162,7 @@ class Media extends Model
      * @since 1.0.0
      *
      * @param string $size The image size name. Default 'thumbnail'.
+     *
      * @return string|null The image URL or null if not an image.
      */
     public function imageUrl( string $size = 'thumbnail' ): ?string
@@ -181,7 +171,7 @@ class Media extends Model
             return null;
         }
 
-        if ( $size === 'full' ) {
+        if ( 'full' === $size ) {
             return $this->url();
         }
 
@@ -363,6 +353,7 @@ class Media extends Model
      * @since 1.0.0
      *
      * @param Builder $query The query builder instance.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeImages( Builder $query ): Builder
@@ -376,6 +367,7 @@ class Media extends Model
      * @since 1.0.0
      *
      * @param Builder $query The query builder instance.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeVideos( Builder $query ): Builder
@@ -389,6 +381,7 @@ class Media extends Model
      * @since 1.0.0
      *
      * @param Builder $query The query builder instance.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeAudios( Builder $query ): Builder
@@ -402,6 +395,7 @@ class Media extends Model
      * @since 1.0.0
      *
      * @param Builder $query The query builder instance.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeDocuments( Builder $query ): Builder
@@ -416,6 +410,7 @@ class Media extends Model
      *
      * @param Builder $query    The query builder instance.
      * @param int     $folderId The folder ID to filter by.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeInFolder( Builder $query, int $folderId ): Builder
@@ -430,11 +425,12 @@ class Media extends Model
      *
      * @param Builder $query   The query builder instance.
      * @param string  $tagSlug The tag slug to filter by.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeWithTag( Builder $query, string $tagSlug ): Builder
     {
-        return $query->whereHas( 'tags', function ( $q ) use ( $tagSlug ) {
+        return $query->whereHas( 'tags', function ( $q ) use ( $tagSlug ): void {
             $q->where( 'slug', $tagSlug );
         } );
     }
@@ -446,11 +442,24 @@ class Media extends Model
      *
      * @param Builder $query    The query builder instance.
      * @param string  $mimeType The MIME type to filter by.
+     *
      * @return Builder The modified query builder.
      */
     public function scopeByType( Builder $query, string $mimeType ): Builder
     {
         return $query->where( 'mime_type', $mimeType );
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @since 1.0.0
+     *
+     * @return MediaFactory The model factory instance.
+     */
+    protected static function newFactory(): MediaFactory
+    {
+        return MediaFactory::new();
     }
 
     /**

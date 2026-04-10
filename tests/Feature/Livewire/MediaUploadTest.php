@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature\Livewire;
 
@@ -9,6 +9,7 @@ use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use ArtisanPackUI\MediaLibrary\Models\User;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -32,14 +33,14 @@ class MediaUploadTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
-        Storage::fake('test-disk');
+        Storage::fake( 'public' );
+        Storage::fake( 'test-disk' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'test-disk',
-            'artisanpack.media.user_model' => User::class,
+        config( [
+            'artisanpack.media.disk'               => 'test-disk',
+            'artisanpack.media.user_model'         => User::class,
             'artisanpack.media.allowed_mime_types' => [
                 'image/jpeg',
                 'image/png',
@@ -47,9 +48,9 @@ class MediaUploadTest extends TestCase
                 'image/webp',
             ],
             'artisanpack.media.max_file_size' => 10240,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     /**
@@ -57,9 +58,9 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_renders(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -67,17 +68,17 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_has_initial_state(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertSet('files', [])
-            ->assertSet('droppedFiles', [])
-            ->assertSet('uploadedMedia', [])
-            ->assertSet('uploadErrors', [])
-            ->assertSet('isUploading', false)
-            ->assertSet('uploadProgress', 0)
-            ->assertSet('totalFiles', 0)
-            ->assertSet('uploadedCount', 0)
-            ->assertSet('folderId', null);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertSet( 'files', [] )
+            ->assertSet( 'droppedFiles', [] )
+            ->assertSet( 'uploadedMedia', [] )
+            ->assertSet( 'uploadErrors', [] )
+            ->assertSet( 'isUploading', false )
+            ->assertSet( 'uploadProgress', 0 )
+            ->assertSet( 'totalFiles', 0 )
+            ->assertSet( 'uploadedCount', 0 )
+            ->assertSet( 'folderId', null );
     }
 
     /**
@@ -85,12 +86,12 @@ class MediaUploadTest extends TestCase
      */
     public function test_metadata_has_default_values(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertSet('metadata.title', '')
-            ->assertSet('metadata.alt_text', '')
-            ->assertSet('metadata.caption', '')
-            ->assertSet('metadata.description', '');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertSet( 'metadata.title', '' )
+            ->assertSet( 'metadata.alt_text', '' )
+            ->assertSet( 'metadata.caption', '' )
+            ->assertSet( 'metadata.description', '' );
     }
 
     /**
@@ -102,23 +103,23 @@ class MediaUploadTest extends TestCase
      */
     public function test_validates_file_types_during_upload(): void
     {
-        config(['artisanpack.media.max_file_size' => 10240]);
-        config(['artisanpack.media.allowed_mime_types' => ['image/jpeg', 'image/png']]);
+        config( ['artisanpack.media.max_file_size' => 10240] );
+        config( ['artisanpack.media.allowed_mime_types' => ['image/jpeg', 'image/png']] );
 
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andThrow(new \Exception('File type not allowed'));
+            ->andThrow( new Exception( 'File type not allowed' ) );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertCount('uploadErrors', 1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertCount( 'uploadErrors', 1 );
     }
 
     /**
@@ -126,14 +127,14 @@ class MediaUploadTest extends TestCase
      */
     public function test_validates_file_size(): void
     {
-        config(['artisanpack.media.max_file_size' => 1]);
+        config( ['artisanpack.media.max_file_size' => 1] );
 
-        $file = UploadedFile::fake()->create('large.jpg', 5000, 'image/jpeg');
+        $file = UploadedFile::fake()->create( 'large.jpg', 5000, 'image/jpeg' );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->assertHasErrors('files.0');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->assertHasErrors( 'files.0' );
     }
 
     /**
@@ -141,11 +142,11 @@ class MediaUploadTest extends TestCase
      */
     public function test_accepts_valid_image_files(): void
     {
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
             ->assertHasNoErrors();
     }
 
@@ -154,16 +155,16 @@ class MediaUploadTest extends TestCase
      */
     public function test_removes_file_from_queue(): void
     {
-        $file1 = UploadedFile::fake()->image('photo1.jpg', 100, 100);
-        $file2 = UploadedFile::fake()->image('photo2.jpg', 100, 100);
+        $file1 = UploadedFile::fake()->image( 'photo1.jpg', 100, 100 );
+        $file2 = UploadedFile::fake()->image( 'photo2.jpg', 100, 100 );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
-        $component->set('files', [$file1, $file2])
-            ->assertCount('files', 2)
-            ->call('removeFile', 0)
-            ->assertCount('files', 1);
+        $component->set( 'files', [$file1, $file2] )
+            ->assertCount( 'files', 2 )
+            ->call( 'removeFile', 0 )
+            ->assertCount( 'files', 1 );
     }
 
     /**
@@ -171,21 +172,21 @@ class MediaUploadTest extends TestCase
      */
     public function test_clears_all_files(): void
     {
-        $file1 = UploadedFile::fake()->image('photo1.jpg', 100, 100);
-        $file2 = UploadedFile::fake()->image('photo2.jpg', 100, 100);
+        $file1 = UploadedFile::fake()->image( 'photo1.jpg', 100, 100 );
+        $file2 = UploadedFile::fake()->image( 'photo2.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file1, $file2])
-            ->assertCount('files', 2)
-            ->call('clearFiles')
-            ->assertSet('files', [])
-            ->assertSet('droppedFiles', [])
-            ->assertSet('uploadedMedia', [])
-            ->assertSet('uploadErrors', [])
-            ->assertSet('uploadProgress', 0)
-            ->assertSet('totalFiles', 0)
-            ->assertSet('uploadedCount', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file1, $file2] )
+            ->assertCount( 'files', 2 )
+            ->call( 'clearFiles' )
+            ->assertSet( 'files', [] )
+            ->assertSet( 'droppedFiles', [] )
+            ->assertSet( 'uploadedMedia', [] )
+            ->assertSet( 'uploadErrors', [] )
+            ->assertSet( 'uploadProgress', 0 )
+            ->assertSet( 'totalFiles', 0 )
+            ->assertSet( 'uploadedCount', 0 );
     }
 
     /**
@@ -193,20 +194,20 @@ class MediaUploadTest extends TestCase
      */
     public function test_clears_uploaded_media(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('uploadedMedia', [$media1, $media2])
-            ->set('uploadErrors', ['error1'])
-            ->set('uploadProgress', 100)
-            ->set('uploadedCount', 2)
-            ->call('clearUploaded')
-            ->assertSet('uploadedMedia', [])
-            ->assertSet('uploadErrors', [])
-            ->assertSet('uploadProgress', 0)
-            ->assertSet('uploadedCount', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'uploadedMedia', [$media1, $media2] )
+            ->set( 'uploadErrors', ['error1'] )
+            ->set( 'uploadProgress', 100 )
+            ->set( 'uploadedCount', 2 )
+            ->call( 'clearUploaded' )
+            ->assertSet( 'uploadedMedia', [] )
+            ->assertSet( 'uploadErrors', [] )
+            ->assertSet( 'uploadProgress', 0 )
+            ->assertSet( 'uploadedCount', 0 );
     }
 
     /**
@@ -214,12 +215,12 @@ class MediaUploadTest extends TestCase
      */
     public function test_can_set_folder_id(): void
     {
-        $folder = MediaFolder::factory()->createdBy($this->user)->create();
+        $folder = MediaFolder::factory()->createdBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('folderId', $folder->id)
-            ->assertSet('folderId', $folder->id);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'folderId', $folder->id )
+            ->assertSet( 'folderId', $folder->id );
     }
 
     /**
@@ -227,14 +228,14 @@ class MediaUploadTest extends TestCase
      */
     public function test_folder_options_includes_all_folders(): void
     {
-        MediaFolder::factory()->createdBy($this->user)->count(3)->create();
+        MediaFolder::factory()->createdBy( $this->user )->count( 3 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
         $folderOptions = $component->invade()->folderOptions();
-        expect($folderOptions)->toBeArray();
-        expect(count($folderOptions))->toBeGreaterThanOrEqual(4);
+        expect( $folderOptions )->toBeArray();
+        expect( count( $folderOptions ) )->toBeGreaterThanOrEqual( 4 );
     }
 
     /**
@@ -242,16 +243,16 @@ class MediaUploadTest extends TestCase
      */
     public function test_can_set_metadata(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('metadata.title', 'Test Title')
-            ->set('metadata.alt_text', 'Test Alt Text')
-            ->set('metadata.caption', 'Test Caption')
-            ->set('metadata.description', 'Test Description')
-            ->assertSet('metadata.title', 'Test Title')
-            ->assertSet('metadata.alt_text', 'Test Alt Text')
-            ->assertSet('metadata.caption', 'Test Caption')
-            ->assertSet('metadata.description', 'Test Description');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'metadata.title', 'Test Title' )
+            ->set( 'metadata.alt_text', 'Test Alt Text' )
+            ->set( 'metadata.caption', 'Test Caption' )
+            ->set( 'metadata.description', 'Test Description' )
+            ->assertSet( 'metadata.title', 'Test Title' )
+            ->assertSet( 'metadata.alt_text', 'Test Alt Text' )
+            ->assertSet( 'metadata.caption', 'Test Caption' )
+            ->assertSet( 'metadata.description', 'Test Description' );
     }
 
     /**
@@ -259,10 +260,10 @@ class MediaUploadTest extends TestCase
      */
     public function test_process_upload_shows_error_when_no_files(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->call('processUpload')
-            ->assertHasErrors('files');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->call( 'processUpload' )
+            ->assertHasErrors( 'files' );
     }
 
     /**
@@ -270,22 +271,22 @@ class MediaUploadTest extends TestCase
      */
     public function test_successful_upload_dispatches_event(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andReturn($media);
+            ->andReturn( $media );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertDispatched('media-uploaded');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertDispatched( 'media-uploaded' );
     }
 
     /**
@@ -293,25 +294,25 @@ class MediaUploadTest extends TestCase
      */
     public function test_upload_clears_metadata_after_completion(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andReturn($media);
+            ->andReturn( $media );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('metadata.title', 'Test Title')
-            ->set('metadata.alt_text', 'Test Alt Text')
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertSet('metadata.title', '')
-            ->assertSet('metadata.alt_text', '');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'metadata.title', 'Test Title' )
+            ->set( 'metadata.alt_text', 'Test Alt Text' )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertSet( 'metadata.title', '' )
+            ->assertSet( 'metadata.alt_text', '' );
     }
 
     /**
@@ -319,14 +320,14 @@ class MediaUploadTest extends TestCase
      */
     public function test_total_files_count_property(): void
     {
-        $file1 = UploadedFile::fake()->image('photo1.jpg', 100, 100);
-        $file2 = UploadedFile::fake()->image('photo2.jpg', 100, 100);
+        $file1 = UploadedFile::fake()->image( 'photo1.jpg', 100, 100 );
+        $file2 = UploadedFile::fake()->image( 'photo2.jpg', 100, 100 );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file1, $file2]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file1, $file2] );
 
-        expect($component->get('totalFilesCount'))->toBe(2);
+        expect( $component->get( 'totalFilesCount' ) )->toBe( 2 );
     }
 
     /**
@@ -334,21 +335,21 @@ class MediaUploadTest extends TestCase
      */
     public function test_upload_handles_errors_gracefully(): void
     {
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andThrow(new \Exception('Upload failed'));
+            ->andThrow( new Exception( 'Upload failed' ) );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertSet('isUploading', false)
-            ->assertCount('uploadErrors', 1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertSet( 'isUploading', false )
+            ->assertCount( 'uploadErrors', 1 );
     }
 
     /**
@@ -356,15 +357,15 @@ class MediaUploadTest extends TestCase
      */
     public function test_clear_uploaded_event_resets_state(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('uploadedMedia', [$media])
-            ->set('uploadProgress', 100)
-            ->dispatch('clear-uploaded')
-            ->assertSet('uploadedMedia', [])
-            ->assertSet('uploadProgress', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'uploadedMedia', [$media] )
+            ->set( 'uploadProgress', 100 )
+            ->dispatch( 'clear-uploaded' )
+            ->assertSet( 'uploadedMedia', [] )
+            ->assertSet( 'uploadProgress', 0 );
     }
 
     /**
@@ -372,9 +373,9 @@ class MediaUploadTest extends TestCase
      */
     public function test_renders_upload_area(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -384,10 +385,10 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_has_streaming_properties(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertSet('currentFileName', '')
-            ->assertSet('currentFileProgress', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertSet( 'currentFileName', '' )
+            ->assertSet( 'currentFileProgress', 0 );
     }
 
     /**
@@ -397,13 +398,13 @@ class MediaUploadTest extends TestCase
      */
     public function test_is_streaming_enabled_method(): void
     {
-        config(['artisanpack.media.features.streaming_upload' => true]);
+        config( ['artisanpack.media.features.streaming_upload' => true] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
         $isEnabled = $component->invade()->isStreamingEnabled();
-        expect($isEnabled)->toBeBool();
+        expect( $isEnabled )->toBeBool();
     }
 
     /**
@@ -413,13 +414,13 @@ class MediaUploadTest extends TestCase
      */
     public function test_get_streaming_fallback_interval(): void
     {
-        config(['artisanpack.media.features.streaming_fallback_interval' => 750]);
+        config( ['artisanpack.media.features.streaming_fallback_interval' => 750] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
         $interval = $component->invade()->getStreamingFallbackInterval();
-        expect($interval)->toBe(750);
+        expect( $interval )->toBe( 750 );
     }
 
     /**
@@ -429,15 +430,15 @@ class MediaUploadTest extends TestCase
      */
     public function test_collect_files_for_upload(): void
     {
-        $file1 = UploadedFile::fake()->image('photo1.jpg', 100, 100);
-        $file2 = UploadedFile::fake()->image('photo2.jpg', 100, 100);
+        $file1 = UploadedFile::fake()->image( 'photo1.jpg', 100, 100 );
+        $file2 = UploadedFile::fake()->image( 'photo2.jpg', 100, 100 );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file1, $file2]);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file1, $file2] );
 
         $files = $component->invade()->collectFilesForUpload();
-        expect($files)->toHaveCount(2);
+        expect( $files )->toHaveCount( 2 );
     }
 
     /**
@@ -447,14 +448,14 @@ class MediaUploadTest extends TestCase
      */
     public function test_build_upload_options_includes_folder_id(): void
     {
-        $folder = MediaFolder::factory()->createdBy($this->user)->create();
+        $folder = MediaFolder::factory()->createdBy( $this->user )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('folderId', $folder->id);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'folderId', $folder->id );
 
         $options = $component->invade()->buildUploadOptions();
-        expect($options['folder_id'])->toBe($folder->id);
+        expect( $options['folder_id'] )->toBe( $folder->id );
     }
 
     /**
@@ -464,19 +465,19 @@ class MediaUploadTest extends TestCase
      */
     public function test_build_upload_options_includes_metadata(): void
     {
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('metadata.title', 'Test Title')
-            ->set('metadata.alt_text', 'Test Alt Text')
-            ->set('metadata.caption', 'Test Caption')
-            ->set('metadata.description', 'Test Description');
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'metadata.title', 'Test Title' )
+            ->set( 'metadata.alt_text', 'Test Alt Text' )
+            ->set( 'metadata.caption', 'Test Caption' )
+            ->set( 'metadata.description', 'Test Description' );
 
         $options = $component->invade()->buildUploadOptions();
 
-        expect($options['title'])->toBe('Test Title');
-        expect($options['alt_text'])->toBe('Test Alt Text');
-        expect($options['caption'])->toBe('Test Caption');
-        expect($options['description'])->toBe('Test Description');
+        expect( $options['title'] )->toBe( 'Test Title' );
+        expect( $options['alt_text'] )->toBe( 'Test Alt Text' );
+        expect( $options['caption'] )->toBe( 'Test Caption' );
+        expect( $options['description'] )->toBe( 'Test Description' );
     }
 
     /**
@@ -486,15 +487,15 @@ class MediaUploadTest extends TestCase
      */
     public function test_build_upload_options_excludes_empty_metadata(): void
     {
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('metadata.title', '')
-            ->set('metadata.alt_text', '');
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'metadata.title', '' )
+            ->set( 'metadata.alt_text', '' );
 
         $options = $component->invade()->buildUploadOptions();
 
-        expect($options)->not->toHaveKey('title');
-        expect($options)->not->toHaveKey('alt_text');
+        expect( $options )->not->toHaveKey( 'title' );
+        expect( $options )->not->toHaveKey( 'alt_text' );
     }
 
     /**
@@ -504,26 +505,26 @@ class MediaUploadTest extends TestCase
      */
     public function test_process_files_standard(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andReturn($media);
+            ->andReturn( $media );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
         // Disable streaming to use standard processing
-        config(['artisanpack.media.features.streaming_upload' => false]);
+        config( ['artisanpack.media.features.streaming_upload' => false] );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertCount('uploadedMedia', 1)
-            ->assertSet('uploadedCount', 1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertCount( 'uploadedMedia', 1 )
+            ->assertSet( 'uploadedCount', 1 );
     }
 
     /**
@@ -533,27 +534,27 @@ class MediaUploadTest extends TestCase
      */
     public function test_process_upload_uses_streaming_when_enabled(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andReturn($media);
+            ->andReturn( $media );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
         // Enable streaming
-        config(['artisanpack.media.features.streaming_upload' => true]);
+        config( ['artisanpack.media.features.streaming_upload' => true] );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertCount('uploadedMedia', 1)
-            ->assertSet('uploadedCount', 1)
-            ->assertDispatched('media-uploaded');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertCount( 'uploadedMedia', 1 )
+            ->assertSet( 'uploadedCount', 1 )
+            ->assertDispatched( 'media-uploaded' );
     }
 
     /**
@@ -563,13 +564,13 @@ class MediaUploadTest extends TestCase
      */
     public function test_should_use_poll_false_when_not_uploading(): void
     {
-        config(['artisanpack.media.features.streaming_upload' => false]);
+        config( ['artisanpack.media.features.streaming_upload' => false] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
         // Not uploading, so should not poll
-        expect($component->get('shouldUsePoll'))->toBeFalse();
+        expect( $component->get( 'shouldUsePoll' ) )->toBeFalse();
     }
 
     /**
@@ -579,16 +580,16 @@ class MediaUploadTest extends TestCase
      */
     public function test_should_use_poll_false_when_streaming_enabled(): void
     {
-        config(['artisanpack.media.features.streaming_upload' => true]);
+        config( ['artisanpack.media.features.streaming_upload' => true] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('isUploading', true);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'isUploading', true );
 
         // Streaming is enabled, so should not poll even when uploading
         // Note: The actual value depends on whether stream() method exists
-        $shouldUsePoll = $component->get('shouldUsePoll');
-        expect($shouldUsePoll)->toBeBool();
+        $shouldUsePoll = $component->get( 'shouldUsePoll' );
+        expect( $shouldUsePoll )->toBeBool();
     }
 
     /**
@@ -598,12 +599,12 @@ class MediaUploadTest extends TestCase
      */
     public function test_polling_interval_returns_configured_value(): void
     {
-        config(['artisanpack.media.features.streaming_fallback_interval' => 750]);
+        config( ['artisanpack.media.features.streaming_fallback_interval' => 750] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
-        expect($component->get('pollingInterval'))->toBe(750);
+        expect( $component->get( 'pollingInterval' ) )->toBe( 750 );
     }
 
     /**
@@ -613,12 +614,12 @@ class MediaUploadTest extends TestCase
      */
     public function test_polling_interval_returns_default_value(): void
     {
-        config(['artisanpack.media.features.streaming_fallback_interval' => 500]);
+        config( ['artisanpack.media.features.streaming_fallback_interval' => 500] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(MediaUpload::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class );
 
-        expect($component->get('pollingInterval'))->toBe(500);
+        expect( $component->get( 'pollingInterval' ) )->toBe( 500 );
     }
 
     /**
@@ -628,28 +629,28 @@ class MediaUploadTest extends TestCase
      */
     public function test_polling_mode_uses_standard_processing(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $mockService = Mockery::mock(MediaUploadService::class);
-        $mockService->shouldReceive('upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andReturn($media);
+            ->andReturn( $media );
 
-        $this->app->instance(MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
         // Disable streaming to force polling mode
-        config(['artisanpack.media.features.streaming_upload' => false]);
+        config( ['artisanpack.media.features.streaming_upload' => false] );
 
-        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->set('files', [$file])
-            ->call('processUpload')
-            ->assertCount('uploadedMedia', 1)
-            ->assertSet('uploadedCount', 1)
-            ->assertSet('isUploading', false)
-            ->assertDispatched('media-uploaded');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertCount( 'uploadedMedia', 1 )
+            ->assertSet( 'uploadedCount', 1 )
+            ->assertSet( 'isUploading', false )
+            ->assertDispatched( 'media-uploaded' );
     }
 
     /**
@@ -659,9 +660,9 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_exposes_current_file_name_property(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertSet('currentFileName', '');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertSet( 'currentFileName', '' );
     }
 
     /**
@@ -671,8 +672,8 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_exposes_current_file_progress_property(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaUpload::class)
-            ->assertSet('currentFileProgress', 0);
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertSet( 'currentFileProgress', 0 );
     }
 }

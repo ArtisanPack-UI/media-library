@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature;
 
@@ -36,7 +36,7 @@ class MediaStatisticsTest extends TestCase
         $this->defineDatabaseMigrations();
 
         $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actingAs( $this->user );
     }
 
     /**
@@ -44,8 +44,8 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_can_be_rendered(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->assertStatus(200);
+        Livewire::test( MediaStatistics::class )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -53,11 +53,11 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_media_returns_correct_count(): void
     {
-        Media::factory()->count(5)->uploadedBy($this->user)->create();
+        Media::factory()->count( 5 )->uploadedBy( $this->user )->create();
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalMedia'))->toBe(5);
+        expect( $component->get( 'totalMedia' ) )->toBe( 5 );
     }
 
     /**
@@ -65,9 +65,9 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_media_returns_zero_when_empty(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalMedia'))->toBe(0);
+        expect( $component->get( 'totalMedia' ) )->toBe( 0 );
     }
 
     /**
@@ -75,13 +75,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_storage_bytes_returns_correct_sum(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 1000]);
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 2000]);
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 3000]);
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 1000] );
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 2000] );
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 3000] );
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalStorageBytes'))->toBe(6000);
+        expect( $component->get( 'totalStorageBytes' ) )->toBe( 6000 );
     }
 
     /**
@@ -89,12 +89,12 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_storage_formatted_returns_readable_string(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 1536000]); // ~1.5 MB
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 1536000] ); // ~1.5 MB
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        $formatted = $component->get('totalStorageFormatted');
-        expect($formatted)->toContain('MB');
+        $formatted = $component->get( 'totalStorageFormatted' );
+        expect( $formatted )->toContain( 'MB' );
     }
 
     /**
@@ -102,9 +102,9 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_storage_formatted_returns_zero_when_empty(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalStorageFormatted'))->toBe('0 B');
+        expect( $component->get( 'totalStorageFormatted' ) )->toBe( '0 B' );
     }
 
     /**
@@ -113,18 +113,18 @@ class MediaStatisticsTest extends TestCase
     public function test_media_by_type_returns_correct_counts(): void
     {
         // Create media of different types
-        Media::factory()->count(3)->image()->uploadedBy($this->user)->create();
-        Media::factory()->count(2)->video()->uploadedBy($this->user)->create();
-        Media::factory()->count(1)->audio()->uploadedBy($this->user)->create();
-        Media::factory()->count(4)->document()->uploadedBy($this->user)->create();
+        Media::factory()->count( 3 )->image()->uploadedBy( $this->user )->create();
+        Media::factory()->count( 2 )->video()->uploadedBy( $this->user )->create();
+        Media::factory()->count( 1 )->audio()->uploadedBy( $this->user )->create();
+        Media::factory()->count( 4 )->document()->uploadedBy( $this->user )->create();
 
-        $component = Livewire::test(MediaStatistics::class);
-        $mediaByType = $component->get('mediaByType');
+        $component   = Livewire::test( MediaStatistics::class );
+        $mediaByType = $component->get( 'mediaByType' );
 
-        expect($mediaByType['images'])->toBe(3);
-        expect($mediaByType['videos'])->toBe(2);
-        expect($mediaByType['audio'])->toBe(1);
-        expect($mediaByType['documents'])->toBe(4);
+        expect( $mediaByType['images'] )->toBe( 3 );
+        expect( $mediaByType['videos'] )->toBe( 2 );
+        expect( $mediaByType['audio'] )->toBe( 1 );
+        expect( $mediaByType['documents'] )->toBe( 4 );
     }
 
     /**
@@ -132,16 +132,16 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_storage_by_type_returns_bytes_and_formatted(): void
     {
-        Media::factory()->image()->uploadedBy($this->user)->create(['file_size' => 5000]);
-        Media::factory()->video()->uploadedBy($this->user)->create(['file_size' => 10000]);
+        Media::factory()->image()->uploadedBy( $this->user )->create( ['file_size' => 5000] );
+        Media::factory()->video()->uploadedBy( $this->user )->create( ['file_size' => 10000] );
 
-        $component = Livewire::test(MediaStatistics::class);
-        $storageByType = $component->get('storageByType');
+        $component     = Livewire::test( MediaStatistics::class );
+        $storageByType = $component->get( 'storageByType' );
 
-        expect($storageByType['images']['bytes'])->toBe(5000);
-        expect($storageByType['images']['formatted'])->toContain('KB');
-        expect($storageByType['videos']['bytes'])->toBe(10000);
-        expect($storageByType['videos']['formatted'])->toContain('KB');
+        expect( $storageByType['images']['bytes'] )->toBe( 5000 );
+        expect( $storageByType['images']['formatted'] )->toContain( 'KB' );
+        expect( $storageByType['videos']['bytes'] )->toBe( 10000 );
+        expect( $storageByType['videos']['formatted'] )->toContain( 'KB' );
     }
 
     /**
@@ -150,19 +150,19 @@ class MediaStatisticsTest extends TestCase
     public function test_recent_uploads_count_returns_correct_count(): void
     {
         // Create recent media
-        Media::factory()->count(3)->uploadedBy($this->user)->create([
-            'created_at' => Carbon::now()->subDays(2),
-        ]);
+        Media::factory()->count( 3 )->uploadedBy( $this->user )->create( [
+            'created_at' => Carbon::now()->subDays( 2 ),
+        ] );
 
         // Create old media
-        Media::factory()->count(2)->uploadedBy($this->user)->create([
-            'created_at' => Carbon::now()->subDays(30),
-        ]);
+        Media::factory()->count( 2 )->uploadedBy( $this->user )->create( [
+            'created_at' => Carbon::now()->subDays( 30 ),
+        ] );
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
         // Default recentDays is 7
-        expect($component->get('recentUploadsCount'))->toBe(3);
+        expect( $component->get( 'recentUploadsCount' ) )->toBe( 3 );
     }
 
     /**
@@ -170,11 +170,11 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_daily_upload_counts_returns_array_with_correct_length(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
-        $dailyCounts = $component->get('dailyUploadCounts');
+        $component   = Livewire::test( MediaStatistics::class );
+        $dailyCounts = $component->get( 'dailyUploadCounts' );
 
         // Default recentDays is 7, so should have 7 entries
-        expect($dailyCounts)->toHaveCount(7);
+        expect( $dailyCounts )->toHaveCount( 7 );
     }
 
     /**
@@ -183,19 +183,19 @@ class MediaStatisticsTest extends TestCase
     public function test_daily_upload_counts_fills_missing_days_with_zeros(): void
     {
         // Only create media for today
-        Media::factory()->count(2)->uploadedBy($this->user)->create([
+        Media::factory()->count( 2 )->uploadedBy( $this->user )->create( [
             'created_at' => Carbon::now(),
-        ]);
+        ] );
 
-        $component = Livewire::test(MediaStatistics::class);
-        $dailyCounts = $component->get('dailyUploadCounts');
+        $component   = Livewire::test( MediaStatistics::class );
+        $dailyCounts = $component->get( 'dailyUploadCounts' );
 
         // Should have 6 zeros for the 6 days without uploads (today has 2)
-        $zeroCount = count(array_filter($dailyCounts, fn ($count) => $count === 0));
-        expect($zeroCount)->toBe(6);
+        $zeroCount = count( array_filter( $dailyCounts, fn ( $count ) => 0 === $count ) );
+        expect( $zeroCount )->toBe( 6 );
         
         // Last entry (today) should have the uploads
-        expect($dailyCounts[6])->toBe(2);
+        expect( $dailyCounts[6] )->toBe( 2 );
     }
 
     /**
@@ -203,20 +203,20 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_top_folders_returns_ordered_by_media_count(): void
     {
-        $folder1 = MediaFolder::factory()->createdBy($this->user)->create(['name' => 'Folder 1']);
-        $folder2 = MediaFolder::factory()->createdBy($this->user)->create(['name' => 'Folder 2']);
-        $folder3 = MediaFolder::factory()->createdBy($this->user)->create(['name' => 'Folder 3']);
+        $folder1 = MediaFolder::factory()->createdBy( $this->user )->create( ['name' => 'Folder 1'] );
+        $folder2 = MediaFolder::factory()->createdBy( $this->user )->create( ['name' => 'Folder 2'] );
+        $folder3 = MediaFolder::factory()->createdBy( $this->user )->create( ['name' => 'Folder 3'] );
 
         // Create different amounts of media in each folder
-        Media::factory()->count(5)->inFolder($folder1)->uploadedBy($this->user)->create();
-        Media::factory()->count(10)->inFolder($folder2)->uploadedBy($this->user)->create();
-        Media::factory()->count(3)->inFolder($folder3)->uploadedBy($this->user)->create();
+        Media::factory()->count( 5 )->inFolder( $folder1 )->uploadedBy( $this->user )->create();
+        Media::factory()->count( 10 )->inFolder( $folder2 )->uploadedBy( $this->user )->create();
+        Media::factory()->count( 3 )->inFolder( $folder3 )->uploadedBy( $this->user )->create();
 
-        $component = Livewire::test(MediaStatistics::class);
-        $topFolders = $component->get('topFolders');
+        $component  = Livewire::test( MediaStatistics::class );
+        $topFolders = $component->get( 'topFolders' );
 
-        expect($topFolders->first()->name)->toBe('Folder 2');
-        expect($topFolders->first()->media_count)->toBe(10);
+        expect( $topFolders->first()->name )->toBe( 'Folder 2' );
+        expect( $topFolders->first()->media_count )->toBe( 10 );
     }
 
     /**
@@ -225,16 +225,16 @@ class MediaStatisticsTest extends TestCase
     public function test_top_folders_respects_limit(): void
     {
         // Create more folders than the default limit
-        for ($i = 0; $i < 10; $i++) {
-            $folder = MediaFolder::factory()->createdBy($this->user)->create();
-            Media::factory()->count($i + 1)->inFolder($folder)->uploadedBy($this->user)->create();
+        for ( $i = 0; $i < 10; $i++ ) {
+            $folder = MediaFolder::factory()->createdBy( $this->user )->create();
+            Media::factory()->count( $i + 1 )->inFolder( $folder )->uploadedBy( $this->user )->create();
         }
 
-        $component = Livewire::test(MediaStatistics::class);
-        $topFolders = $component->get('topFolders');
+        $component  = Livewire::test( MediaStatistics::class );
+        $topFolders = $component->get( 'topFolders' );
 
         // Default limit is 5
-        expect($topFolders)->toHaveCount(5);
+        expect( $topFolders )->toHaveCount( 5 );
     }
 
     /**
@@ -242,30 +242,30 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_top_tags_returns_ordered_by_media_count(): void
     {
-        $tag1 = MediaTag::factory()->create(['name' => 'Tag 1']);
-        $tag2 = MediaTag::factory()->create(['name' => 'Tag 2']);
-        $tag3 = MediaTag::factory()->create(['name' => 'Tag 3']);
+        $tag1 = MediaTag::factory()->create( ['name' => 'Tag 1'] );
+        $tag2 = MediaTag::factory()->create( ['name' => 'Tag 2'] );
+        $tag3 = MediaTag::factory()->create( ['name' => 'Tag 3'] );
 
         // Attach different amounts of media to each tag
-        $media1 = Media::factory()->count(3)->uploadedBy($this->user)->create();
-        $media2 = Media::factory()->count(7)->uploadedBy($this->user)->create();
-        $media3 = Media::factory()->count(2)->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->count( 3 )->uploadedBy( $this->user )->create();
+        $media2 = Media::factory()->count( 7 )->uploadedBy( $this->user )->create();
+        $media3 = Media::factory()->count( 2 )->uploadedBy( $this->user )->create();
 
-        foreach ($media1 as $media) {
-            $media->tags()->attach($tag1);
+        foreach ( $media1 as $media ) {
+            $media->tags()->attach( $tag1 );
         }
-        foreach ($media2 as $media) {
-            $media->tags()->attach($tag2);
+        foreach ( $media2 as $media ) {
+            $media->tags()->attach( $tag2 );
         }
-        foreach ($media3 as $media) {
-            $media->tags()->attach($tag3);
+        foreach ( $media3 as $media ) {
+            $media->tags()->attach( $tag3 );
         }
 
-        $component = Livewire::test(MediaStatistics::class);
-        $topTags = $component->get('topTags');
+        $component = Livewire::test( MediaStatistics::class );
+        $topTags   = $component->get( 'topTags' );
 
-        expect($topTags->first()->name)->toBe('Tag 2');
-        expect($topTags->first()->media_count)->toBe(7);
+        expect( $topTags->first()->name )->toBe( 'Tag 2' );
+        expect( $topTags->first()->media_count )->toBe( 7 );
     }
 
     /**
@@ -273,11 +273,11 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_folders_returns_correct_count(): void
     {
-        MediaFolder::factory()->count(8)->createdBy($this->user)->create();
+        MediaFolder::factory()->count( 8 )->createdBy( $this->user )->create();
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalFolders'))->toBe(8);
+        expect( $component->get( 'totalFolders' ) )->toBe( 8 );
     }
 
     /**
@@ -285,11 +285,11 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_total_tags_returns_correct_count(): void
     {
-        MediaTag::factory()->count(12)->create();
+        MediaTag::factory()->count( 12 )->create();
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalTags'))->toBe(12);
+        expect( $component->get( 'totalTags' ) )->toBe( 12 );
     }
 
     /**
@@ -297,15 +297,15 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_average_file_size_returns_formatted_string(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 1000]);
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 2000]);
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 3000]);
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 1000] );
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 2000] );
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 3000] );
 
-        $component = Livewire::test(MediaStatistics::class);
-        $avgSize = $component->get('averageFileSize');
+        $component = Livewire::test( MediaStatistics::class );
+        $avgSize   = $component->get( 'averageFileSize' );
 
         // Average is 2000 bytes, which should be displayed as ~1.95 KB
-        expect($avgSize)->toContain('KB');
+        expect( $avgSize )->toContain( 'KB' );
     }
 
     /**
@@ -313,15 +313,15 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_largest_file_returns_largest_media(): void
     {
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 500, 'title' => 'Small']);
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 5000, 'title' => 'Large']);
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 1000, 'title' => 'Medium']);
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 500, 'title' => 'Small'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 5000, 'title' => 'Large'] );
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 1000, 'title' => 'Medium'] );
 
-        $component = Livewire::test(MediaStatistics::class);
-        $largestFile = $component->get('largestFile');
+        $component   = Livewire::test( MediaStatistics::class );
+        $largestFile = $component->get( 'largestFile' );
 
-        expect($largestFile->title)->toBe('Large');
-        expect($largestFile->file_size)->toBe(5000);
+        expect( $largestFile->title )->toBe( 'Large' );
+        expect( $largestFile->file_size )->toBe( 5000 );
     }
 
     /**
@@ -329,9 +329,9 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_largest_file_returns_null_when_empty(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('largestFile'))->toBeNull();
+        expect( $component->get( 'largestFile' ) )->toBeNull();
     }
 
     /**
@@ -339,12 +339,12 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_overview_stats(): void
     {
-        Media::factory()->count(5)->uploadedBy($this->user)->create();
+        Media::factory()->count( 5 )->uploadedBy( $this->user )->create();
 
-        Livewire::test(MediaStatistics::class)
-            ->assertSee(__('Total Media'))
-            ->assertSee(__('Storage Used'))
-            ->assertSee(__('Avg. File Size'));
+        Livewire::test( MediaStatistics::class )
+            ->assertSee( __( 'Total Media' ) )
+            ->assertSee( __( 'Storage Used' ) )
+            ->assertSee( __( 'Avg. File Size' ) );
     }
 
     /**
@@ -352,17 +352,17 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_media_by_type_section(): void
     {
-        Media::factory()->image()->uploadedBy($this->user)->create();
+        Media::factory()->image()->uploadedBy( $this->user )->create();
 
         // Verify component renders and contains the type labels in some form
-        $component = Livewire::test(MediaStatistics::class);
-        $html = $component->html();
+        $component = Livewire::test( MediaStatistics::class );
+        $html      = $component->html();
 
         // Check that the component rendered and contains expected elements
-        expect($html)->toContain('Images');
-        expect($html)->toContain('Videos');
-        expect($html)->toContain('Audio');
-        expect($html)->toContain('Documents');
+        expect( $html )->toContain( 'Images' );
+        expect( $html )->toContain( 'Videos' );
+        expect( $html )->toContain( 'Audio' );
+        expect( $html )->toContain( 'Documents' );
     }
 
     /**
@@ -370,15 +370,15 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_storage_by_type_section(): void
     {
-        Media::factory()->video()->uploadedBy($this->user)->create();
+        Media::factory()->video()->uploadedBy( $this->user )->create();
 
         // Verify component renders and contains storage type elements
-        $component = Livewire::test(MediaStatistics::class);
-        $html = $component->html();
+        $component = Livewire::test( MediaStatistics::class );
+        $html      = $component->html();
 
         // Check that the component rendered with storage-related progress bars and labels
         // The storage section uses the same type labels as media by type
-        expect($html)->toContain('progress'); // Progress component class
+        expect( $html )->toContain( 'progress' ); // Progress component class
     }
 
     /**
@@ -386,15 +386,15 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_top_folders_section(): void
     {
-        $folder = MediaFolder::factory()->createdBy($this->user)->create(['name' => 'Test Folder']);
-        Media::factory()->inFolder($folder)->uploadedBy($this->user)->create();
+        $folder = MediaFolder::factory()->createdBy( $this->user )->create( ['name' => 'Test Folder'] );
+        Media::factory()->inFolder( $folder )->uploadedBy( $this->user )->create();
 
         // Verify component renders with folder data
-        $component = Livewire::test(MediaStatistics::class);
-        $html = $component->html();
+        $component = Livewire::test( MediaStatistics::class );
+        $html      = $component->html();
 
         // Check that the component rendered with folder elements
-        expect($html)->toContain('Test Folder');
+        expect( $html )->toContain( 'Test Folder' );
     }
 
     /**
@@ -402,8 +402,8 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_empty_state_for_folders(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->assertSee(__('No folders created yet'));
+        Livewire::test( MediaStatistics::class )
+            ->assertSee( __( 'No folders created yet' ) );
     }
 
     /**
@@ -411,16 +411,16 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_top_tags_section(): void
     {
-        $tag = MediaTag::factory()->create(['name' => 'Featured']);
-        $media = Media::factory()->uploadedBy($this->user)->create();
-        $media->tags()->attach($tag);
+        $tag   = MediaTag::factory()->create( ['name' => 'Featured'] );
+        $media = Media::factory()->uploadedBy( $this->user )->create();
+        $media->tags()->attach( $tag );
 
         // Verify component renders with tag data
-        $component = Livewire::test(MediaStatistics::class);
-        $html = $component->html();
+        $component = Livewire::test( MediaStatistics::class );
+        $html      = $component->html();
 
         // Check that the component rendered with tag elements
-        expect($html)->toContain('Featured');
+        expect( $html )->toContain( 'Featured' );
     }
 
     /**
@@ -428,8 +428,8 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_empty_state_for_tags(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->assertSee(__('No tags created yet'));
+        Livewire::test( MediaStatistics::class )
+            ->assertSee( __( 'No tags created yet' ) );
     }
 
     /**
@@ -437,17 +437,17 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_displays_largest_file_section(): void
     {
-        Media::factory()->uploadedBy($this->user)->create([
+        Media::factory()->uploadedBy( $this->user )->create( [
             'file_size' => 5000000,
-            'title' => 'Big File',
-        ]);
+            'title'     => 'Big File',
+        ] );
 
         // Verify component renders with largest file data
-        $component = Livewire::test(MediaStatistics::class);
-        $html = $component->html();
+        $component = Livewire::test( MediaStatistics::class );
+        $html      = $component->html();
 
         // Check that the component rendered with the file title
-        expect($html)->toContain('Big File');
+        expect( $html )->toContain( 'Big File' );
     }
 
     /**
@@ -455,17 +455,17 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_custom_top_items_limit_can_be_set(): void
     {
-        for ($i = 0; $i < 10; $i++) {
-            $folder = MediaFolder::factory()->createdBy($this->user)->create();
-            Media::factory()->count($i + 1)->inFolder($folder)->uploadedBy($this->user)->create();
+        for ( $i = 0; $i < 10; $i++ ) {
+            $folder = MediaFolder::factory()->createdBy( $this->user )->create();
+            Media::factory()->count( $i + 1 )->inFolder( $folder )->uploadedBy( $this->user )->create();
         }
 
-        $component = Livewire::test(MediaStatistics::class)
-            ->set('topItemsLimit', 3);
+        $component = Livewire::test( MediaStatistics::class )
+            ->set( 'topItemsLimit', 3 );
 
-        $topFolders = $component->get('topFolders');
+        $topFolders = $component->get( 'topFolders' );
 
-        expect($topFolders)->toHaveCount(3);
+        expect( $topFolders )->toHaveCount( 3 );
     }
 
     /**
@@ -474,15 +474,15 @@ class MediaStatisticsTest extends TestCase
     public function test_custom_recent_days_can_be_set(): void
     {
         // Create media from 20 days ago
-        Media::factory()->count(5)->uploadedBy($this->user)->create([
-            'created_at' => Carbon::now()->subDays(20),
-        ]);
+        Media::factory()->count( 5 )->uploadedBy( $this->user )->create( [
+            'created_at' => Carbon::now()->subDays( 20 ),
+        ] );
 
-        $component = Livewire::test(MediaStatistics::class)
-            ->set('recentDays', 30);
+        $component = Livewire::test( MediaStatistics::class )
+            ->set( 'recentDays', 30 );
 
         // With 30 day window, should find the media
-        expect($component->get('recentUploadsCount'))->toBe(5);
+        expect( $component->get( 'recentUploadsCount' ) )->toBe( 5 );
     }
 
     // =========================================================================
@@ -494,13 +494,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_top_items_limit_clamped_to_minimum(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->set('topItemsLimit', 0)
-            ->assertSet('topItemsLimit', 1);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'topItemsLimit', 0 )
+            ->assertSet( 'topItemsLimit', 1 );
 
-        Livewire::test(MediaStatistics::class)
-            ->set('topItemsLimit', -5)
-            ->assertSet('topItemsLimit', 1);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'topItemsLimit', -5 )
+            ->assertSet( 'topItemsLimit', 1 );
     }
 
     /**
@@ -508,13 +508,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_top_items_limit_clamped_to_maximum(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->set('topItemsLimit', 150)
-            ->assertSet('topItemsLimit', 100);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'topItemsLimit', 150 )
+            ->assertSet( 'topItemsLimit', 100 );
 
-        Livewire::test(MediaStatistics::class)
-            ->set('topItemsLimit', 500)
-            ->assertSet('topItemsLimit', 100);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'topItemsLimit', 500 )
+            ->assertSet( 'topItemsLimit', 100 );
     }
 
     /**
@@ -522,13 +522,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_recent_days_clamped_to_minimum(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->set('recentDays', 0)
-            ->assertSet('recentDays', 1);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'recentDays', 0 )
+            ->assertSet( 'recentDays', 1 );
 
-        Livewire::test(MediaStatistics::class)
-            ->set('recentDays', -10)
-            ->assertSet('recentDays', 1);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'recentDays', -10 )
+            ->assertSet( 'recentDays', 1 );
     }
 
     /**
@@ -536,13 +536,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_recent_days_clamped_to_maximum(): void
     {
-        Livewire::test(MediaStatistics::class)
-            ->set('recentDays', 400)
-            ->assertSet('recentDays', 365);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'recentDays', 400 )
+            ->assertSet( 'recentDays', 365 );
 
-        Livewire::test(MediaStatistics::class)
-            ->set('recentDays', 1000)
-            ->assertSet('recentDays', 365);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'recentDays', 1000 )
+            ->assertSet( 'recentDays', 365 );
     }
 
     /**
@@ -551,9 +551,9 @@ class MediaStatisticsTest extends TestCase
     public function test_top_items_limit_handles_non_integer_values(): void
     {
         // String that can be cast to int
-        Livewire::test(MediaStatistics::class)
-            ->set('topItemsLimit', '10')
-            ->assertSet('topItemsLimit', 10);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'topItemsLimit', '10' )
+            ->assertSet( 'topItemsLimit', 10 );
     }
 
     /**
@@ -562,9 +562,9 @@ class MediaStatisticsTest extends TestCase
     public function test_recent_days_handles_non_integer_values(): void
     {
         // String that can be cast to int
-        Livewire::test(MediaStatistics::class)
-            ->set('recentDays', '14')
-            ->assertSet('recentDays', 14);
+        Livewire::test( MediaStatistics::class )
+            ->set( 'recentDays', '14' )
+            ->assertSet( 'recentDays', 14 );
     }
 
     // =========================================================================
@@ -576,9 +576,9 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_average_file_size_returns_zero_when_empty(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('averageFileSize'))->toBe('0 B');
+        expect( $component->get( 'averageFileSize' ) )->toBe( '0 B' );
     }
 
     /**
@@ -586,15 +586,15 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_storage_by_type_returns_zero_when_empty(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
-        $storageByType = $component->get('storageByType');
+        $component     = Livewire::test( MediaStatistics::class );
+        $storageByType = $component->get( 'storageByType' );
 
-        expect($storageByType['images']['bytes'])->toBe(0);
-        expect($storageByType['videos']['bytes'])->toBe(0);
-        expect($storageByType['audio']['bytes'])->toBe(0);
-        expect($storageByType['documents']['bytes'])->toBe(0);
+        expect( $storageByType['images']['bytes'] )->toBe( 0 );
+        expect( $storageByType['videos']['bytes'] )->toBe( 0 );
+        expect( $storageByType['audio']['bytes'] )->toBe( 0 );
+        expect( $storageByType['documents']['bytes'] )->toBe( 0 );
 
-        expect($storageByType['images']['formatted'])->toBe('0 B');
+        expect( $storageByType['images']['formatted'] )->toBe( '0 B' );
     }
 
     /**
@@ -602,13 +602,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_media_by_type_returns_zero_when_empty(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
-        $mediaByType = $component->get('mediaByType');
+        $component   = Livewire::test( MediaStatistics::class );
+        $mediaByType = $component->get( 'mediaByType' );
 
-        expect($mediaByType['images'])->toBe(0);
-        expect($mediaByType['videos'])->toBe(0);
-        expect($mediaByType['audio'])->toBe(0);
-        expect($mediaByType['documents'])->toBe(0);
+        expect( $mediaByType['images'] )->toBe( 0 );
+        expect( $mediaByType['videos'] )->toBe( 0 );
+        expect( $mediaByType['audio'] )->toBe( 0 );
+        expect( $mediaByType['documents'] )->toBe( 0 );
     }
 
     /**
@@ -616,10 +616,10 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_top_folders_returns_empty_when_none(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
-        $topFolders = $component->get('topFolders');
+        $component  = Livewire::test( MediaStatistics::class );
+        $topFolders = $component->get( 'topFolders' );
 
-        expect($topFolders)->toHaveCount(0);
+        expect( $topFolders )->toHaveCount( 0 );
     }
 
     /**
@@ -627,10 +627,10 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_top_tags_returns_empty_when_none(): void
     {
-        $component = Livewire::test(MediaStatistics::class);
-        $topTags = $component->get('topTags');
+        $component = Livewire::test( MediaStatistics::class );
+        $topTags   = $component->get( 'topTags' );
 
-        expect($topTags)->toHaveCount(0);
+        expect( $topTags )->toHaveCount( 0 );
     }
 
     /**
@@ -639,13 +639,13 @@ class MediaStatisticsTest extends TestCase
     public function test_recent_uploads_count_returns_zero_when_none(): void
     {
         // Create old media only
-        Media::factory()->count(5)->uploadedBy($this->user)->create([
-            'created_at' => Carbon::now()->subDays(30),
-        ]);
+        Media::factory()->count( 5 )->uploadedBy( $this->user )->create( [
+            'created_at' => Carbon::now()->subDays( 30 ),
+        ] );
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('recentUploadsCount'))->toBe(0);
+        expect( $component->get( 'recentUploadsCount' ) )->toBe( 0 );
     }
 
     /**
@@ -654,21 +654,21 @@ class MediaStatisticsTest extends TestCase
     public function test_total_storage_formatted_different_sizes(): void
     {
         // Test bytes
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 500]);
-        $component = Livewire::test(MediaStatistics::class);
-        expect($component->get('totalStorageFormatted'))->toContain('B');
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 500] );
+        $component = Livewire::test( MediaStatistics::class );
+        expect( $component->get( 'totalStorageFormatted' ) )->toContain( 'B' );
 
         // Clean up and test KB
         Media::query()->delete();
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 2048]);
-        $component = Livewire::test(MediaStatistics::class);
-        expect($component->get('totalStorageFormatted'))->toContain('KB');
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 2048] );
+        $component = Livewire::test( MediaStatistics::class );
+        expect( $component->get( 'totalStorageFormatted' ) )->toContain( 'KB' );
 
         // Clean up and test GB
         Media::query()->delete();
-        Media::factory()->uploadedBy($this->user)->create(['file_size' => 1073741824]); // 1 GB
-        $component = Livewire::test(MediaStatistics::class);
-        expect($component->get('totalStorageFormatted'))->toContain('GB');
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 1073741824] ); // 1 GB
+        $component = Livewire::test( MediaStatistics::class );
+        expect( $component->get( 'totalStorageFormatted' ) )->toContain( 'GB' );
     }
 
     /**
@@ -676,13 +676,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_handles_single_media_item(): void
     {
-        Media::factory()->uploadedBy($this->user)->image()->create(['file_size' => 1000]);
+        Media::factory()->uploadedBy( $this->user )->image()->create( ['file_size' => 1000] );
 
-        $component = Livewire::test(MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect($component->get('totalMedia'))->toBe(1);
-        expect($component->get('totalStorageBytes'))->toBe(1000);
-        expect($component->get('averageFileSize'))->toContain('B');
-        expect($component->get('largestFile'))->not->toBeNull();
+        expect( $component->get( 'totalMedia' ) )->toBe( 1 );
+        expect( $component->get( 'totalStorageBytes' ) )->toBe( 1000 );
+        expect( $component->get( 'averageFileSize' ) )->toContain( 'B' );
+        expect( $component->get( 'largestFile' ) )->not->toBeNull();
     }
 }

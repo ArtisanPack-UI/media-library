@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Media Store Request
+ *
+ * Validates data for creating/uploading new media.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Requests
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -58,6 +69,33 @@ class MediaStoreRequest extends FormRequest
     }
 
     /**
+     * Gets custom messages for validator errors.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string> Custom error messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'file.required'      => 'A file is required for upload.',
+            'file.file'          => 'The uploaded item must be a valid file.',
+            'file.max'           => 'The file size exceeds the maximum allowed size of :max KB.',
+            'file.mimes'         => 'The file type is not allowed. Allowed types: :values.',
+            'title.string'       => 'The title must be a string.',
+            'title.max'          => 'The title must not exceed :max characters.',
+            'alt_text.string'    => 'The alt text must be a string.',
+            'alt_text.max'       => 'The alt text must not exceed :max characters.',
+            'caption.string'     => 'The caption must be a string.',
+            'description.string' => 'The description must be a string.',
+            'folder_id.exists'   => 'The selected folder does not exist.',
+            'tags.array'         => 'Tags must be provided as an array.',
+            'tags.*.string'      => 'Each tag must be a string.',
+            'tags.*.max'         => 'Each tag must not exceed :max characters.',
+        ];
+    }
+
+    /**
      * Gets allowed file extensions from MIME types configuration.
      *
      * @since 1.0.0
@@ -99,32 +137,5 @@ class MediaStoreRequest extends FormRequest
         }
 
         return array_unique( $extensions );
-    }
-
-    /**
-     * Gets custom messages for validator errors.
-     *
-     * @since 1.0.0
-     *
-     * @return array<string, string> Custom error messages.
-     */
-    public function messages(): array
-    {
-        return [
-            'file.required'      => 'A file is required for upload.',
-            'file.file'          => 'The uploaded item must be a valid file.',
-            'file.max'           => 'The file size exceeds the maximum allowed size of :max KB.',
-            'file.mimes'         => 'The file type is not allowed. Allowed types: :values.',
-            'title.string'       => 'The title must be a string.',
-            'title.max'          => 'The title must not exceed :max characters.',
-            'alt_text.string'    => 'The alt text must be a string.',
-            'alt_text.max'       => 'The alt text must not exceed :max characters.',
-            'caption.string'     => 'The caption must be a string.',
-            'description.string' => 'The description must be a string.',
-            'folder_id.exists'   => 'The selected folder does not exist.',
-            'tags.array'         => 'Tags must be provided as an array.',
-            'tags.*.string'      => 'Each tag must be a string.',
-            'tags.*.max'         => 'Each tag must not exceed :max characters.',
-        ];
     }
 }

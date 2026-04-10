@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Policy
+ *
+ * Handles authorization for media-related operations.
+ * Uses hooks to allow customization of capability checks.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Policies
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Policies;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
@@ -23,6 +35,7 @@ class MediaPolicy
      * @since 1.0.0
      *
      * @param Authenticatable $user The authenticated user.
+     *
      * @return bool True if the user can view any media, false otherwise.
      */
     public function viewAny( Authenticatable $user ): bool
@@ -35,6 +48,7 @@ class MediaPolicy
          * @since 1.0.0
          *
          * @param string $default Default capability slug. Default 'media.view'.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.viewAny', 'media.view' );
@@ -49,6 +63,7 @@ class MediaPolicy
      *
      * @param Authenticatable $user  The authenticated user.
      * @param Media           $media The media instance.
+     *
      * @return bool True if the user can view the media, false otherwise.
      */
     public function view( Authenticatable $user, Media $media ): bool
@@ -63,6 +78,7 @@ class MediaPolicy
          *
          * @param string $default Default capability slug. Default 'media.view'.
          * @param Media  $media   The media instance being checked.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.view', 'media.view', $media );
@@ -76,6 +92,7 @@ class MediaPolicy
      * @since 1.0.0
      *
      * @param Authenticatable $user The authenticated user.
+     *
      * @return bool True if the user can create media, false otherwise.
      */
     public function create( Authenticatable $user ): bool
@@ -86,6 +103,7 @@ class MediaPolicy
          * @since 1.0.0
          *
          * @param string $default Default capability slug. Default 'media.upload'.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.create', 'media.upload' );
@@ -100,6 +118,7 @@ class MediaPolicy
      *
      * @param Authenticatable $user  The authenticated user.
      * @param Media           $media The media instance.
+     *
      * @return bool True if the user can update the media, false otherwise.
      */
     public function update( Authenticatable $user, Media $media ): bool
@@ -111,6 +130,7 @@ class MediaPolicy
          *
          * @param string $default Default capability slug. Default 'media.edit'.
          * @param Media  $media   The media instance being checked.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.update', 'media.edit', $media );
@@ -125,6 +145,7 @@ class MediaPolicy
      *
      * @param Authenticatable $user  The authenticated user.
      * @param Media           $media The media instance.
+     *
      * @return bool True if the user can delete the media, false otherwise.
      */
     public function delete( Authenticatable $user, Media $media ): bool
@@ -136,6 +157,7 @@ class MediaPolicy
          *
          * @param string $default Default capability slug. Default 'media.delete'.
          * @param Media  $media   The media instance being checked.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.delete', 'media.delete', $media );
@@ -150,6 +172,7 @@ class MediaPolicy
      *
      * @param Authenticatable $user  The authenticated user.
      * @param Media           $media The media instance.
+     *
      * @return bool True if the user can restore the media, false otherwise.
      */
     public function restore( Authenticatable $user, Media $media ): bool
@@ -161,6 +184,7 @@ class MediaPolicy
          *
          * @param string $default Default capability slug. Default 'media.delete'.
          * @param Media  $media   The media instance being checked.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.restore', 'media.delete', $media );
@@ -175,6 +199,7 @@ class MediaPolicy
      *
      * @param Authenticatable $user  The authenticated user.
      * @param Media           $media The media instance.
+     *
      * @return bool True if the user can force delete the media, false otherwise.
      */
     public function forceDelete( Authenticatable $user, Media $media ): bool
@@ -186,6 +211,7 @@ class MediaPolicy
          *
          * @param string $default Default capability slug. Default 'media.delete'.
          * @param Media  $media   The media instance being checked.
+         *
          * @return string Filtered capability slug.
          */
         $capability = applyFilters( 'ap.media.forceDelete', 'media.delete', $media );

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Database\Factories;
 
@@ -25,7 +25,7 @@ class UserFactory extends Factory
      *
      * @since 1.0.0
      *
-     * @var class-string<\ArtisanPackUI\MediaLibrary\Models\User>
+     * @var class-string<User>
      */
     protected $model = User::class;
 
@@ -39,11 +39,11 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name'              => fake()->name(),
+            'email'             => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'password'          => Hash::make( 'password' ),
+            'remember_token'    => Str::random( 10 ),
         ];
     }
 
@@ -56,8 +56,8 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state( fn ( array $attributes ) => [
             'email_verified_at' => null,
-        ]);
+        ] );
     }
 }

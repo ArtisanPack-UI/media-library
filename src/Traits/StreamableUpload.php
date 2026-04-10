@@ -9,7 +9,7 @@
  * @since   1.1.0
  */
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace ArtisanPackUI\MediaLibrary\Traits;
 
@@ -57,8 +57,8 @@ trait StreamableUpload
      */
     public function isStreamingEnabled(): bool
     {
-        return config('artisanpack.media.features.streaming_upload', true)
-            && method_exists($this, 'stream');
+        return config( 'artisanpack.media.features.streaming_upload', true )
+            && method_exists( $this, 'stream' );
     }
 
     /**
@@ -70,7 +70,7 @@ trait StreamableUpload
      */
     public function getStreamingFallbackInterval(): int
     {
-        return (int) config('artisanpack.media.features.streaming_fallback_interval', 500);
+        return (int) config( 'artisanpack.media.features.streaming_fallback_interval', 500 );
     }
 
     /**
@@ -93,25 +93,25 @@ trait StreamableUpload
         int $fileProgress,
         int $current,
         int $total,
-        ?string $status = null
+        ?string $status = null,
     ): void {
-        if (! $this->isStreamingEnabled()) {
+        if ( ! $this->isStreamingEnabled() ) {
             // Update properties directly for non-streaming mode
-            $this->uploadProgress = $progress;
-            $this->currentFileName = $fileName;
+            $this->uploadProgress      = $progress;
+            $this->currentFileName     = $fileName;
             $this->currentFileProgress = $fileProgress;
 
             return;
         }
 
-        $content = json_encode([
-            'progress' => $progress,
-            'fileName' => $fileName,
+        $content = json_encode( [
+            'progress'     => $progress,
+            'fileName'     => $fileName,
             'fileProgress' => $fileProgress,
-            'current' => $current,
-            'total' => $total,
-            'status' => $status ?? __('Uploading :name...', ['name' => $fileName]),
-        ]);
+            'current'      => $current,
+            'total'        => $total,
+            'status'       => $status ?? __( 'Uploading :name...', ['name' => $fileName] ),
+        ] );
 
         $this->stream(
             to: 'upload-progress',
@@ -129,31 +129,31 @@ trait StreamableUpload
      * @param  int  $errorCount  Number of files that failed.
      * @param  int  $total  Total number of files.
      */
-    protected function streamComplete(int $successCount, int $errorCount, int $total): void
+    protected function streamComplete( int $successCount, int $errorCount, int $total ): void
     {
-        if (! $this->isStreamingEnabled()) {
+        if ( ! $this->isStreamingEnabled() ) {
             return;
         }
 
         $status = $errorCount > 0
-            ? __('Uploaded :success of :total files (:errors failed)', [
+            ? __( 'Uploaded :success of :total files (:errors failed)', [
                 'success' => $successCount,
-                'total' => $total,
-                'errors' => $errorCount,
-            ])
-            : __('Successfully uploaded :count files', ['count' => $successCount]);
+                'total'   => $total,
+                'errors'  => $errorCount,
+            ] )
+            : __( 'Successfully uploaded :count files', ['count' => $successCount] );
 
-        $content = json_encode([
-            'progress' => 100,
-            'fileName' => '',
+        $content = json_encode( [
+            'progress'     => 100,
+            'fileName'     => '',
             'fileProgress' => 100,
-            'current' => $total,
-            'total' => $total,
-            'status' => $status,
-            'complete' => true,
+            'current'      => $total,
+            'total'        => $total,
+            'status'       => $status,
+            'complete'     => true,
             'successCount' => $successCount,
-            'errorCount' => $errorCount,
-        ]);
+            'errorCount'   => $errorCount,
+        ] );
 
         $this->stream(
             to: 'upload-progress',
@@ -170,17 +170,17 @@ trait StreamableUpload
      * @param  string  $fileName  The file that failed.
      * @param  string  $error  The error message.
      */
-    protected function streamError(string $fileName, string $error): void
+    protected function streamError( string $fileName, string $error ): void
     {
-        if (! $this->isStreamingEnabled()) {
+        if ( ! $this->isStreamingEnabled() ) {
             return;
         }
 
-        $content = json_encode([
-            'error' => true,
+        $content = json_encode( [
+            'error'    => true,
             'fileName' => $fileName,
-            'message' => $error,
-        ]);
+            'message'  => $error,
+        ] );
 
         $this->stream(
             to: 'upload-errors',
@@ -199,20 +199,21 @@ trait StreamableUpload
      *
      * @param  array<int, TemporaryUploadedFile>  $files  Files to upload.
      * @param  array<string, mixed>  $uploadOptions  Upload options.
+     *
      * @return array{uploaded: array<int, Media>, errors: array<int, string>}
      */
-    protected function processFilesWithStreaming(array $files, array $uploadOptions = []): array
+    protected function processFilesWithStreaming( array $files, array $uploadOptions = [] ): array
     {
-        $uploadService = app(MediaUploadService::class);
+        $uploadService = app( MediaUploadService::class );
         $uploadedMedia = [];
-        $uploadErrors = [];
-        $totalFiles = count($files);
-        $successCount = 0;
+        $uploadErrors  = [];
+        $totalFiles    = count( $files );
+        $successCount  = 0;
 
-        foreach ($files as $index => $file) {
-            $fileName = $file->getClientOriginalName();
-            $fileNumber = $index + 1;
-            $baseProgress = (int) (($index / $totalFiles) * 100);
+        foreach ( $files as $index => $file ) {
+            $fileName     = $file->getClientOriginalName();
+            $fileNumber   = $index + 1;
+            $baseProgress = (int) ( ( $index / $totalFiles ) * 100 );
 
             // Stream start of file upload
             $this->streamProgress(
@@ -221,62 +222,62 @@ trait StreamableUpload
                 fileProgress: 0,
                 current: $fileNumber,
                 total: $totalFiles,
-                status: __('Starting upload: :name', ['name' => $fileName])
+                status: __( 'Starting upload: :name', ['name' => $fileName] ),
             );
 
             try {
                 // Stream processing state
                 $this->streamProgress(
-                    progress: $baseProgress + (int) ((1 / $totalFiles) * 50),
+                    progress: $baseProgress + (int) ( ( 1 / $totalFiles ) * 50 ),
                     fileName: $fileName,
                     fileProgress: 50,
                     current: $fileNumber,
                     total: $totalFiles,
-                    status: __('Processing: :name', ['name' => $fileName])
+                    status: __( 'Processing: :name', ['name' => $fileName] ),
                 );
 
-                $media = $uploadService->upload($file, $uploadOptions);
+                $media           = $uploadService->upload( $file, $uploadOptions );
                 $uploadedMedia[] = $media;
                 $successCount++;
 
                 // Stream completion of this file
-                $completedProgress = (int) (($fileNumber / $totalFiles) * 100);
+                $completedProgress = (int) ( ( $fileNumber / $totalFiles ) * 100 );
                 $this->streamProgress(
                     progress: $completedProgress,
                     fileName: $fileName,
                     fileProgress: 100,
                     current: $fileNumber,
                     total: $totalFiles,
-                    status: __('Completed: :name', ['name' => $fileName])
+                    status: __( 'Completed: :name', ['name' => $fileName] ),
                 );
-            } catch (Exception $e) {
-                $errorMessage = __('Failed to upload :filename: :error', [
+            } catch ( Exception $e ) {
+                $errorMessage = __( 'Failed to upload :filename: :error', [
                     'filename' => $fileName,
-                    'error' => $e->getMessage(),
-                ]);
+                    'error'    => $e->getMessage(),
+                ] );
                 $uploadErrors[] = $errorMessage;
 
                 // Stream error
-                $this->streamError($fileName, $errorMessage);
+                $this->streamError( $fileName, $errorMessage );
 
                 // Continue with next file
                 $this->streamProgress(
-                    progress: (int) (($fileNumber / $totalFiles) * 100),
+                    progress: (int) ( ( $fileNumber / $totalFiles ) * 100 ),
                     fileName: $fileName,
                     fileProgress: 0,
                     current: $fileNumber,
                     total: $totalFiles,
-                    status: __('Failed: :name', ['name' => $fileName])
+                    status: __( 'Failed: :name', ['name' => $fileName] ),
                 );
             }
         }
 
         // Stream final completion
-        $this->streamComplete($successCount, count($uploadErrors), $totalFiles);
+        $this->streamComplete( $successCount, count( $uploadErrors ), $totalFiles );
 
         return [
             'uploaded' => $uploadedMedia,
-            'errors' => $uploadErrors,
+            'errors'   => $uploadErrors,
         ];
     }
 }

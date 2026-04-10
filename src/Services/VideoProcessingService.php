@@ -116,7 +116,7 @@ class VideoProcessingService
             // Upload to storage
             if ( file_exists( $tempThumbPath ) ) {
                 $contents = file_get_contents( $tempThumbPath );
-                if ( $contents !== false ) {
+                if ( false !== $contents ) {
                     $this->storageService->put( $thumbnailPath, $contents, $media->disk );
                 }
 
@@ -141,7 +141,7 @@ class VideoProcessingService
      */
     public function isAvailable(): bool
     {
-        return $this->ffmpeg !== null && $this->ffprobe !== null;
+        return null !== $this->ffmpeg && null !== $this->ffprobe;
     }
 
     /**
@@ -169,7 +169,7 @@ class VideoProcessingService
                 ->videos()
                 ->first();
 
-            $dimensions = $videoStream !== null ? $videoStream->getDimensions() : null;
+            $dimensions = null !== $videoStream ? $videoStream->getDimensions() : null;
 
             // Get duration
             $duration = $this->ffprobe
@@ -177,9 +177,9 @@ class VideoProcessingService
                 ->get( 'duration' );
 
             return [
-                'width'    => $dimensions !== null ? $dimensions->getWidth() : null,
-                'height'   => $dimensions !== null ? $dimensions->getHeight() : null,
-                'duration' => $duration !== null ? (int)round( (float)$duration ) : null,
+                'width'    => null !== $dimensions ? $dimensions->getWidth() : null,
+                'height'   => null !== $dimensions ? $dimensions->getHeight() : null,
+                'duration' => null !== $duration ? (int)round( (float)$duration ) : null,
             ];
         } catch ( Exception $e ) {
             return [];
@@ -198,7 +198,7 @@ class VideoProcessingService
      */
     public function generatePreviewImages( Media $media, int $count = 3 ): array
     {
-        if ( ! $this->isAvailable() || $media->duration === null ) {
+        if ( ! $this->isAvailable() || null === $media->duration ) {
             return [];
         }
 
@@ -229,7 +229,7 @@ class VideoProcessingService
                 // Upload to storage
                 if ( file_exists( $tempPath ) ) {
                     $contents = file_get_contents( $tempPath );
-                    if ( $contents !== false ) {
+                    if ( false !== $contents ) {
                         $this->storageService->put( $previewPath, $contents, $media->disk );
                         $previews[] = $previewPath;
                     }

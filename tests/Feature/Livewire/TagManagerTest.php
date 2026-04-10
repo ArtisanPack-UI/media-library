@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature\Livewire;
 
@@ -29,16 +29,16 @@ class TagManagerTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
+        Storage::fake( 'public' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'public',
+        config( [
+            'artisanpack.media.disk'       => 'public',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     /**
@@ -46,9 +46,9 @@ class TagManagerTest extends TestCase
      */
     public function test_component_renders(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->assertStatus(200);
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->assertStatus( 200 );
     }
 
     /**
@@ -56,14 +56,14 @@ class TagManagerTest extends TestCase
      */
     public function test_component_has_initial_state(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->assertSet('isOpen', false)
-            ->assertSet('isEditing', false)
-            ->assertSet('editingTag', null)
-            ->assertSet('form.name', '')
-            ->assertSet('form.slug', '')
-            ->assertSet('form.description', '');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->assertSet( 'isOpen', false )
+            ->assertSet( 'isEditing', false )
+            ->assertSet( 'editingTag', null )
+            ->assertSet( 'form.name', '' )
+            ->assertSet( 'form.slug', '' )
+            ->assertSet( 'form.description', '' );
     }
 
     /**
@@ -71,11 +71,11 @@ class TagManagerTest extends TestCase
      */
     public function test_modal_opens_when_triggered(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->assertSet('isOpen', false)
-            ->call('open')
-            ->assertSet('isOpen', true);
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->assertSet( 'isOpen', false )
+            ->call( 'open' )
+            ->assertSet( 'isOpen', true );
     }
 
     /**
@@ -83,11 +83,11 @@ class TagManagerTest extends TestCase
      */
     public function test_modal_opens_via_event(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->assertSet('isOpen', false)
-            ->dispatch('open-tag-manager')
-            ->assertSet('isOpen', true);
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->assertSet( 'isOpen', false )
+            ->dispatch( 'open-tag-manager' )
+            ->assertSet( 'isOpen', true );
     }
 
     /**
@@ -95,12 +95,12 @@ class TagManagerTest extends TestCase
      */
     public function test_modal_closes_correctly(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('open')
-            ->assertSet('isOpen', true)
-            ->call('close')
-            ->assertSet('isOpen', false);
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'open' )
+            ->assertSet( 'isOpen', true )
+            ->call( 'close' )
+            ->assertSet( 'isOpen', false );
     }
 
     /**
@@ -108,17 +108,17 @@ class TagManagerTest extends TestCase
      */
     public function test_form_resets_when_modal_closes(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'Test Tag')
-            ->set('form.slug', 'test-tag')
-            ->set('form.description', 'A test tag')
-            ->call('close')
-            ->assertSet('form.name', '')
-            ->assertSet('form.slug', '')
-            ->assertSet('form.description', '')
-            ->assertSet('isEditing', false)
-            ->assertSet('editingTag', null);
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'Test Tag' )
+            ->set( 'form.slug', 'test-tag' )
+            ->set( 'form.description', 'A test tag' )
+            ->call( 'close' )
+            ->assertSet( 'form.name', '' )
+            ->assertSet( 'form.slug', '' )
+            ->assertSet( 'form.description', '' )
+            ->assertSet( 'isEditing', false )
+            ->assertSet( 'editingTag', null );
     }
 
     /**
@@ -126,19 +126,19 @@ class TagManagerTest extends TestCase
      */
     public function test_creates_new_tag(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'New Tag')
-            ->set('form.slug', 'new-tag')
-            ->set('form.description', 'A new tag')
-            ->call('save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'New Tag' )
+            ->set( 'form.slug', 'new-tag' )
+            ->set( 'form.description', 'A new tag' )
+            ->call( 'save' )
             ->assertHasNoErrors()
-            ->assertDispatched('tags-updated');
+            ->assertDispatched( 'tags-updated' );
 
-        $this->assertDatabaseHas('media_tags', [
+        $this->assertDatabaseHas( 'media_tags', [
             'name' => 'New Tag',
             'slug' => 'new-tag',
-        ]);
+        ] );
     }
 
     /**
@@ -146,10 +146,10 @@ class TagManagerTest extends TestCase
      */
     public function test_auto_generates_slug_from_name(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'My Test Tag')
-            ->assertSet('form.slug', 'my-test-tag');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'My Test Tag' )
+            ->assertSet( 'form.slug', 'my-test-tag' );
     }
 
     /**
@@ -157,16 +157,16 @@ class TagManagerTest extends TestCase
      */
     public function test_slug_not_auto_generated_when_editing(): void
     {
-        $tag = MediaTag::factory()->create([
+        $tag = MediaTag::factory()->create( [
             'name' => 'Original',
             'slug' => 'original-slug',
-        ]);
+        ] );
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('edit', $tag->id)
-            ->set('form.name', 'Updated Name')
-            ->assertSet('form.slug', 'original-slug');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'edit', $tag->id )
+            ->set( 'form.name', 'Updated Name' )
+            ->assertSet( 'form.slug', 'original-slug' );
     }
 
     /**
@@ -174,11 +174,11 @@ class TagManagerTest extends TestCase
      */
     public function test_validation_requires_name(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.slug', 'test-slug')
-            ->call('save')
-            ->assertHasErrors('form.name');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.slug', 'test-slug' )
+            ->call( 'save' )
+            ->assertHasErrors( 'form.name' );
     }
 
     /**
@@ -186,12 +186,12 @@ class TagManagerTest extends TestCase
      */
     public function test_validation_requires_slug(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'Test Tag')
-            ->set('form.slug', '')
-            ->call('save')
-            ->assertHasErrors('form.slug');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'Test Tag' )
+            ->set( 'form.slug', '' )
+            ->call( 'save' )
+            ->assertHasErrors( 'form.slug' );
     }
 
     /**
@@ -199,14 +199,14 @@ class TagManagerTest extends TestCase
      */
     public function test_validation_requires_unique_slug(): void
     {
-        MediaTag::factory()->create(['slug' => 'existing-slug']);
+        MediaTag::factory()->create( ['slug' => 'existing-slug'] );
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'Test Tag')
-            ->set('form.slug', 'existing-slug')
-            ->call('save')
-            ->assertHasErrors('form.slug');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'Test Tag' )
+            ->set( 'form.slug', 'existing-slug' )
+            ->call( 'save' )
+            ->assertHasErrors( 'form.slug' );
     }
 
     /**
@@ -214,17 +214,17 @@ class TagManagerTest extends TestCase
      */
     public function test_edits_tag(): void
     {
-        $tag = MediaTag::factory()->create([
+        $tag = MediaTag::factory()->create( [
             'name' => 'Original Name',
             'slug' => 'original-slug',
-        ]);
+        ] );
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('edit', $tag->id)
-            ->assertSet('isEditing', true)
-            ->assertSet('form.name', 'Original Name')
-            ->assertSet('form.slug', 'original-slug');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'edit', $tag->id )
+            ->assertSet( 'isEditing', true )
+            ->assertSet( 'form.name', 'Original Name' )
+            ->assertSet( 'form.slug', 'original-slug' );
     }
 
     /**
@@ -232,25 +232,25 @@ class TagManagerTest extends TestCase
      */
     public function test_updates_tag(): void
     {
-        $tag = MediaTag::factory()->create([
+        $tag = MediaTag::factory()->create( [
             'name' => 'Original Name',
             'slug' => 'original-slug',
-        ]);
+        ] );
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('edit', $tag->id)
-            ->set('form.name', 'Updated Name')
-            ->set('form.slug', 'updated-slug')
-            ->set('form.description', 'Updated description')
-            ->call('save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'edit', $tag->id )
+            ->set( 'form.name', 'Updated Name' )
+            ->set( 'form.slug', 'updated-slug' )
+            ->set( 'form.description', 'Updated description' )
+            ->call( 'save' )
             ->assertHasNoErrors()
-            ->assertDispatched('tags-updated');
+            ->assertDispatched( 'tags-updated' );
 
         $tag->refresh();
-        expect($tag->name)->toBe('Updated Name');
-        expect($tag->slug)->toBe('updated-slug');
-        expect($tag->description)->toBe('Updated description');
+        expect( $tag->name )->toBe( 'Updated Name' );
+        expect( $tag->slug )->toBe( 'updated-slug' );
+        expect( $tag->description )->toBe( 'Updated description' );
     }
 
     /**
@@ -260,15 +260,15 @@ class TagManagerTest extends TestCase
     {
         $tag = MediaTag::factory()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('edit', $tag->id)
-            ->assertSet('isEditing', true)
-            ->call('cancelEdit')
-            ->assertSet('isEditing', false)
-            ->assertSet('editingTag', null)
-            ->assertSet('form.name', '')
-            ->assertSet('form.slug', '');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'edit', $tag->id )
+            ->assertSet( 'isEditing', true )
+            ->call( 'cancelEdit' )
+            ->assertSet( 'isEditing', false )
+            ->assertSet( 'editingTag', null )
+            ->assertSet( 'form.name', '' )
+            ->assertSet( 'form.slug', '' );
     }
 
     /**
@@ -278,12 +278,12 @@ class TagManagerTest extends TestCase
     {
         $tag = MediaTag::factory()->create();
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('delete', $tag->id)
-            ->assertDispatched('tags-updated');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'delete', $tag->id )
+            ->assertDispatched( 'tags-updated' );
 
-        $this->assertDatabaseMissing('media_tags', ['id' => $tag->id]);
+        $this->assertDatabaseMissing( 'media_tags', ['id' => $tag->id] );
     }
 
     /**
@@ -291,17 +291,17 @@ class TagManagerTest extends TestCase
      */
     public function test_deleting_tag_detaches_from_media(): void
     {
-        $tag = MediaTag::factory()->create();
-        $media = Media::factory()->uploadedBy($this->user)->create();
-        $media->tags()->attach($tag->id);
+        $tag   = MediaTag::factory()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
+        $media->tags()->attach( $tag->id );
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('delete', $tag->id)
-            ->assertDispatched('tags-updated');
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'delete', $tag->id )
+            ->assertDispatched( 'tags-updated' );
 
-        $this->assertDatabaseMissing('media_tags', ['id' => $tag->id]);
-        expect($media->fresh()->tags()->count())->toBe(0);
+        $this->assertDatabaseMissing( 'media_tags', ['id' => $tag->id] );
+        expect( $media->fresh()->tags()->count() )->toBe( 0 );
     }
 
     /**
@@ -309,12 +309,12 @@ class TagManagerTest extends TestCase
      */
     public function test_tags_loaded_on_mount(): void
     {
-        MediaTag::factory()->count(3)->create();
+        MediaTag::factory()->count( 3 )->create();
 
-        $component = Livewire::actingAs($this->user)
-            ->test(TagManager::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( TagManager::class );
 
-        expect($component->get('tags')->count())->toBe(3);
+        expect( $component->get( 'tags' )->count() )->toBe( 3 );
     }
 
     /**
@@ -322,11 +322,11 @@ class TagManagerTest extends TestCase
      */
     public function test_reset_form_clears_validation_errors(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'save' )
             ->assertHasErrors()
-            ->call('resetForm')
+            ->call( 'resetForm' )
             ->assertHasNoErrors();
     }
 
@@ -335,13 +335,13 @@ class TagManagerTest extends TestCase
      */
     public function test_opening_modal_refreshes_tags(): void
     {
-        $component = Livewire::actingAs($this->user)
-            ->test(TagManager::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( TagManager::class );
 
         MediaTag::factory()->create();
 
-        $component->call('open');
-        expect($component->get('tags')->count())->toBe(1);
+        $component->call( 'open' );
+        expect( $component->get( 'tags' )->count() )->toBe( 1 );
     }
 
     /**
@@ -349,16 +349,16 @@ class TagManagerTest extends TestCase
      */
     public function test_validation_allows_same_slug_when_editing(): void
     {
-        $tag = MediaTag::factory()->create([
+        $tag = MediaTag::factory()->create( [
             'name' => 'Original',
             'slug' => 'original-slug',
-        ]);
+        ] );
 
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->call('edit', $tag->id)
-            ->set('form.name', 'Updated Name')
-            ->call('save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->call( 'edit', $tag->id )
+            ->set( 'form.name', 'Updated Name' )
+            ->call( 'save' )
             ->assertHasNoErrors();
     }
 
@@ -367,18 +367,18 @@ class TagManagerTest extends TestCase
      */
     public function test_description_is_nullable(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'Test Tag')
-            ->set('form.slug', 'test-tag')
-            ->set('form.description', '')
-            ->call('save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'Test Tag' )
+            ->set( 'form.slug', 'test-tag' )
+            ->set( 'form.description', '' )
+            ->call( 'save' )
             ->assertHasNoErrors();
 
-        $this->assertDatabaseHas('media_tags', [
+        $this->assertDatabaseHas( 'media_tags', [
             'name' => 'Test Tag',
             'slug' => 'test-tag',
-        ]);
+        ] );
     }
 
     /**
@@ -386,16 +386,16 @@ class TagManagerTest extends TestCase
      */
     public function test_tags_ordered_by_name(): void
     {
-        MediaTag::factory()->create(['name' => 'Zebra']);
-        MediaTag::factory()->create(['name' => 'Apple']);
-        MediaTag::factory()->create(['name' => 'Mango']);
+        MediaTag::factory()->create( ['name' => 'Zebra'] );
+        MediaTag::factory()->create( ['name' => 'Apple'] );
+        MediaTag::factory()->create( ['name' => 'Mango'] );
 
-        $component = Livewire::actingAs($this->user)
-            ->test(TagManager::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( TagManager::class );
 
-        $tags = $component->get('tags');
-        expect($tags->first()->name)->toBe('Apple');
-        expect($tags->last()->name)->toBe('Zebra');
+        $tags = $component->get( 'tags' );
+        expect( $tags->first()->name )->toBe( 'Apple' );
+        expect( $tags->last()->name )->toBe( 'Zebra' );
     }
 
     /**
@@ -403,14 +403,14 @@ class TagManagerTest extends TestCase
      */
     public function test_save_clears_form_after_success(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(TagManager::class)
-            ->set('form.name', 'New Tag')
-            ->set('form.slug', 'new-tag')
-            ->call('save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'New Tag' )
+            ->set( 'form.slug', 'new-tag' )
+            ->call( 'save' )
             ->assertHasNoErrors()
-            ->assertSet('form.name', '')
-            ->assertSet('form.slug', '')
-            ->assertSet('isEditing', false);
+            ->assertSet( 'form.name', '' )
+            ->assertSet( 'form.slug', '' )
+            ->assertSet( 'isEditing', false );
     }
 }

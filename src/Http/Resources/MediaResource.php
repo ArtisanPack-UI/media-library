@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Media API Resource
+ *
+ * Transforms Media model into JSON response format for API endpoints.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Resources
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -22,6 +33,7 @@ class MediaResource extends JsonResource
      * @since 1.0.0
      *
      * @param Request $request The HTTP request instance.
+     *
      * @return array<string, mixed> The resource array representation.
      */
     public function toArray( Request $request ): array

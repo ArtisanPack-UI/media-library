@@ -2,8 +2,8 @@
   "name": "artisanpack-ui/media-library",
   "description": "Media library package for ArtisanPack UI",
   "type": "library",
-  "license": "GPL-3.0-or-later",
-  "version": "1.1.0",
+  "license": "MIT",
+  "version": "1.2.0",
   "autoload": {
     "psr-4": {
       "ArtisanPackUI\\MediaLibrary\\": "src/",
@@ -48,10 +48,11 @@
     "mockery/mockery": "^1.6",
     "orchestra/testbench": "^10.0",
     "squizlabs/php_codesniffer": "^3.13",
-    "artisanpack-ui/code-style": "^1.0",
-    "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
-    "laravel/pint": "^1.25",
-    "artisanpack-ui/code-style-pint": "^1.0"
+    "artisanpack-ui/code-style": "^1.1",
+    "artisanpack-ui/code-style-pint": "^1.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "laravel/pint": "^1.26",
+    "friendsofphp/php-cs-fixer": "^3.75"
   },
   "config": {
     "allow-plugins": {
@@ -75,7 +76,12 @@
     "test:coverage-min": "vendor/bin/pest --coverage --min=80",
     "test:unit": "vendor/bin/pest tests/Unit",
     "test:feature": "vendor/bin/pest tests/Feature",
-    "phpcs": "vendor/bin/phpcs",
-    "phpcs:fix": "vendor/bin/phpcbf"
+    "lint": [
+      "./vendor/bin/php-cs-fixer fix --dry-run --diff",
+      "./vendor/bin/phpcs"
+    ],
+    "fix": "./vendor/bin/php-cs-fixer fix",
+    "cs": "./vendor/bin/phpcs",
+    "cs:fix": "./vendor/bin/phpcbf"
   }
 }

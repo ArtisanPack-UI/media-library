@@ -9,7 +9,7 @@
  * @since   1.1.0
  */
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Feature;
 
@@ -33,16 +33,16 @@ class IntegrationTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
+        Storage::fake( 'public' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'public',
+        config( [
+            'artisanpack.media.disk'       => 'public',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     // =========================================================================
@@ -55,26 +55,25 @@ class IntegrationTest extends TestCase
     public function test_streaming_upload_toggle_affects_behavior(): void
     {
         // Enabled by default
-        config(['artisanpack.media.features.streaming_upload' => true]);
+        config( ['artisanpack.media.features.streaming_upload' => true] );
 
         // Create a mock component that uses the StreamableUpload trait
-        $component = new class
-        {
+        $component = new class {
             use \ArtisanPackUI\MediaLibrary\Traits\StreamableUpload;
 
             public int $uploadProgress = 0;
 
-            public function stream(string $to, string $content, bool $replace = false): void
+            public function stream( string $to, string $content, bool $replace = false ): void
             {
                 // Mock stream method
             }
         };
 
-        expect($component->isStreamingEnabled())->toBeTrue();
+        expect( $component->isStreamingEnabled() )->toBeTrue();
 
         // Disable streaming
-        config(['artisanpack.media.features.streaming_upload' => false]);
-        expect($component->isStreamingEnabled())->toBeFalse();
+        config( ['artisanpack.media.features.streaming_upload' => false] );
+        expect( $component->isStreamingEnabled() )->toBeFalse();
     }
 
     /**
@@ -82,16 +81,15 @@ class IntegrationTest extends TestCase
      */
     public function test_fallback_interval_from_config(): void
     {
-        config(['artisanpack.media.features.streaming_fallback_interval' => 750]);
+        config( ['artisanpack.media.features.streaming_fallback_interval' => 750] );
 
-        $component = new class
-        {
+        $component = new class {
             use \ArtisanPackUI\MediaLibrary\Traits\StreamableUpload;
 
             public int $uploadProgress = 0;
         };
 
-        expect($component->getStreamingFallbackInterval())->toBe(750);
+        expect( $component->getStreamingFallbackInterval() )->toBe( 750 );
     }
 
     // =========================================================================
@@ -103,15 +101,15 @@ class IntegrationTest extends TestCase
      */
     public function test_media_picker_dispatches_event_with_context(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'featured-image', 'multiSelect' => true])
-            ->call('toggleSelect', $media->id)
-            ->call('confirmSelection')
-            ->assertDispatched('media-picked', function ($name, $params) {
-                return $params['context'] === 'featured-image';
-            });
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'featured-image', 'multiSelect' => true] )
+            ->call( 'toggleSelect', $media->id )
+            ->call( 'confirmSelection' )
+            ->assertDispatched( 'media-picked', function ( $name, $params ) {
+                return 'featured-image' === $params['context'];
+            } );
     }
 
     /**
@@ -119,15 +117,15 @@ class IntegrationTest extends TestCase
      */
     public function test_media_modal_dispatches_event_with_context(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['context' => 'gallery-image'])
-            ->call('toggleSelect', $media->id)
-            ->call('confirmSelection')
-            ->assertDispatched('media-selected', function ($name, $params) {
-                return $params['context'] === 'gallery-image';
-            });
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['context' => 'gallery-image'] )
+            ->call( 'toggleSelect', $media->id )
+            ->call( 'confirmSelection' )
+            ->assertDispatched( 'media-selected', function ( $name, $params ) {
+                return 'gallery-image' === $params['context'];
+            } );
     }
 
     /**
@@ -135,16 +133,16 @@ class IntegrationTest extends TestCase
      */
     public function test_media_picker_lifecycle_events_include_context(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'hero-media'])
-            ->call('open', 'hero-media')
-            ->assertDispatched('media-picker-opened', function ($name, $params) {
-                return $params['context'] === 'hero-media';
-            })
-            ->call('close')
-            ->assertDispatched('media-picker-closed', function ($name, $params) {
-                return $params['context'] === 'hero-media';
-            });
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'hero-media'] )
+            ->call( 'open', 'hero-media' )
+            ->assertDispatched( 'media-picker-opened', function ( $name, $params ) {
+                return 'hero-media' === $params['context'];
+            } )
+            ->call( 'close' )
+            ->assertDispatched( 'media-picker-closed', function ( $name, $params ) {
+                return 'hero-media' === $params['context'];
+            } );
     }
 
     // =========================================================================
@@ -157,21 +155,21 @@ class IntegrationTest extends TestCase
     public function test_multiple_pickers_with_different_contexts(): void
     {
         // First picker with context "featured"
-        $picker1 = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'featured']);
+        $picker1 = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'featured'] );
 
         // Second picker with context "gallery"
-        $picker2 = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => 'gallery']);
+        $picker2 = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'gallery'] );
 
         // Opening with "featured" context should only open first picker
-        $picker1->call('open', 'featured')->assertSet('isOpen', true);
-        $picker2->call('open', 'featured')->assertSet('isOpen', false);
+        $picker1->call( 'open', 'featured' )->assertSet( 'isOpen', true );
+        $picker2->call( 'open', 'featured' )->assertSet( 'isOpen', false );
 
         // Opening with "gallery" context should only open second picker
-        $picker1->call('close');
-        $picker1->call('open', 'gallery')->assertSet('isOpen', false);
-        $picker2->call('open', 'gallery')->assertSet('isOpen', true);
+        $picker1->call( 'close' );
+        $picker1->call( 'open', 'gallery' )->assertSet( 'isOpen', false );
+        $picker2->call( 'open', 'gallery' )->assertSet( 'isOpen', true );
     }
 
     /**
@@ -179,16 +177,16 @@ class IntegrationTest extends TestCase
      */
     public function test_modal_responds_only_to_matching_context(): void
     {
-        $modal = Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['context' => 'specific-context']);
+        $modal = Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['context' => 'specific-context'] );
 
         // Different context should not open
-        $modal->dispatch('open-media-modal', context: 'other-context')
-            ->assertSet('isOpen', false);
+        $modal->dispatch( 'open-media-modal', context: 'other-context' )
+            ->assertSet( 'isOpen', false );
 
         // Matching context should open
-        $modal->dispatch('open-media-modal', context: 'specific-context')
-            ->assertSet('isOpen', true);
+        $modal->dispatch( 'open-media-modal', context: 'specific-context' )
+            ->assertSet( 'isOpen', true );
     }
 
     /**
@@ -197,16 +195,16 @@ class IntegrationTest extends TestCase
     public function test_empty_context_acts_as_wildcard(): void
     {
         // Component with empty context should respond to any open
-        $picker = Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['context' => '']);
+        $picker = Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => ''] );
 
-        $picker->call('open', 'any-context-here')
-            ->assertSet('isOpen', true);
+        $picker->call( 'open', 'any-context-here' )
+            ->assertSet( 'isOpen', true );
 
-        $picker->call('close');
+        $picker->call( 'close' );
 
-        $picker->call('open', '')
-            ->assertSet('isOpen', true);
+        $picker->call( 'open', '' )
+            ->assertSet( 'isOpen', true );
     }
 
     // =========================================================================
@@ -218,26 +216,26 @@ class IntegrationTest extends TestCase
      */
     public function test_recently_used_tracked_across_selections(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->create();
 
         // First selection
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class)
-            ->call('toggleSelect', $media1->id)
-            ->call('confirmSelection');
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->call( 'toggleSelect', $media1->id )
+            ->call( 'confirmSelection' );
 
-        expect(session('media.recently_used'))->toContain($media1->id);
+        expect( session( 'media.recently_used' ) )->toContain( $media1->id );
 
         // Second selection should add to front
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class)
-            ->call('toggleSelect', $media2->id)
-            ->call('confirmSelection');
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->call( 'toggleSelect', $media2->id )
+            ->call( 'confirmSelection' );
 
-        $recentlyUsed = session('media.recently_used');
-        expect($recentlyUsed[0])->toBe($media2->id);
-        expect($recentlyUsed)->toContain($media1->id);
+        $recentlyUsed = session( 'media.recently_used' );
+        expect( $recentlyUsed[0] )->toBe( $media2->id );
+        expect( $recentlyUsed )->toContain( $media1->id );
     }
 
     /**
@@ -245,15 +243,15 @@ class IntegrationTest extends TestCase
      */
     public function test_recently_used_persists_across_instances(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
         // Set session
-        session(['media.recently_used' => [$media->id]]);
+        session( ['media.recently_used' => [$media->id]] );
 
         // New modal instance should load recently used
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class)
-            ->assertSet('recentlyUsed', [$media->id]);
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->assertSet( 'recentlyUsed', [$media->id] );
     }
 
     // =========================================================================
@@ -265,15 +263,15 @@ class IntegrationTest extends TestCase
      */
     public function test_quick_upload_select_workflow_single_mode(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['multiSelect' => false, 'quickUploadSelect' => true])
-            ->call('open')
-            ->assertSet('isOpen', true)
-            ->dispatch('media-uploaded', mediaId: $media->id)
-            ->assertDispatched('media-selected')
-            ->assertSet('isOpen', false); // Should auto-close after selection
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['multiSelect' => false, 'quickUploadSelect' => true] )
+            ->call( 'open' )
+            ->assertSet( 'isOpen', true )
+            ->dispatch( 'media-uploaded', mediaId: $media->id )
+            ->assertDispatched( 'media-selected' )
+            ->assertSet( 'isOpen', false ); // Should auto-close after selection
     }
 
     /**
@@ -281,15 +279,15 @@ class IntegrationTest extends TestCase
      */
     public function test_quick_upload_select_workflow_multi_mode(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['multiSelect' => true, 'quickUploadSelect' => true])
-            ->call('open')
-            ->dispatch('media-uploaded', mediaId: $media->id)
-            ->assertSet('selectedMedia', [$media->id])
-            ->assertNotDispatched('media-selected') // Should not auto-confirm in multi mode
-            ->assertSet('isOpen', true); // Should stay open
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['multiSelect' => true, 'quickUploadSelect' => true] )
+            ->call( 'open' )
+            ->dispatch( 'media-uploaded', mediaId: $media->id )
+            ->assertSet( 'selectedMedia', [$media->id] )
+            ->assertNotDispatched( 'media-selected' ) // Should not auto-confirm in multi mode
+            ->assertSet( 'isOpen', true ); // Should stay open
     }
 
     /**
@@ -297,14 +295,14 @@ class IntegrationTest extends TestCase
      */
     public function test_quick_upload_disabled_workflow(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['quickUploadSelect' => false])
-            ->call('open')
-            ->dispatch('media-uploaded', mediaId: $media->id)
-            ->assertSet('selectedMedia', [])
-            ->assertSet('activeTab', 'library'); // Should switch to library tab
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['quickUploadSelect' => false] )
+            ->call( 'open' )
+            ->dispatch( 'media-uploaded', mediaId: $media->id )
+            ->assertSet( 'selectedMedia', [] )
+            ->assertSet( 'activeTab', 'library' ); // Should switch to library tab
     }
 
     // =========================================================================
@@ -316,29 +314,29 @@ class IntegrationTest extends TestCase
      */
     public function test_keyboard_navigation_workflow_in_picker(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(10)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 10 )->create();
         $sortedMedia = Media::latest()->get();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
             // Start navigation
-            ->call('focusFirst')
-            ->assertSet('focusedIndex', 0)
+            ->call( 'focusFirst' )
+            ->assertSet( 'focusedIndex', 0 )
             // Move right
-            ->call('focusNext')
-            ->assertSet('focusedIndex', 1)
+            ->call( 'focusNext' )
+            ->assertSet( 'focusedIndex', 1 )
             // Move down
-            ->call('focusDown', 5)
-            ->assertSet('focusedIndex', 6)
+            ->call( 'focusDown', 5 )
+            ->assertSet( 'focusedIndex', 6 )
             // Select focused
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', [$sortedMedia[6]->id])
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [$sortedMedia[6]->id] )
             // Move up
-            ->call('focusUp', 5)
-            ->assertSet('focusedIndex', 1)
+            ->call( 'focusUp', 5 )
+            ->assertSet( 'focusedIndex', 1 )
             // Select another
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', [$sortedMedia[6]->id, $sortedMedia[1]->id]);
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [$sortedMedia[6]->id, $sortedMedia[1]->id] );
     }
 
     /**
@@ -346,24 +344,24 @@ class IntegrationTest extends TestCase
      */
     public function test_keyboard_navigation_workflow_in_modal(): void
     {
-        Media::factory()->uploadedBy($this->user)->count(5)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
         $sortedMedia = Media::latest()->get();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['multiSelect' => true])
-            ->call('open')
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['multiSelect' => true] )
+            ->call( 'open' )
             // Navigate to last item
-            ->call('focusLast')
-            ->assertSet('focusedIndex', 4)
+            ->call( 'focusLast' )
+            ->assertSet( 'focusedIndex', 4 )
             // Select it
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', [$sortedMedia[4]->id])
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [$sortedMedia[4]->id] )
             // Navigate to first
-            ->call('focusFirst')
-            ->assertSet('focusedIndex', 0)
+            ->call( 'focusFirst' )
+            ->assertSet( 'focusedIndex', 0 )
             // Reset focus
-            ->call('resetFocus')
-            ->assertSet('focusedIndex', -1);
+            ->call( 'resetFocus' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     // =========================================================================
@@ -375,25 +373,25 @@ class IntegrationTest extends TestCase
      */
     public function test_max_selections_enforced_across_methods(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(5)->create();
-        $mediaIds = $media->pluck('id')->toArray();
+        $media       = Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
+        $mediaIds    = $media->pluck( 'id' )->toArray();
         $sortedMedia = Media::latest()->get();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true, 'maxSelections' => 2])
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true, 'maxSelections' => 2] )
             // Select via toggleSelect
-            ->call('toggleSelect', $mediaIds[0])
-            ->call('toggleSelect', $mediaIds[1])
+            ->call( 'toggleSelect', $mediaIds[0] )
+            ->call( 'toggleSelect', $mediaIds[1] )
             // Try to select third via toggleSelect - should not add
-            ->call('toggleSelect', $mediaIds[2])
-            ->assertSet('selectedMedia', [$mediaIds[0], $mediaIds[1]])
+            ->call( 'toggleSelect', $mediaIds[2] )
+            ->assertSet( 'selectedMedia', [$mediaIds[0], $mediaIds[1]] )
             // Deselect one
-            ->call('toggleSelect', $mediaIds[0])
-            ->assertSet('selectedMedia', [$mediaIds[1]])
+            ->call( 'toggleSelect', $mediaIds[0] )
+            ->assertSet( 'selectedMedia', [$mediaIds[1]] )
             // Now keyboard select should work
-            ->set('focusedIndex', 0)
-            ->call('selectFocused')
-            ->assertSet('selectedMedia', [$mediaIds[1], $sortedMedia[0]->id]);
+            ->set( 'focusedIndex', 0 )
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [$mediaIds[1], $sortedMedia[0]->id] );
     }
 
     /**
@@ -401,21 +399,21 @@ class IntegrationTest extends TestCase
      */
     public function test_quick_upload_respects_max_selections(): void
     {
-        $existingMedia = Media::factory()->uploadedBy($this->user)->count(2)->create();
-        $newMedia = Media::factory()->uploadedBy($this->user)->create();
-        $existingIds = $existingMedia->pluck('id')->toArray();
+        $existingMedia = Media::factory()->uploadedBy( $this->user )->count( 2 )->create();
+        $newMedia      = Media::factory()->uploadedBy( $this->user )->create();
+        $existingIds   = $existingMedia->pluck( 'id' )->toArray();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, [
-                'multiSelect' => true,
-                'maxSelections' => 2,
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, [
+                'multiSelect'       => true,
+                'maxSelections'     => 2,
                 'quickUploadSelect' => true,
-            ])
-            ->call('toggleSelect', $existingIds[0])
-            ->call('toggleSelect', $existingIds[1])
+            ] )
+            ->call( 'toggleSelect', $existingIds[0] )
+            ->call( 'toggleSelect', $existingIds[1] )
             // Quick upload should not add since max reached
-            ->dispatch('media-uploaded', mediaId: $newMedia->id)
-            ->assertSet('selectedMedia', [$existingIds[0], $existingIds[1]]);
+            ->dispatch( 'media-uploaded', mediaId: $newMedia->id )
+            ->assertSet( 'selectedMedia', [$existingIds[0], $existingIds[1]] );
     }
 
     // =========================================================================
@@ -427,13 +425,13 @@ class IntegrationTest extends TestCase
      */
     public function test_filters_reset_when_picker_opens(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class)
-            ->set('search', 'test search')
-            ->set('folderId', 1)
-            ->call('open')
-            ->assertSet('search', '')
-            ->assertSet('folderId', null);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class )
+            ->set( 'search', 'test search' )
+            ->set( 'folderId', 1 )
+            ->call( 'open' )
+            ->assertSet( 'search', '' )
+            ->assertSet( 'folderId', null );
     }
 
     /**
@@ -441,15 +439,15 @@ class IntegrationTest extends TestCase
      */
     public function test_filters_reset_when_modal_opens(): void
     {
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class)
-            ->set('search', 'test search')
-            ->set('folderId', 1)
-            ->set('typeFilter', 'image')
-            ->call('open')
-            ->assertSet('search', '')
-            ->assertSet('folderId', null)
-            ->assertSet('typeFilter', '');
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->set( 'search', 'test search' )
+            ->set( 'folderId', 1 )
+            ->set( 'typeFilter', 'image' )
+            ->call( 'open' )
+            ->assertSet( 'search', '' )
+            ->assertSet( 'folderId', null )
+            ->assertSet( 'typeFilter', '' );
     }
 
     // =========================================================================
@@ -461,15 +459,15 @@ class IntegrationTest extends TestCase
      */
     public function test_selections_cleared_on_close(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaPicker::class, ['multiSelect' => true])
-            ->call('open')
-            ->call('toggleSelect', $media->id)
-            ->assertSet('selectedMedia', [$media->id])
-            ->call('close')
-            ->assertSet('selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['multiSelect' => true] )
+            ->call( 'open' )
+            ->call( 'toggleSelect', $media->id )
+            ->assertSet( 'selectedMedia', [$media->id] )
+            ->call( 'close' )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -477,20 +475,20 @@ class IntegrationTest extends TestCase
      */
     public function test_selections_preserved_until_confirmed(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->count(3)->create();
-        $mediaIds = $media->pluck('id')->toArray();
+        $media    = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $mediaIds = $media->pluck( 'id' )->toArray();
 
-        Livewire::actingAs($this->user)
-            ->test(MediaModal::class, ['multiSelect' => true])
-            ->call('open')
-            ->call('toggleSelect', $mediaIds[0])
-            ->call('toggleSelect', $mediaIds[1])
-            ->call('toggleSelect', $mediaIds[2])
-            ->assertSet('selectedMedia', $mediaIds)
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['multiSelect' => true] )
+            ->call( 'open' )
+            ->call( 'toggleSelect', $mediaIds[0] )
+            ->call( 'toggleSelect', $mediaIds[1] )
+            ->call( 'toggleSelect', $mediaIds[2] )
+            ->assertSet( 'selectedMedia', $mediaIds )
             // Selections preserved during various operations
-            ->set('search', 'test')
-            ->assertSet('selectedMedia', $mediaIds)
-            ->call('switchTab', 'upload')
-            ->assertSet('selectedMedia', $mediaIds);
+            ->set( 'search', 'test' )
+            ->assertSet( 'selectedMedia', $mediaIds )
+            ->call( 'switchTab', 'upload' )
+            ->assertSet( 'selectedMedia', $mediaIds );
     }
 }

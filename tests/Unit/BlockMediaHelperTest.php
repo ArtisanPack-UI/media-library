@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace Tests\Unit;
 
@@ -28,16 +28,16 @@ class BlockMediaHelperTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
+        Storage::fake( 'public' );
 
         $this->user = User::factory()->create();
 
-        config([
-            'artisanpack.media.disk' => 'public',
+        config( [
+            'artisanpack.media.disk'       => 'public',
             'artisanpack.media.user_model' => User::class,
-        ]);
+        ] );
 
-        Gate::before(fn ($user, $ability) => true);
+        Gate::before( fn ( $user, $ability ) => true );
     }
 
     // =========================================================================
@@ -49,9 +49,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_url_returns_null_for_null_id(): void
     {
-        $result = BlockMediaHelper::getBlockMediaUrl(null);
+        $result = BlockMediaHelper::getBlockMediaUrl( null );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -59,9 +59,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_url_returns_null_for_non_existent_media(): void
     {
-        $result = BlockMediaHelper::getBlockMediaUrl(999999);
+        $result = BlockMediaHelper::getBlockMediaUrl( 999999 );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -69,12 +69,12 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_url_returns_url_for_image(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = BlockMediaHelper::getBlockMediaUrl($media->id, 'medium');
+        $result = BlockMediaHelper::getBlockMediaUrl( $media->id, 'medium' );
 
-        expect($result)->toBeString();
-        expect($result)->not->toBeEmpty();
+        expect( $result )->toBeString();
+        expect( $result )->not->toBeEmpty();
     }
 
     /**
@@ -82,12 +82,12 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_url_returns_url_for_non_image(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        $result = BlockMediaHelper::getBlockMediaUrl($media->id);
+        $result = BlockMediaHelper::getBlockMediaUrl( $media->id );
 
-        expect($result)->toBeString();
-        expect($result)->not->toBeEmpty();
+        expect( $result )->toBeString();
+        expect( $result )->not->toBeEmpty();
     }
 
     /**
@@ -95,17 +95,17 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_url_accepts_different_sizes(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $thumbnail = BlockMediaHelper::getBlockMediaUrl($media->id, 'thumbnail');
-        $medium = BlockMediaHelper::getBlockMediaUrl($media->id, 'medium');
-        $large = BlockMediaHelper::getBlockMediaUrl($media->id, 'large');
-        $full = BlockMediaHelper::getBlockMediaUrl($media->id, 'full');
+        $thumbnail = BlockMediaHelper::getBlockMediaUrl( $media->id, 'thumbnail' );
+        $medium    = BlockMediaHelper::getBlockMediaUrl( $media->id, 'medium' );
+        $large     = BlockMediaHelper::getBlockMediaUrl( $media->id, 'large' );
+        $full      = BlockMediaHelper::getBlockMediaUrl( $media->id, 'full' );
 
-        expect($thumbnail)->toBeString();
-        expect($medium)->toBeString();
-        expect($large)->toBeString();
-        expect($full)->toBeString();
+        expect( $thumbnail )->toBeString();
+        expect( $medium )->toBeString();
+        expect( $large )->toBeString();
+        expect( $full )->toBeString();
     }
 
     // =========================================================================
@@ -117,9 +117,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_data_returns_null_for_null_id(): void
     {
-        $result = BlockMediaHelper::getBlockMediaData(null);
+        $result = BlockMediaHelper::getBlockMediaData( null );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -127,9 +127,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_data_returns_null_for_non_existent_media(): void
     {
-        $result = BlockMediaHelper::getBlockMediaData(999999);
+        $result = BlockMediaHelper::getBlockMediaData( 999999 );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -137,35 +137,35 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_data_returns_structure_for_image(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create([
-            'title' => 'Test Image',
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create( [
+            'title'    => 'Test Image',
             'alt_text' => 'Test Alt Text',
-            'width' => 800,
-            'height' => 600,
-        ]);
+            'width'    => 800,
+            'height'   => 600,
+        ] );
 
-        $result = BlockMediaHelper::getBlockMediaData($media->id);
+        $result = BlockMediaHelper::getBlockMediaData( $media->id );
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKey('id');
-        expect($result)->toHaveKey('url');
-        expect($result)->toHaveKey('alt');
-        expect($result)->toHaveKey('title');
-        expect($result)->toHaveKey('mime_type');
-        expect($result)->toHaveKey('file_name');
-        expect($result)->toHaveKey('file_size');
-        expect($result)->toHaveKey('thumbnail');
-        expect($result)->toHaveKey('medium');
-        expect($result)->toHaveKey('large');
-        expect($result)->toHaveKey('width');
-        expect($result)->toHaveKey('height');
-        expect($result)->toHaveKey('sizes');
+        expect( $result )->toBeArray();
+        expect( $result )->toHaveKey( 'id' );
+        expect( $result )->toHaveKey( 'url' );
+        expect( $result )->toHaveKey( 'alt' );
+        expect( $result )->toHaveKey( 'title' );
+        expect( $result )->toHaveKey( 'mime_type' );
+        expect( $result )->toHaveKey( 'file_name' );
+        expect( $result )->toHaveKey( 'file_size' );
+        expect( $result )->toHaveKey( 'thumbnail' );
+        expect( $result )->toHaveKey( 'medium' );
+        expect( $result )->toHaveKey( 'large' );
+        expect( $result )->toHaveKey( 'width' );
+        expect( $result )->toHaveKey( 'height' );
+        expect( $result )->toHaveKey( 'sizes' );
 
-        expect($result['id'])->toBe($media->id);
-        expect($result['title'])->toBe('Test Image');
-        expect($result['alt'])->toBe('Test Alt Text');
-        expect($result['width'])->toBe(800);
-        expect($result['height'])->toBe(600);
+        expect( $result['id'] )->toBe( $media->id );
+        expect( $result['title'] )->toBe( 'Test Image' );
+        expect( $result['alt'] )->toBe( 'Test Alt Text' );
+        expect( $result['width'] )->toBe( 800 );
+        expect( $result['height'] )->toBe( 600 );
     }
 
     /**
@@ -173,22 +173,22 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_data_returns_structure_for_video(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create([
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create( [
             'duration' => 120,
-        ]);
+        ] );
 
-        $result = BlockMediaHelper::getBlockMediaData($media->id);
+        $result = BlockMediaHelper::getBlockMediaData( $media->id );
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKey('id');
-        expect($result)->toHaveKey('url');
-        expect($result)->toHaveKey('mime_type');
-        expect($result)->toHaveKey('duration');
-        expect($result['duration'])->toBe(120);
+        expect( $result )->toBeArray();
+        expect( $result )->toHaveKey( 'id' );
+        expect( $result )->toHaveKey( 'url' );
+        expect( $result )->toHaveKey( 'mime_type' );
+        expect( $result )->toHaveKey( 'duration' );
+        expect( $result['duration'] )->toBe( 120 );
 
         // Should not have image-specific keys
-        expect($result)->not->toHaveKey('thumbnail');
-        expect($result)->not->toHaveKey('width');
+        expect( $result )->not->toHaveKey( 'thumbnail' );
+        expect( $result )->not->toHaveKey( 'width' );
     }
 
     /**
@@ -196,15 +196,15 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_media_data_returns_structure_for_audio(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->audio()->create([
+        $media = Media::factory()->uploadedBy( $this->user )->audio()->create( [
             'duration' => 180,
-        ]);
+        ] );
 
-        $result = BlockMediaHelper::getBlockMediaData($media->id);
+        $result = BlockMediaHelper::getBlockMediaData( $media->id );
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKey('duration');
-        expect($result['duration'])->toBe(180);
+        expect( $result )->toBeArray();
+        expect( $result )->toHaveKey( 'duration' );
+        expect( $result['duration'] )->toBe( 180 );
     }
 
     // =========================================================================
@@ -216,9 +216,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_returns_false_for_non_existent_media(): void
     {
-        $result = BlockMediaHelper::validateForBlock(999999, 'image');
+        $result = BlockMediaHelper::validateForBlock( 999999, 'image' );
 
-        expect($result)->toBeFalse();
+        expect( $result )->toBeFalse();
     }
 
     /**
@@ -226,13 +226,13 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_validates_image_in_image_block(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create([
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create( [
             'file_name' => 'photo.jpg',
-        ]);
+        ] );
 
-        $result = BlockMediaHelper::validateForBlock($media->id, 'image');
+        $result = BlockMediaHelper::validateForBlock( $media->id, 'image' );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -240,11 +240,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_rejects_video_in_image_block(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        $result = BlockMediaHelper::validateForBlock($media->id, 'image');
+        $result = BlockMediaHelper::validateForBlock( $media->id, 'image' );
 
-        expect($result)->toBeFalse();
+        expect( $result )->toBeFalse();
     }
 
     /**
@@ -252,13 +252,13 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_validates_video_in_video_block(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create([
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create( [
             'file_name' => 'video.mp4',
-        ]);
+        ] );
 
-        $result = BlockMediaHelper::validateForBlock($media->id, 'video');
+        $result = BlockMediaHelper::validateForBlock( $media->id, 'video' );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -266,13 +266,13 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_validates_audio_in_audio_block(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->audio()->create([
+        $media = Media::factory()->uploadedBy( $this->user )->audio()->create( [
             'file_name' => 'audio.mp3',
-        ]);
+        ] );
 
-        $result = BlockMediaHelper::validateForBlock($media->id, 'audio');
+        $result = BlockMediaHelper::validateForBlock( $media->id, 'audio' );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -280,11 +280,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_validates_multiple_types_in_hero_block(): void
     {
-        $image = Media::factory()->uploadedBy($this->user)->image()->create();
-        $video = Media::factory()->uploadedBy($this->user)->video()->create();
+        $image = Media::factory()->uploadedBy( $this->user )->image()->create();
+        $video = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        expect(BlockMediaHelper::validateForBlock($image->id, 'hero'))->toBeTrue();
-        expect(BlockMediaHelper::validateForBlock($video->id, 'hero'))->toBeTrue();
+        expect( BlockMediaHelper::validateForBlock( $image->id, 'hero' ) )->toBeTrue();
+        expect( BlockMediaHelper::validateForBlock( $video->id, 'hero' ) )->toBeTrue();
     }
 
     /**
@@ -292,11 +292,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_for_block_uses_default_for_unknown_type(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = BlockMediaHelper::validateForBlock($media->id, 'unknown_block_type');
+        $result = BlockMediaHelper::validateForBlock( $media->id, 'unknown_block_type' );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     // =========================================================================
@@ -308,11 +308,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_requirements_returns_config_for_known_type(): void
     {
-        $requirements = BlockMediaHelper::getBlockRequirements('image');
+        $requirements = BlockMediaHelper::getBlockRequirements( 'image' );
 
-        expect($requirements)->toBeArray();
-        expect($requirements)->toHaveKey('types');
-        expect($requirements['types'])->toContain('image');
+        expect( $requirements )->toBeArray();
+        expect( $requirements )->toHaveKey( 'types' );
+        expect( $requirements['types'] )->toContain( 'image' );
     }
 
     /**
@@ -320,14 +320,14 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_block_requirements_returns_default_for_unknown_type(): void
     {
-        $requirements = BlockMediaHelper::getBlockRequirements('completely_unknown_type');
+        $requirements = BlockMediaHelper::getBlockRequirements( 'completely_unknown_type' );
 
-        expect($requirements)->toBeArray();
-        expect($requirements)->toHaveKey('types');
-        expect($requirements['types'])->toContain('image');
-        expect($requirements['types'])->toContain('video');
-        expect($requirements['types'])->toContain('audio');
-        expect($requirements['types'])->toContain('document');
+        expect( $requirements )->toBeArray();
+        expect( $requirements )->toHaveKey( 'types' );
+        expect( $requirements['types'] )->toContain( 'image' );
+        expect( $requirements['types'] )->toContain( 'video' );
+        expect( $requirements['types'] )->toContain( 'audio' );
+        expect( $requirements['types'] )->toContain( 'document' );
     }
 
     // =========================================================================
@@ -339,11 +339,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_media_type_category_returns_image(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = BlockMediaHelper::getMediaTypeCategory($media);
+        $result = BlockMediaHelper::getMediaTypeCategory( $media );
 
-        expect($result)->toBe('image');
+        expect( $result )->toBe( 'image' );
     }
 
     /**
@@ -351,11 +351,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_media_type_category_returns_video(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        $result = BlockMediaHelper::getMediaTypeCategory($media);
+        $result = BlockMediaHelper::getMediaTypeCategory( $media );
 
-        expect($result)->toBe('video');
+        expect( $result )->toBe( 'video' );
     }
 
     /**
@@ -363,11 +363,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_media_type_category_returns_audio(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->audio()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->audio()->create();
 
-        $result = BlockMediaHelper::getMediaTypeCategory($media);
+        $result = BlockMediaHelper::getMediaTypeCategory( $media );
 
-        expect($result)->toBe('audio');
+        expect( $result )->toBe( 'audio' );
     }
 
     /**
@@ -375,11 +375,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_media_type_category_returns_document(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->document()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->document()->create();
 
-        $result = BlockMediaHelper::getMediaTypeCategory($media);
+        $result = BlockMediaHelper::getMediaTypeCategory( $media );
 
-        expect($result)->toBe('document');
+        expect( $result )->toBe( 'document' );
     }
 
     // =========================================================================
@@ -391,10 +391,10 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_multiple_block_media_data_returns_empty_for_empty_input(): void
     {
-        $result = BlockMediaHelper::getMultipleBlockMediaData([]);
+        $result = BlockMediaHelper::getMultipleBlockMediaData( [] );
 
-        expect($result)->toBeArray();
-        expect($result)->toBeEmpty();
+        expect( $result )->toBeArray();
+        expect( $result )->toBeEmpty();
     }
 
     /**
@@ -402,16 +402,16 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_multiple_block_media_data_returns_data_for_multiple_media(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->image()->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->image()->create();
-        $media3 = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->image()->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->image()->create();
+        $media3 = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = BlockMediaHelper::getMultipleBlockMediaData([$media1->id, $media2->id, $media3->id]);
+        $result = BlockMediaHelper::getMultipleBlockMediaData( [$media1->id, $media2->id, $media3->id] );
 
-        expect($result)->toHaveCount(3);
-        expect($result[0]['id'])->toBe($media1->id);
-        expect($result[1]['id'])->toBe($media2->id);
-        expect($result[2]['id'])->toBe($media3->id);
+        expect( $result )->toHaveCount( 3 );
+        expect( $result[0]['id'] )->toBe( $media1->id );
+        expect( $result[1]['id'] )->toBe( $media2->id );
+        expect( $result[2]['id'] )->toBe( $media3->id );
     }
 
     /**
@@ -419,12 +419,12 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_multiple_block_media_data_skips_non_existent(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = BlockMediaHelper::getMultipleBlockMediaData([$media->id, 999999, 888888]);
+        $result = BlockMediaHelper::getMultipleBlockMediaData( [$media->id, 999999, 888888] );
 
-        expect($result)->toHaveCount(1);
-        expect($result[0]['id'])->toBe($media->id);
+        expect( $result )->toHaveCount( 1 );
+        expect( $result[0]['id'] )->toBe( $media->id );
     }
 
     // =========================================================================
@@ -436,10 +436,10 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_multiple_for_block_validates_min_files(): void
     {
-        $result = BlockMediaHelper::validateMultipleForBlock([], 'gallery');
+        $result = BlockMediaHelper::validateMultipleForBlock( [], 'gallery' );
 
-        expect($result['valid'])->toBeFalse();
-        expect($result['errors'])->not->toBeEmpty();
+        expect( $result['valid'] )->toBeFalse();
+        expect( $result['errors'] )->not->toBeEmpty();
     }
 
     /**
@@ -449,15 +449,15 @@ class BlockMediaHelperTest extends TestCase
     {
         // Create more than 50 media (gallery max)
         $mediaIds = [];
-        for ($i = 0; $i < 52; $i++) {
-            $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        for ( $i = 0; $i < 52; $i++ ) {
+            $media      = Media::factory()->uploadedBy( $this->user )->image()->create();
             $mediaIds[] = $media->id;
         }
 
-        $result = BlockMediaHelper::validateMultipleForBlock($mediaIds, 'gallery');
+        $result = BlockMediaHelper::validateMultipleForBlock( $mediaIds, 'gallery' );
 
-        expect($result['valid'])->toBeFalse();
-        expect($result['errors'])->not->toBeEmpty();
+        expect( $result['valid'] )->toBeFalse();
+        expect( $result['errors'] )->not->toBeEmpty();
     }
 
     /**
@@ -465,13 +465,13 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_multiple_for_block_returns_valid_for_correct_media(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->image()->create(['file_name' => 'photo1.jpg']);
-        $media2 = Media::factory()->uploadedBy($this->user)->image()->create(['file_name' => 'photo2.jpg']);
+        $media1 = Media::factory()->uploadedBy( $this->user )->image()->create( ['file_name' => 'photo1.jpg'] );
+        $media2 = Media::factory()->uploadedBy( $this->user )->image()->create( ['file_name' => 'photo2.jpg'] );
 
-        $result = BlockMediaHelper::validateMultipleForBlock([$media1->id, $media2->id], 'gallery');
+        $result = BlockMediaHelper::validateMultipleForBlock( [$media1->id, $media2->id], 'gallery' );
 
-        expect($result['valid'])->toBeTrue();
-        expect($result['errors'])->toBeEmpty();
+        expect( $result['valid'] )->toBeTrue();
+        expect( $result['errors'] )->toBeEmpty();
     }
 
     /**
@@ -479,13 +479,13 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_validate_multiple_for_block_reports_invalid_items(): void
     {
-        $image = Media::factory()->uploadedBy($this->user)->image()->create(['file_name' => 'photo.jpg']);
-        $video = Media::factory()->uploadedBy($this->user)->video()->create();
+        $image = Media::factory()->uploadedBy( $this->user )->image()->create( ['file_name' => 'photo.jpg'] );
+        $video = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        $result = BlockMediaHelper::validateMultipleForBlock([$image->id, $video->id], 'gallery');
+        $result = BlockMediaHelper::validateMultipleForBlock( [$image->id, $video->id], 'gallery' );
 
-        expect($result['valid'])->toBeFalse();
-        expect($result['errors'])->not->toBeEmpty();
+        expect( $result['valid'] )->toBeFalse();
+        expect( $result['errors'] )->not->toBeEmpty();
     }
 
     // =========================================================================
@@ -497,9 +497,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_optimized_block_media_url_returns_null_for_null_id(): void
     {
-        $result = BlockMediaHelper::getOptimizedBlockMediaUrl(null, 'hero');
+        $result = BlockMediaHelper::getOptimizedBlockMediaUrl( null, 'hero' );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -507,9 +507,9 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_optimized_block_media_url_returns_null_for_non_existent(): void
     {
-        $result = BlockMediaHelper::getOptimizedBlockMediaUrl(999999, 'hero');
+        $result = BlockMediaHelper::getOptimizedBlockMediaUrl( 999999, 'hero' );
 
-        expect($result)->toBeNull();
+        expect( $result )->toBeNull();
     }
 
     /**
@@ -517,12 +517,12 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_optimized_block_media_url_returns_url(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = BlockMediaHelper::getOptimizedBlockMediaUrl($media->id, 'hero');
+        $result = BlockMediaHelper::getOptimizedBlockMediaUrl( $media->id, 'hero' );
 
-        expect($result)->toBeString();
-        expect($result)->not->toBeEmpty();
+        expect( $result )->toBeString();
+        expect( $result )->not->toBeEmpty();
     }
 
     /**
@@ -530,11 +530,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_get_optimized_block_media_url_returns_original_for_non_images(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->video()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->video()->create();
 
-        $result = BlockMediaHelper::getOptimizedBlockMediaUrl($media->id, 'video');
+        $result = BlockMediaHelper::getOptimizedBlockMediaUrl( $media->id, 'video' );
 
-        expect($result)->toBe($media->url());
+        expect( $result )->toBe( $media->url() );
     }
 
     // =========================================================================
@@ -546,12 +546,12 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_ap_block_media_helper_function(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = apBlockMedia($media->id);
+        $result = apBlockMedia( $media->id );
 
-        expect($result)->toBeArray();
-        expect($result['id'])->toBe($media->id);
+        expect( $result )->toBeArray();
+        expect( $result['id'] )->toBe( $media->id );
     }
 
     /**
@@ -559,11 +559,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_ap_block_media_url_helper_function(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = apBlockMediaUrl($media->id, 'medium');
+        $result = apBlockMediaUrl( $media->id, 'medium' );
 
-        expect($result)->toBeString();
+        expect( $result )->toBeString();
     }
 
     /**
@@ -571,11 +571,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_ap_validate_block_media_helper_function(): void
     {
-        $media = Media::factory()->uploadedBy($this->user)->image()->create(['file_name' => 'photo.jpg']);
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create( ['file_name' => 'photo.jpg'] );
 
-        $result = apValidateBlockMedia($media->id, 'image');
+        $result = apValidateBlockMedia( $media->id, 'image' );
 
-        expect($result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -583,11 +583,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_ap_block_media_multiple_helper_function(): void
     {
-        $media1 = Media::factory()->uploadedBy($this->user)->image()->create();
-        $media2 = Media::factory()->uploadedBy($this->user)->image()->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->image()->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = apBlockMediaMultiple([$media1->id, $media2->id]);
+        $result = apBlockMediaMultiple( [$media1->id, $media2->id] );
 
-        expect($result)->toHaveCount(2);
+        expect( $result )->toHaveCount( 2 );
     }
 }
