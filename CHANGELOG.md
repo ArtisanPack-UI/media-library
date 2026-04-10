@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-04-09
+
+### Added
+
+#### React & Vue Frontend Components
+
+- Complete React component set (11 components) with TypeScript support for Inertia.js applications
+- React hooks: `useMediaLibrary`, `useMediaPicker`, `useMediaUpload`
+- Complete Vue 3 component set (12 components) with TypeScript support for Inertia.js applications
+- Vue composables: `useMediaLibrary`, `useMediaPicker`, `useMediaUpload`
+- Shared API utility (`api.ts`) with Sanctum-authenticated requests for both stacks
+- React `Portal` utility for rendering modals outside the DOM hierarchy
+- Vue `FolderNode` recursive component for folder tree rendering
+
+#### Frontend Installation Command
+
+- `php artisan media:install-frontend` Artisan command for one-step frontend setup
+- Interactive stack selection (React or Vue) with `--stack` option
+- `--force` flag to overwrite previously published files
+- Automatic display of required npm peer dependencies after publishing
+
+#### Config API Endpoint
+
+- `GET /api/media/config` public endpoint for client-side upload validation
+- Returns max file size, allowed MIME types grouped by category, allowed extensions, image sizes, and feature flags
+- HTTP caching with `Cache-Control` and `ETag` headers for efficient repeated requests
+- `MediaConfigController` with MIME type grouping and extension extraction
+
+#### TypeScript Type Definitions
+
+- Shared `media.d.ts` type definitions publishable via `media-types` tag
+- Full type coverage for media items, folders, tags, and API responses
+
+#### Publish Groups
+
+- `media-react` tag for publishing React components and types
+- `media-vue` tag for publishing Vue components and types
+- `media-types` tag for publishing shared TypeScript type definitions
+
+### Changed
+
+- Updated license in `composer.json` from `GPL-3.0-or-later` to `MIT` to match the LICENSE file
+- Added consistent file-level PHPDoc blocks with `@package`/`@subpackage` tags across all source files
+- Restructured CI workflow: separated lint and test jobs, added dedicated release workflow with Packagist update
+- Enabled Claude Code review and Claude Code action GitHub workflows
+- Updated documentation with v1.2 frontend components section and upgrading guide
+
 ## [1.1.0] - 2026-01-23
 
 ### Added

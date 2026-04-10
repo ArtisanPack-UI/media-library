@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Media Store Request
+ *
+ * Validates data for creating/uploading new media.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Requests
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;

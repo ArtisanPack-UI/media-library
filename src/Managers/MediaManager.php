@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Media Manager
+ *
+ * Coordinates media library operations and manages configuration.
+ * Responsible for registering custom image sizes, managing allowed
+ * mime types, and providing centralized access to media library settings.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Managers
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Managers;
 
 /**
@@ -207,6 +220,6 @@ class MediaManager
      */
     public function getUserModel(): string
     {
-        return config( 'artisanpack.media.user_model', 'App\Models\User');
+        return config( 'artisanpack.media.user_model', 'App\Models\User' );
     }
 }

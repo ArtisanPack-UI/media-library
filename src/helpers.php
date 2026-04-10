@@ -5,7 +5,10 @@
  *
  * Global helper functions for media management.
  *
- * @since   1.0.0
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary
+ *
+ * @since      1.0.0
  */
 
 use ArtisanPackUI\MediaLibrary\Helpers\BlockMediaHelper;
@@ -223,7 +226,7 @@ if ( ! function_exists( 'apValidateBlockMedia' ) ) {
     }
 }
 
-if ( ! function_exists( 'apBlockMediaMultiple')) {
+if ( ! function_exists( 'apBlockMediaMultiple' ) ) {
     /**
      * Get multiple media items formatted for block content.
      *
@@ -233,7 +236,7 @@ if ( ! function_exists( 'apBlockMediaMultiple')) {
      *
      * @return array<int, array<string, mixed>> Array of formatted media data.
      */
-    function apBlockMediaMultiple( array $mediaIds): array
+    function apBlockMediaMultiple( array $mediaIds ): array
     {
         return BlockMediaHelper::getMultipleBlockMediaData( $mediaIds);
     }

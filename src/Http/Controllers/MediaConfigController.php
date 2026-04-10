@@ -6,6 +6,9 @@
  * Exposes the media library upload configuration via a public API endpoint
  * so React/Vue frontend components can validate uploads client-side.
  *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Controllers
+ *
  * @since      1.2.0
  */
 

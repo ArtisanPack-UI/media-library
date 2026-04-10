@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Policy
+ *
+ * Handles authorization for media-related operations.
+ * Uses hooks to allow customization of capability checks.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Policies
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Policies;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;

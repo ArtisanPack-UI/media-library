@@ -14,7 +14,7 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 
 - **Getting Started**
   - [Quick Start Guide](Getting-Started)
-  - [Upgrading to v1.1](Upgrading)
+  - [Upgrading](Upgrading)
 
 - **Installation**
   - [Installation Overview](Installation-Installation)
@@ -27,6 +27,13 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
   - [Livewire Components](Usage-Livewire-Components)
   - [Streaming Uploads](Usage-Streaming-Uploads) *(v1.1)*
   - [Table Export](Usage-Table-Export) *(v1.1)*
+
+- **Frontend Components** *(v1.2)*
+  - [Overview](Frontend-Components)
+  - [Frontend Installation](Frontend-Components-Installation)
+  - [React Components](Frontend-Components-React)
+  - [Vue Components](Frontend-Components-Vue)
+  - [Config API Endpoint](Frontend-Components-Config-Api)
 
 - **Visual Editor Integration** *(v1.1)*
   - [Overview](Visual-Editor)
@@ -68,6 +75,13 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - 🖱️ **Media Modal Component** - Single/multi-select modal with context support
 - 🔐 **Permission-based Access Control** - Granular capability-based permissions
 
+### New in v1.2
+- ⚛️ **React Components** - Full React component set with hooks for Inertia.js apps
+- 🟢 **Vue Components** - Full Vue 3 component set with composables for Inertia.js apps
+- 🛠️ **Frontend Install Command** - `php artisan media:install-frontend` for one-step setup
+- 🔧 **Config API Endpoint** - Public endpoint for client-side upload validation
+- 📝 **TypeScript Type Definitions** - Shared type definitions for React/Vue consumers
+
 ### New in v1.1
 - ⚡ **Livewire 4 Streaming Uploads** - Real-time upload progress with automatic Livewire 3 fallback
 - 📊 **Media Statistics Dashboard** - KPI cards with sparklines showing upload trends
@@ -84,6 +98,12 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - [Helper Functions](Usage-Helper-Functions) - Common usage patterns
 - [API Endpoints](Api-Endpoints) - Complete API reference
 - [Troubleshooting](Reference-Troubleshooting) - Common issues and solutions
+
+### v1.2 Features
+- [React Components](Frontend-Components-React) - React media library UI
+- [Vue Components](Frontend-Components-Vue) - Vue media library UI
+- [Frontend Installation](Frontend-Components-Installation) - One-step setup
+- [Config API](Frontend-Components-Config-Api) - Client-side validation
 
 ### v1.1 Features
 - [Streaming Uploads](Usage-Streaming-Uploads) - Livewire 4 real-time progress

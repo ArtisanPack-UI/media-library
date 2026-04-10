@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Item Livewire Component
+ *
+ * Displays a single media item with preview, actions, and metadata.
+ * Supports selection, deletion, and clipboard URL copying.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Livewire\Components
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;

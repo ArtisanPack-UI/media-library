@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Media Picker Button Blade Component
+ *
+ * A convenience component that renders a button to trigger the MediaPicker.
+ * Can be used standalone or to wrap the MediaPicker Livewire component.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\View\Components
+ *
+ * @since      1.1.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\View\Components;
 
 use Illuminate\Contracts\View\View;

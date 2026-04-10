@@ -6,6 +6,48 @@ title: API Endpoints Reference
 
 Complete reference for all Media Library API endpoints with examples.
 
+## Configuration Endpoint
+
+### Get Upload Configuration
+
+`GET /api/media/config`
+
+Returns the server-side upload configuration for client-side validation. This is a **public endpoint** — no authentication required.
+
+*Added in v1.2.0*
+
+**Response:**
+```json
+{
+    "upload": {
+        "max_file_size": 10240,
+        "max_file_size_human": "10 MB",
+        "allowed_mime_types": {
+            "image": ["image/jpeg", "image/png", "image/gif", "image/webp"],
+            "video": ["video/mp4", "video/mpeg"],
+            "audio": ["audio/mpeg", "audio/wav"],
+            "document": ["application/pdf"]
+        },
+        "allowed_extensions": ["jpg", "jpeg", "png", "gif", "webp", "mp4", "mp3", "pdf"]
+    },
+    "image_sizes": {
+        "thumbnail": { "width": 150, "height": 150, "crop": true },
+        "medium": { "width": 300, "height": 300, "crop": false },
+        "large": { "width": 1024, "height": 1024, "crop": false }
+    },
+    "features": {
+        "webp_conversion": true,
+        "avif_conversion": false
+    }
+}
+```
+
+**Caching:** Response includes `Cache-Control` and `ETag` headers. Clients can use `If-None-Match` for conditional requests.
+
+For detailed documentation, see [Config API Endpoint](Frontend-Components-Config-Api).
+
+---
+
 ## Media Endpoints
 
 ### List Media

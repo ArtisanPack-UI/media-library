@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Media Folder Store Request
+ *
+ * Validates data for creating a new media folder.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Requests
+ *
+ * @since      1.0.0
+ */
+
 namespace ArtisanPackUI\MediaLibrary\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;

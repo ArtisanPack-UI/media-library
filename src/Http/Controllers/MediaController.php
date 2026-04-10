@@ -6,6 +6,8 @@
  * Handles API endpoints for media management including listing,
  * uploading, updating, and deleting media items.
  *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary\Http\Controllers
  *
  * @since      1.0.0
  */
@@ -244,10 +246,10 @@ class MediaController extends Controller
         $disk = $media->disk ?? config( 'artisanpack.media.disk', 'public' );
 
         // Validate file exists on disk before attempting download
-        if ( ! Storage::disk( $disk)->exists( $media->file_path)) {
-            abort( 404, __( 'File not found on storage.'));
+        if ( ! Storage::disk( $disk )->exists( $media->file_path ) ) {
+            abort( 404, __( 'File not found on storage.' ) );
         }
 
-        return Storage::disk( $disk)->download( $media->file_path, $media->file_name);
+        return Storage::disk( $disk )->download( $media->file_path, $media->file_name);
     }
 }

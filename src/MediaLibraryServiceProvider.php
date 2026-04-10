@@ -6,6 +6,8 @@
  * Bootstraps the Media Library package by registering configuration,
  * views, migrations, routes, Livewire components, and Blade components.
  *
+ * @package    ArtisanPack_UI
+ * @subpackage MediaLibrary
  *
  * @since      1.0.0
  */
