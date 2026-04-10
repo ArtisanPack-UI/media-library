@@ -273,7 +273,7 @@ trait StreamableUpload
         }
 
         // Stream final completion
-        $this->streamComplete( $successCount, count( $uploadErrors), $totalFiles);
+        $this->streamComplete( $successCount, count( $uploadErrors ), $totalFiles );
 
         return [
             'uploaded' => $uploadedMedia,

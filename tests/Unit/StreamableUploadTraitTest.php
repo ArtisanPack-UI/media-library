@@ -316,14 +316,14 @@ class StreamableUploadTraitTest extends TestCase
      */
     public function test_stream_complete_status_message_without_errors(): void
     {
-        config( ['artisanpack.media.features.streaming_upload' => true]);
+        config( ['artisanpack.media.features.streaming_upload' => true] );
 
-        $method = new ReflectionMethod( $this->component, 'streamComplete');
-        $method->setAccessible( true);
+        $method = new ReflectionMethod( $this->component, 'streamComplete' );
+        $method->setAccessible( true );
 
-        $method->invoke( $this->component, 5, 0, 5);
+        $method->invoke( $this->component, 5, 0, 5 );
 
-        $content = json_decode( $this->component->streamCalls[0]['content'], true);
-        expect( $content['status'])->toContain( '5');
+        $content = json_decode( $this->component->streamCalls[0]['content'], true );
+        expect( $content['status'] )->toContain( '5');
     }
 }

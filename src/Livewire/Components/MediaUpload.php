@@ -483,14 +483,14 @@ class MediaUpload extends Component
                 $this->uploadErrors[] = __( 'Failed to upload :filename: :error', [
                     'filename' => $file->getClientOriginalName(),
                     'error'    => $e->getMessage(),
-                ]);
+                ] );
             }
 
             // Increment processed count regardless of success/failure
             $processedCount++;
 
             // Update progress based on processed files (not just successful uploads)
-            $this->uploadProgress = (int) ( ( $processedCount / $this->totalFiles) * 100);
+            $this->uploadProgress = (int) ( ( $processedCount / $this->totalFiles ) * 100 );
         }
     }
 }

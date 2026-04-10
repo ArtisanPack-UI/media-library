@@ -655,20 +655,20 @@ class MediaStatisticsTest extends TestCase
     {
         // Test bytes
         Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 500] );
-        $component = Livewire::test( MediaStatistics::class);
-        expect( $component->get( 'totalStorageFormatted'))->toContain( 'B');
+        $component = Livewire::test( MediaStatistics::class );
+        expect( $component->get( 'totalStorageFormatted' ) )->toContain( 'B' );
 
         // Clean up and test KB
         Media::query()->delete();
-        Media::factory()->uploadedBy( $this->user)->create( ['file_size' => 2048]);
-        $component = Livewire::test( MediaStatistics::class);
-        expect( $component->get( 'totalStorageFormatted'))->toContain( 'KB');
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 2048] );
+        $component = Livewire::test( MediaStatistics::class );
+        expect( $component->get( 'totalStorageFormatted' ) )->toContain( 'KB' );
 
         // Clean up and test GB
         Media::query()->delete();
-        Media::factory()->uploadedBy( $this->user)->create( ['file_size' => 1073741824]); // 1 GB
-        $component = Livewire::test( MediaStatistics::class);
-        expect( $component->get( 'totalStorageFormatted'))->toContain( 'GB');
+        Media::factory()->uploadedBy( $this->user )->create( ['file_size' => 1073741824] ); // 1 GB
+        $component = Livewire::test( MediaStatistics::class );
+        expect( $component->get( 'totalStorageFormatted' ) )->toContain( 'GB' );
     }
 
     /**
@@ -676,13 +676,13 @@ class MediaStatisticsTest extends TestCase
      */
     public function test_component_handles_single_media_item(): void
     {
-        Media::factory()->uploadedBy( $this->user)->image()->create( ['file_size' => 1000]);
+        Media::factory()->uploadedBy( $this->user )->image()->create( ['file_size' => 1000] );
 
-        $component = Livewire::test( MediaStatistics::class);
+        $component = Livewire::test( MediaStatistics::class );
 
-        expect( $component->get( 'totalMedia'))->toBe( 1);
-        expect( $component->get( 'totalStorageBytes'))->toBe( 1000);
-        expect( $component->get( 'averageFileSize'))->toContain( 'B');
+        expect( $component->get( 'totalMedia' ) )->toBe( 1 );
+        expect( $component->get( 'totalStorageBytes' ) )->toBe( 1000 );
+        expect( $component->get( 'averageFileSize' ) )->toContain( 'B');
         expect( $component->get( 'largestFile'))->not->toBeNull();
     }
 }

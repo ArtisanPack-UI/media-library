@@ -201,14 +201,14 @@ class ImageOptimizationServiceTest extends TestCase
 
         if ( 'png' === $extension ) {
             imagepng( $image, $tempPath );
-        } elseif ( in_array( $extension, ['jpg', 'jpeg'], true)) {
-            imagejpeg( $image, $tempPath, 90);
+        } elseif ( in_array( $extension, ['jpg', 'jpeg'], true ) ) {
+            imagejpeg( $image, $tempPath, 90 );
         } else {
             // Default to JPEG
-            imagejpeg( $image, $tempPath, 90);
+            imagejpeg( $image, $tempPath, 90 );
         }
 
-        imagedestroy( $image);
+        imagedestroy( $image );
 
         return $tempPath;
     }

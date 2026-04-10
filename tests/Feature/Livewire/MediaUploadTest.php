@@ -631,26 +631,26 @@ class MediaUploadTest extends TestCase
     {
         $media = Media::factory()->uploadedBy( $this->user )->create();
 
-        $mockService = Mockery::mock( MediaUploadService::class);
-        $mockService->shouldReceive( 'upload')
+        $mockService = Mockery::mock( MediaUploadService::class );
+        $mockService->shouldReceive( 'upload' )
             ->once()
-            ->andReturn( $media);
+            ->andReturn( $media );
 
-        $this->app->instance( MediaUploadService::class, $mockService);
+        $this->app->instance( MediaUploadService::class, $mockService );
 
         // Disable streaming to force polling mode
-        config( ['artisanpack.media.features.streaming_upload' => false]);
+        config( ['artisanpack.media.features.streaming_upload' => false] );
 
-        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100);
+        $file = UploadedFile::fake()->image( 'photo.jpg', 100, 100 );
 
-        Livewire::actingAs( $this->user)
-            ->test( MediaUpload::class)
-            ->set( 'files', [$file])
-            ->call( 'processUpload')
-            ->assertCount( 'uploadedMedia', 1)
-            ->assertSet( 'uploadedCount', 1)
-            ->assertSet( 'isUploading', false)
-            ->assertDispatched( 'media-uploaded');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->set( 'files', [$file] )
+            ->call( 'processUpload' )
+            ->assertCount( 'uploadedMedia', 1 )
+            ->assertSet( 'uploadedCount', 1 )
+            ->assertSet( 'isUploading', false )
+            ->assertDispatched( 'media-uploaded' );
     }
 
     /**
@@ -660,9 +660,9 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_exposes_current_file_name_property(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( MediaUpload::class)
-            ->assertSet( 'currentFileName', '');
+        Livewire::actingAs( $this->user )
+            ->test( MediaUpload::class )
+            ->assertSet( 'currentFileName', '' );
     }
 
     /**
@@ -672,7 +672,7 @@ class MediaUploadTest extends TestCase
      */
     public function test_component_exposes_current_file_progress_property(): void
     {
-        Livewire::actingAs( $this->user)
+        Livewire::actingAs( $this->user )
             ->test( MediaUpload::class)
             ->assertSet( 'currentFileProgress', 0);
     }

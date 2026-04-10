@@ -828,16 +828,16 @@ class MediaPickerTest extends TestCase
      */
     public function test_selected_media_is_trimmed_to_max_selections_on_mount(): void
     {
-        $media    = Media::factory()->uploadedBy( $this->user )->count( 5)->create();
-        $mediaIds = $media->pluck( 'id')->toArray();
+        $media    = Media::factory()->uploadedBy( $this->user )->count( 5 )->create();
+        $mediaIds = $media->pluck( 'id' )->toArray();
 
-        Livewire::actingAs( $this->user)
+        Livewire::actingAs( $this->user )
             ->test( MediaPicker::class, [
                 'multiSelect'   => true,
                 'maxSelections' => 2,
                 'selectedMedia' => $mediaIds,
-            ])
-            ->assertSet( 'selectedMedia', array_slice( $mediaIds, 0, 2));
+            ] )
+            ->assertSet( 'selectedMedia', array_slice( $mediaIds, 0, 2 ) );
     }
 
     // =========================================================================
@@ -849,10 +849,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_open_with_empty_context_opens_any_component(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( MediaPicker::class, ['context' => ''])
-            ->call( 'open', 'any-context')
-            ->assertSet( 'isOpen', true);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => ''] )
+            ->call( 'open', 'any-context' )
+            ->assertSet( 'isOpen', true );
     }
 
     /**
@@ -860,10 +860,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_component_with_empty_context_responds_to_any_open(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( MediaPicker::class, ['context' => ''])
-            ->call( 'open', '')
-            ->assertSet( 'isOpen', true);
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => ''] )
+            ->call( 'open', '' )
+            ->assertSet( 'isOpen', true );
     }
 
     /**
@@ -871,10 +871,10 @@ class MediaPickerTest extends TestCase
      */
     public function test_open_dispatches_event_with_context(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( MediaPicker::class, ['context' => 'test-context'])
-            ->call( 'open', 'test-context')
-            ->assertDispatched( 'media-picker-opened', context: 'test-context');
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'test-context'] )
+            ->call( 'open', 'test-context' )
+            ->assertDispatched( 'media-picker-opened', context: 'test-context' );
     }
 
     /**
@@ -882,9 +882,9 @@ class MediaPickerTest extends TestCase
      */
     public function test_close_dispatches_event_with_context(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( MediaPicker::class, ['context' => 'test-context'])
-            ->call( 'open', 'test-context')
+        Livewire::actingAs( $this->user )
+            ->test( MediaPicker::class, ['context' => 'test-context'] )
+            ->call( 'open', 'test-context' )
             ->call( 'close')
             ->assertDispatched( 'media-picker-closed', context: 'test-context');
     }

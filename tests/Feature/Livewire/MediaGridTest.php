@@ -231,11 +231,11 @@ class MediaGridTest extends TestCase
             ->test( MediaGrid::class, ['media' => $paginator] )
             ->call( 'toggleSelection', $media[0]->id )
             ->call( 'toggleSelection', $media[1]->id )
-            ->call( 'toggleSelection', $media[2]->id)
-            ->call( 'toggleSelection', $media[1]->id);
+            ->call( 'toggleSelection', $media[2]->id )
+            ->call( 'toggleSelection', $media[1]->id );
 
-        $selectedMedia = $component->get( 'selectedMedia');
-        expect( array_keys( $selectedMedia))->toBe( [0, 1]);
-        expect( $selectedMedia)->toBe( [$media[0]->id, $media[2]->id]);
+        $selectedMedia = $component->get( 'selectedMedia' );
+        expect( array_keys( $selectedMedia ) )->toBe( [0, 1] );
+        expect( $selectedMedia )->toBe( [$media[0]->id, $media[2]->id]);
     }
 }

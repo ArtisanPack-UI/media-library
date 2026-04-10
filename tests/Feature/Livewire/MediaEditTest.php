@@ -428,17 +428,17 @@ class MediaEditTest extends TestCase
         Livewire::actingAs( $this->user )
             ->test( MediaEdit::class, ['mediaId' => $media->id] )
             ->set( 'form.title', '' )
-            ->set( 'form.alt_text', '')
-            ->set( 'form.caption', '')
-            ->set( 'form.description', '')
-            ->call( 'save')
+            ->set( 'form.alt_text', '' )
+            ->set( 'form.caption', '' )
+            ->set( 'form.description', '' )
+            ->call( 'save' )
             ->assertHasNoErrors();
 
         $media->refresh();
-        expect( $media->title)->toBe( '');
-        expect( $media->alt_text)->toBe( '');
-        expect( $media->caption)->toBe( '');
-        expect( $media->description)->toBe( '');
+        expect( $media->title )->toBe( '' );
+        expect( $media->alt_text )->toBe( '' );
+        expect( $media->caption )->toBe( '' );
+        expect( $media->description )->toBe( '' );
     }
 
     /**
@@ -446,9 +446,9 @@ class MediaEditTest extends TestCase
      */
     public function test_throws_exception_for_non_existent_media(): void
     {
-        $this->expectException( \Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException( \Illuminate\Database\Eloquent\ModelNotFoundException::class );
 
-        Livewire::actingAs( $this->user)
+        Livewire::actingAs( $this->user )
             ->test( MediaEdit::class, ['mediaId' => 99999]);
     }
 }

@@ -809,10 +809,10 @@ class MediaModalTest extends TestCase
     {
         Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
 
-        Livewire::actingAs( $this->user)
-            ->test( MediaModal::class)
-            ->call( 'selectFocused')
-            ->assertSet( 'selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -820,13 +820,13 @@ class MediaModalTest extends TestCase
      */
     public function test_select_focused_does_nothing_with_invalid_index(): void
     {
-        Media::factory()->uploadedBy( $this->user)->count( 3)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
 
-        Livewire::actingAs( $this->user)
-            ->test( MediaModal::class)
-            ->set( 'focusedIndex', 100)
-            ->call( 'selectFocused')
-            ->assertSet( 'selectedMedia', []);
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->set( 'focusedIndex', 100 )
+            ->call( 'selectFocused' )
+            ->assertSet( 'selectedMedia', [] );
     }
 
     /**
@@ -834,11 +834,11 @@ class MediaModalTest extends TestCase
      */
     public function test_reset_focus_sets_index_to_negative_one(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( MediaModal::class)
-            ->set( 'focusedIndex', 5)
-            ->call( 'resetFocus')
-            ->assertSet( 'focusedIndex', -1);
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class )
+            ->set( 'focusedIndex', 5 )
+            ->call( 'resetFocus' )
+            ->assertSet( 'focusedIndex', -1 );
     }
 
     /**
@@ -846,19 +846,19 @@ class MediaModalTest extends TestCase
      */
     public function test_component_with_all_visual_editor_options(): void
     {
-        $media = Media::factory()->uploadedBy( $this->user)->create();
-        session( ['media.recently_used' => [$media->id]]);
+        $media = Media::factory()->uploadedBy( $this->user )->create();
+        session( ['media.recently_used' => [$media->id]] );
 
-        Livewire::actingAs( $this->user)
+        Livewire::actingAs( $this->user )
             ->test( MediaModal::class, [
                 'inlineMode'        => true,
                 'quickUploadSelect' => true,
                 'multiSelect'       => false,
                 'context'           => 'visual-editor',
-            ])
-            ->assertSet( 'inlineMode', true)
-            ->assertSet( 'quickUploadSelect', true)
-            ->assertSet( 'multiSelect', false)
+            ] )
+            ->assertSet( 'inlineMode', true )
+            ->assertSet( 'quickUploadSelect', true )
+            ->assertSet( 'multiSelect', false )
             ->assertSet( 'context', 'visual-editor')
             ->assertSet( 'recentlyUsed', [$media->id]);
     }

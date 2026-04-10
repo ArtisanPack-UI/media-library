@@ -208,15 +208,15 @@ return new class extends Migration {
                 $table->index( 'folder_id' );
             }
 
-            $hasUploadedByIndex = in_array( 'media_uploaded_by_index', $indexNames, true)
-                || in_array( 'media_uploaded_by_idx', $indexNames, true);
-            if ( ! $hasUploadedByIndex) {
-                $table->index( 'uploaded_by');
+            $hasUploadedByIndex = in_array( 'media_uploaded_by_index', $indexNames, true )
+                || in_array( 'media_uploaded_by_idx', $indexNames, true );
+            if ( ! $hasUploadedByIndex ) {
+                $table->index( 'uploaded_by' );
             }
 
-            $hasCreatedAtIndex = in_array( 'media_created_at_index', $indexNames, true)
-                || in_array( 'media_created_at_idx', $indexNames, true);
-            if ( ! $hasCreatedAtIndex) {
+            $hasCreatedAtIndex = in_array( 'media_created_at_index', $indexNames, true )
+                || in_array( 'media_created_at_idx', $indexNames, true );
+            if ( ! $hasCreatedAtIndex ) {
                 $table->index( 'created_at');
             }
         });

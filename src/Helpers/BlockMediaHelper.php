@@ -427,7 +427,7 @@ class BlockMediaHelper
             $maxWidth  = $requirements['max_dimensions']['width'] ?? PHP_INT_MAX;
             $maxHeight = $requirements['max_dimensions']['height'] ?? PHP_INT_MAX;
 
-            if ( ( $media->width ?? 0) > $maxWidth || ( $media->height ?? 0) > $maxHeight) {
+            if ( ( $media->width ?? 0 ) > $maxWidth || ( $media->height ?? 0 ) > $maxHeight ) {
                 return false;
             }
         }

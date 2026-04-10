@@ -475,19 +475,19 @@ class IntegrationTest extends TestCase
      */
     public function test_selections_preserved_until_confirmed(): void
     {
-        $media    = Media::factory()->uploadedBy( $this->user)->count( 3)->create();
-        $mediaIds = $media->pluck( 'id')->toArray();
+        $media    = Media::factory()->uploadedBy( $this->user )->count( 3 )->create();
+        $mediaIds = $media->pluck( 'id' )->toArray();
 
-        Livewire::actingAs( $this->user)
-            ->test( MediaModal::class, ['multiSelect' => true])
-            ->call( 'open')
-            ->call( 'toggleSelect', $mediaIds[0])
-            ->call( 'toggleSelect', $mediaIds[1])
-            ->call( 'toggleSelect', $mediaIds[2])
-            ->assertSet( 'selectedMedia', $mediaIds)
+        Livewire::actingAs( $this->user )
+            ->test( MediaModal::class, ['multiSelect' => true] )
+            ->call( 'open' )
+            ->call( 'toggleSelect', $mediaIds[0] )
+            ->call( 'toggleSelect', $mediaIds[1] )
+            ->call( 'toggleSelect', $mediaIds[2] )
+            ->assertSet( 'selectedMedia', $mediaIds )
             // Selections preserved during various operations
-            ->set( 'search', 'test')
-            ->assertSet( 'selectedMedia', $mediaIds)
+            ->set( 'search', 'test' )
+            ->assertSet( 'selectedMedia', $mediaIds )
             ->call( 'switchTab', 'upload')
             ->assertSet( 'selectedMedia', $mediaIds);
     }

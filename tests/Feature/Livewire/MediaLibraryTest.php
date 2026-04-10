@@ -617,7 +617,7 @@ class MediaLibraryTest extends TestCase
 
         $exportData = $component->instance()->getTableExportData();
 
-        expect( count( $exportData['rows'] ) )->toBe( 2);
+        expect( count( $exportData['rows'] ) )->toBe( 2 );
     }
 
     /**
@@ -627,16 +627,16 @@ class MediaLibraryTest extends TestCase
      */
     public function test_get_table_export_data_respects_type_filter(): void
     {
-        Media::factory()->uploadedBy( $this->user)->image()->count( 2)->create();
-        Media::factory()->uploadedBy( $this->user)->video()->count( 3)->create();
+        Media::factory()->uploadedBy( $this->user )->image()->count( 2 )->create();
+        Media::factory()->uploadedBy( $this->user )->video()->count( 3 )->create();
 
-        $component = Livewire::actingAs( $this->user)
-            ->test( MediaLibrary::class)
-            ->set( 'type', 'image');
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaLibrary::class )
+            ->set( 'type', 'image' );
 
         $exportData = $component->instance()->getTableExportData();
 
-        expect( count( $exportData['rows']))->toBe( 2);
+        expect( count( $exportData['rows'] ) )->toBe( 2 );
     }
 
     /**
@@ -646,14 +646,14 @@ class MediaLibraryTest extends TestCase
      */
     public function test_export_to_csv_returns_response(): void
     {
-        Media::factory()->uploadedBy( $this->user)->count( 2)->create();
+        Media::factory()->uploadedBy( $this->user )->count( 2 )->create();
 
-        $component = Livewire::actingAs( $this->user)
-            ->test( MediaLibrary::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaLibrary::class );
 
         $response = $component->instance()->exportTableToCsv();
 
-        expect( $response)->not()->toBeNull();
+        expect( $response )->not()->toBeNull();
     }
 
     /**
@@ -663,8 +663,8 @@ class MediaLibraryTest extends TestCase
      */
     public function test_can_export_xlsx_returns_boolean(): void
     {
-        $component = Livewire::actingAs( $this->user)
-            ->test( MediaLibrary::class);
+        $component = Livewire::actingAs( $this->user )
+            ->test( MediaLibrary::class );
 
         expect( $component->instance()->canExportXlsx())->toBeBool();
     }

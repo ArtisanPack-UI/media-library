@@ -347,11 +347,11 @@ class ConfigurationTest extends TestCase
      */
     public function test_visual_editor_config_can_be_overridden(): void
     {
-        config( ['artisanpack.media.visual_editor.recently_used_limit' => 50]);
-        expect( config( 'artisanpack.media.visual_editor.recently_used_limit'))->toBe( 50);
+        config( ['artisanpack.media.visual_editor.recently_used_limit' => 50] );
+        expect( config( 'artisanpack.media.visual_editor.recently_used_limit' ) )->toBe( 50 );
 
-        config( ['artisanpack.media.visual_editor.picker.per_page' => 48]);
-        expect( config( 'artisanpack.media.visual_editor.picker.per_page'))->toBe( 48);
+        config( ['artisanpack.media.visual_editor.picker.per_page' => 48] );
+        expect( config( 'artisanpack.media.visual_editor.picker.per_page' ) )->toBe( 48 );
     }
 
     /**
@@ -363,13 +363,13 @@ class ConfigurationTest extends TestCase
             'types'     => ['image'],
             'max_files' => 5,
             'min_files' => 2,
-        ]]);
+        ]] );
 
-        $customBlock = config( 'artisanpack.media.block_requirements.custom_block');
+        $customBlock = config( 'artisanpack.media.block_requirements.custom_block' );
 
-        expect( $customBlock)->toBeArray();
-        expect( $customBlock['types'])->toBe( ['image']);
-        expect( $customBlock['max_files'])->toBe( 5);
+        expect( $customBlock )->toBeArray();
+        expect( $customBlock['types'] )->toBe( ['image'] );
+        expect( $customBlock['max_files'] )->toBe( 5 );
         expect( $customBlock['min_files'])->toBe( 2);
     }
 }

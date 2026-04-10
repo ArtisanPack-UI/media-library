@@ -771,7 +771,7 @@ class MediaModal extends Component
      */
     public function render(): View
     {
-        return view( 'media::livewire.components.media-modal');
+        return view( 'media::livewire.components.media-modal' );
     }
 
     /**

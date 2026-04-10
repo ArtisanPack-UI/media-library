@@ -267,10 +267,10 @@ class MediaItemTest extends TestCase
      */
     public function test_component_displays_document_media(): void
     {
-        $media = Media::factory()->uploadedBy( $this->user)->document()->create();
+        $media = Media::factory()->uploadedBy( $this->user )->document()->create();
 
-        Livewire::actingAs( $this->user)
-            ->test( MediaItem::class, ['media' => $media])
-            ->assertStatus( 200);
+        Livewire::actingAs( $this->user )
+            ->test( MediaItem::class, ['media' => $media] )
+            ->assertStatus( 200 );
     }
 }

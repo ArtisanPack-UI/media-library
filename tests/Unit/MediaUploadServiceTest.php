@@ -258,7 +258,7 @@ class MediaUploadServiceTest extends TestCase
 
         $media = $this->service->upload( $file );
 
-        expect( $media->uploaded_by )->toBe( $this->user->id);
+        expect( $media->uploaded_by )->toBe( $this->user->id );
     }
 
     /**
@@ -268,10 +268,10 @@ class MediaUploadServiceTest extends TestCase
     {
         $otherUser = User::factory()->create();
 
-        $file = UploadedFile::fake()->image( 'test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
 
-        $media = $this->service->upload( $file, ['uploaded_by' => $otherUser->id]);
+        $media = $this->service->upload( $file, ['uploaded_by' => $otherUser->id] );
 
-        expect( $media->uploaded_by)->toBe( $otherUser->id);
+        expect( $media->uploaded_by )->toBe( $otherUser->id );
     }
 }

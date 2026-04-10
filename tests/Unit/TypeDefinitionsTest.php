@@ -436,8 +436,8 @@ class TypeDefinitionsTest extends TestCase
 
         expect( $contents )->toContain( 'export interface MediaPickerOptions {' );
         expect( $contents )->toContain( 'multi_select: boolean' );
-        expect( $contents)->toContain( 'max_selections?: number');
-        expect( $contents)->toContain( 'allowed_types?: MediaType[]');
+        expect( $contents )->toContain( 'max_selections?: number' );
+        expect( $contents )->toContain( 'allowed_types?: MediaType[]' );
     }
 
     /**
@@ -447,9 +447,9 @@ class TypeDefinitionsTest extends TestCase
     {
         $contents = $this->getTypeDefinitionsContents();
 
-        expect( $contents)->toContain( 'export interface MediaSelectedEvent {');
-        expect( $contents)->toContain( 'media: Media[]');
-        expect( $contents)->toContain( 'context: string');
+        expect( $contents )->toContain( 'export interface MediaSelectedEvent {' );
+        expect( $contents )->toContain( 'media: Media[]' );
+        expect( $contents )->toContain( 'context: string' );
     }
 
     // =========================================================================
@@ -461,6 +461,6 @@ class TypeDefinitionsTest extends TestCase
      */
     private function getTypeDefinitionsContents(): string
     {
-        return file_get_contents( dirname( __DIR__, 2) . '/resources/types/media.d.ts');
+        return file_get_contents( dirname( __DIR__, 2 ) . '/resources/types/media.d.ts');
     }
 }

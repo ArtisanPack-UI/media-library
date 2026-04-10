@@ -170,8 +170,8 @@ class MediaPolicyTest extends TestCase
         expect( $this->policy->view( $userMock, $this->media ) )->toBeFalse();
         expect( $this->policy->create( $userMock ) )->toBeFalse();
         expect( $this->policy->update( $userMock, $this->media ) )->toBeFalse();
-        expect( $this->policy->delete( $userMock, $this->media))->toBeFalse();
-        expect( $this->policy->restore( $userMock, $this->media))->toBeFalse();
-        expect( $this->policy->forceDelete( $userMock, $this->media))->toBeFalse();
+        expect( $this->policy->delete( $userMock, $this->media ) )->toBeFalse();
+        expect( $this->policy->restore( $userMock, $this->media ) )->toBeFalse();
+        expect( $this->policy->forceDelete( $userMock, $this->media ) )->toBeFalse();
     }
 }

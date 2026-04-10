@@ -117,9 +117,9 @@ return new class extends Migration {
             }
 
             // Add timestamps if missing
-            if ( ! Schema::hasColumn( 'media_taggables', 'created_at')) {
+            if ( ! Schema::hasColumn( 'media_taggables', 'created_at' ) ) {
                 $table->timestamps();
             }
-        });
+        } );
     }
 };

@@ -74,6 +74,6 @@ class MediaFolderFactory extends Factory
 
         return $this->state( fn ( array $attributes ) => [
             'created_by' => $userId,
-        ]);
+        ] );
     }
 }

@@ -451,13 +451,13 @@ class MediaTagControllerTest extends TestCase
      */
     public function test_detach_returns_404_for_non_existent_tag(): void
     {
-        Sanctum::actingAs( $this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $media = Media::factory()->uploadedBy( $this->user)->create();
+        $media = Media::factory()->uploadedBy( $this->user )->create();
 
         $response = $this->postJson( '/api/media/tags/99999/detach', [
             'media_ids' => [$media->id],
-        ]);
+        ] );
 
         $response->assertNotFound();
     }

@@ -441,18 +441,18 @@ class FolderManagerTest extends TestCase
      */
     public function test_description_is_nullable(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( FolderManager::class)
-            ->set( 'form.name', 'Test Folder')
-            ->set( 'form.slug', 'test-folder')
-            ->set( 'form.description', '')
-            ->call( 'save')
+        Livewire::actingAs( $this->user )
+            ->test( FolderManager::class )
+            ->set( 'form.name', 'Test Folder' )
+            ->set( 'form.slug', 'test-folder' )
+            ->set( 'form.description', '' )
+            ->call( 'save' )
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas( 'media_folders', [
             'name' => 'Test Folder',
             'slug' => 'test-folder',
-        ]);
+        ] );
     }
 
     /**
@@ -460,12 +460,12 @@ class FolderManagerTest extends TestCase
      */
     public function test_parent_id_validation_checks_folder_exists(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( FolderManager::class)
-            ->set( 'form.name', 'Test Folder')
-            ->set( 'form.slug', 'test-folder')
-            ->set( 'form.parent_id', 99999)
-            ->call( 'save')
+        Livewire::actingAs( $this->user )
+            ->test( FolderManager::class )
+            ->set( 'form.name', 'Test Folder' )
+            ->set( 'form.slug', 'test-folder' )
+            ->set( 'form.parent_id', 99999 )
+            ->call( 'save' )
             ->assertHasErrors( 'form.parent_id');
     }
 }

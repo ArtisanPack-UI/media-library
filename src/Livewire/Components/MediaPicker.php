@@ -635,10 +635,10 @@ class MediaPicker extends Component
 
         $query->where( function ( $q ) use ( $types ): void {
             foreach ( $types as $type ) {
-                if ( str_ends_with( $type, '/*')) {
+                if ( str_ends_with( $type, '/*' ) ) {
                     // Wildcard pattern like 'image/*'
-                    $prefix = str_replace( '/*', '/', $type);
-                    $q->orWhere( 'mime_type', 'like', $prefix . '%');
+                    $prefix = str_replace( '/*', '/', $type );
+                    $q->orWhere( 'mime_type', 'like', $prefix . '%' );
                 } else {
                     // Exact match like 'application/pdf'
                     $q->orWhere( 'mime_type', $type);

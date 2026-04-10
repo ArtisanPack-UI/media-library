@@ -244,7 +244,7 @@ class MediaProcessingServiceTest extends TestCase
      */
     protected function createTestImageFile(): string
     {
-        $file = UploadedFile::fake()->image( 'test.jpg', 500, 500);
+        $file = UploadedFile::fake()->image( 'test.jpg', 500, 500 );
 
         return $file->getRealPath();
     }

@@ -302,7 +302,7 @@ class MediaControllerTest extends TestCase
 
         $this->assertSoftDeleted( 'media', [
             'id' => $media->id,
-        ]);
+        ] );
     }
 
     /**
@@ -312,7 +312,7 @@ class MediaControllerTest extends TestCase
     {
         // Don't authenticate
 
-        $response = $this->getJson( '/api/media');
+        $response = $this->getJson( '/api/media' );
 
         $response->assertUnauthorized();
     }

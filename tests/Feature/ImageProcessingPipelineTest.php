@@ -250,11 +250,11 @@ class ImageProcessingPipelineTest extends TestCase
         // Process all images
         $this->processingService->processImage( $media1 );
         $this->processingService->processImage( $media2 );
-        $this->processingService->processImage( $media3);
+        $this->processingService->processImage( $media3 );
 
         // All files should exist
-        Storage::disk( 'test-disk')->assertExists( $media1->file_path);
-        Storage::disk( 'test-disk')->assertExists( $media2->file_path);
-        Storage::disk( 'test-disk')->assertExists( $media3->file_path);
+        Storage::disk( 'test-disk' )->assertExists( $media1->file_path );
+        Storage::disk( 'test-disk' )->assertExists( $media2->file_path );
+        Storage::disk( 'test-disk' )->assertExists( $media3->file_path );
     }
 }

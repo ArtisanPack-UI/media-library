@@ -650,10 +650,10 @@ class MediaLibrary extends Component
                 'file_name'  => $m->file_name,
                 'mime_type'  => $m->mime_type,
                 'file_size'  => $m->humanFileSize(),
-                'folder'     => $m->folder?->name ?? __( 'No Folder'),
-                'created_at' => $m->created_at->format( 'Y-m-d H:i'),
-            ])->toArray(),
-            'filename' => 'media-export-' . date( 'Y-m-d'),
+                'folder'     => $m->folder?->name ?? __( 'No Folder' ),
+                'created_at' => $m->created_at->format( 'Y-m-d H:i' ),
+            ] )->toArray(),
+            'filename' => 'media-export-' . date( 'Y-m-d' ),
         ];
     }
 
@@ -666,7 +666,7 @@ class MediaLibrary extends Component
      */
     public function render(): View
     {
-        return view( 'media::livewire.pages.media-library');
+        return view( 'media::livewire.pages.media-library' );
     }
 
     /**
@@ -676,7 +676,7 @@ class MediaLibrary extends Component
      *
      * @param  string  $message  The message to announce.
      */
-    protected function announce( string $message): void
+    protected function announce( string $message ): void
     {
         $this->announcement = $message;
     }

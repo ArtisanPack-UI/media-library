@@ -358,16 +358,16 @@ class MediaFolderControllerTest extends TestCase
      */
     public function test_store_with_parent_id(): void
     {
-        Sanctum::actingAs( $this->user, ['*']);
+        Sanctum::actingAs( $this->user, ['*'] );
 
-        $parent = MediaFolder::factory()->createdBy( $this->user)->create();
+        $parent = MediaFolder::factory()->createdBy( $this->user )->create();
 
         $response = $this->postJson( '/api/media/folders', [
             'name'      => 'Child Folder',
             'parent_id' => $parent->id,
-        ]);
+        ] );
 
         $response->assertCreated()
-            ->assertJsonPath( 'data.parent_id', $parent->id);
+            ->assertJsonPath( 'data.parent_id', $parent->id );
     }
 }

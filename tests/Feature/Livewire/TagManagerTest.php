@@ -391,11 +391,11 @@ class TagManagerTest extends TestCase
         MediaTag::factory()->create( ['name' => 'Mango'] );
 
         $component = Livewire::actingAs( $this->user )
-            ->test( TagManager::class);
+            ->test( TagManager::class );
 
-        $tags = $component->get( 'tags');
-        expect( $tags->first()->name)->toBe( 'Apple');
-        expect( $tags->last()->name)->toBe( 'Zebra');
+        $tags = $component->get( 'tags' );
+        expect( $tags->first()->name )->toBe( 'Apple' );
+        expect( $tags->last()->name )->toBe( 'Zebra' );
     }
 
     /**
@@ -403,14 +403,14 @@ class TagManagerTest extends TestCase
      */
     public function test_save_clears_form_after_success(): void
     {
-        Livewire::actingAs( $this->user)
-            ->test( TagManager::class)
-            ->set( 'form.name', 'New Tag')
-            ->set( 'form.slug', 'new-tag')
-            ->call( 'save')
+        Livewire::actingAs( $this->user )
+            ->test( TagManager::class )
+            ->set( 'form.name', 'New Tag' )
+            ->set( 'form.slug', 'new-tag' )
+            ->call( 'save' )
             ->assertHasNoErrors()
-            ->assertSet( 'form.name', '')
-            ->assertSet( 'form.slug', '')
+            ->assertSet( 'form.name', '' )
+            ->assertSet( 'form.slug', '' )
             ->assertSet( 'isEditing', false);
     }
 }

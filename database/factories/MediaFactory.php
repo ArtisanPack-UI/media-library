@@ -174,7 +174,7 @@ class MediaFactory extends Factory
     {
         $userId = $user instanceof Model ? $user->id : $user;
 
-        return $this->state( fn ( array $attributes) => [
+        return $this->state( fn ( array $attributes ) => [
             'uploaded_by' => $userId,
         ]);
     }

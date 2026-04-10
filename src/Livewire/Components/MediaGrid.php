@@ -115,6 +115,6 @@ class MediaGrid extends Component
     {
         return view( 'media::livewire.components.media-grid', [
             'media' => $this->mediaItems,
-        ]);
+        ] );
     }
 }

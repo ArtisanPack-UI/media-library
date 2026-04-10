@@ -198,13 +198,13 @@ class MediaStorageServiceTest extends TestCase
      */
     public function test_resolves_default_disk(): void
     {
-        config( ['artisanpack.media.disk' => 'test-disk']);
+        config( ['artisanpack.media.disk' => 'test-disk'] );
 
-        $file = UploadedFile::fake()->image( 'test.jpg');
+        $file = UploadedFile::fake()->image( 'test.jpg' );
         $path = 'uploads/test.jpg';
 
-        $storedPath = $this->service->store( $file, $path, null);
+        $storedPath = $this->service->store( $file, $path, null );
 
-        Storage::disk( 'test-disk')->assertExists( $storedPath);
+        Storage::disk( 'test-disk' )->assertExists( $storedPath );
     }
 }

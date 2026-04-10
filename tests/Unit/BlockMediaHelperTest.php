@@ -561,9 +561,9 @@ class BlockMediaHelperTest extends TestCase
     {
         $media = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = apBlockMediaUrl( $media->id, 'medium');
+        $result = apBlockMediaUrl( $media->id, 'medium' );
 
-        expect( $result)->toBeString();
+        expect( $result )->toBeString();
     }
 
     /**
@@ -571,11 +571,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_ap_validate_block_media_helper_function(): void
     {
-        $media = Media::factory()->uploadedBy( $this->user)->image()->create( ['file_name' => 'photo.jpg']);
+        $media = Media::factory()->uploadedBy( $this->user )->image()->create( ['file_name' => 'photo.jpg'] );
 
-        $result = apValidateBlockMedia( $media->id, 'image');
+        $result = apValidateBlockMedia( $media->id, 'image' );
 
-        expect( $result)->toBeTrue();
+        expect( $result )->toBeTrue();
     }
 
     /**
@@ -583,11 +583,11 @@ class BlockMediaHelperTest extends TestCase
      */
     public function test_ap_block_media_multiple_helper_function(): void
     {
-        $media1 = Media::factory()->uploadedBy( $this->user)->image()->create();
-        $media2 = Media::factory()->uploadedBy( $this->user)->image()->create();
+        $media1 = Media::factory()->uploadedBy( $this->user )->image()->create();
+        $media2 = Media::factory()->uploadedBy( $this->user )->image()->create();
 
-        $result = apBlockMediaMultiple( [$media1->id, $media2->id]);
+        $result = apBlockMediaMultiple( [$media1->id, $media2->id] );
 
-        expect( $result)->toHaveCount( 2);
+        expect( $result )->toHaveCount( 2);
     }
 }
