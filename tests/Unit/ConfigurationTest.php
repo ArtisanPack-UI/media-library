@@ -370,6 +370,6 @@ class ConfigurationTest extends TestCase
         expect( $customBlock )->toBeArray();
         expect( $customBlock['types'] )->toBe( ['image'] );
         expect( $customBlock['max_files'] )->toBe( 5 );
-        expect( $customBlock['min_files'])->toBe( 2);
+        expect( $customBlock['min_files'] )->toBe( 2 );
     }
 }

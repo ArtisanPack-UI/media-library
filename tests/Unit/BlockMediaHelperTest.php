@@ -588,6 +588,6 @@ class BlockMediaHelperTest extends TestCase
 
         $result = apBlockMediaMultiple( [$media1->id, $media2->id] );
 
-        expect( $result )->toHaveCount( 2);
+        expect( $result )->toHaveCount( 2 );
     }
 }

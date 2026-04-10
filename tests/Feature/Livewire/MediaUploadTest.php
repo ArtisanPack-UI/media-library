@@ -673,7 +673,7 @@ class MediaUploadTest extends TestCase
     public function test_component_exposes_current_file_progress_property(): void
     {
         Livewire::actingAs( $this->user )
-            ->test( MediaUpload::class)
-            ->assertSet( 'currentFileProgress', 0);
+            ->test( MediaUpload::class )
+            ->assertSet( 'currentFileProgress', 0 );
     }
 }

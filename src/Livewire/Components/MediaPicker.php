@@ -641,7 +641,7 @@ class MediaPicker extends Component
                     $q->orWhere( 'mime_type', 'like', $prefix . '%' );
                 } else {
                     // Exact match like 'application/pdf'
-                    $q->orWhere( 'mime_type', $type);
+                    $q->orWhere( 'mime_type', $type );
                 }
             }
         });

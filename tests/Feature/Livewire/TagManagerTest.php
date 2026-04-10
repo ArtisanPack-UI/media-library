@@ -411,6 +411,6 @@ class TagManagerTest extends TestCase
             ->assertHasNoErrors()
             ->assertSet( 'form.name', '' )
             ->assertSet( 'form.slug', '' )
-            ->assertSet( 'isEditing', false);
+            ->assertSet( 'isEditing', false );
     }
 }

@@ -466,6 +466,6 @@ class FolderManagerTest extends TestCase
             ->set( 'form.slug', 'test-folder' )
             ->set( 'form.parent_id', 99999 )
             ->call( 'save' )
-            ->assertHasErrors( 'form.parent_id');
+            ->assertHasErrors( 'form.parent_id' );
     }
 }

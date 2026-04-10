@@ -859,7 +859,7 @@ class MediaModalTest extends TestCase
             ->assertSet( 'inlineMode', true )
             ->assertSet( 'quickUploadSelect', true )
             ->assertSet( 'multiSelect', false )
-            ->assertSet( 'context', 'visual-editor')
-            ->assertSet( 'recentlyUsed', [$media->id]);
+            ->assertSet( 'context', 'visual-editor' )
+            ->assertSet( 'recentlyUsed', [$media->id] );
     }
 }

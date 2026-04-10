@@ -236,6 +236,6 @@ class MediaGridTest extends TestCase
 
         $selectedMedia = $component->get( 'selectedMedia' );
         expect( array_keys( $selectedMedia ) )->toBe( [0, 1] );
-        expect( $selectedMedia )->toBe( [$media[0]->id, $media[2]->id]);
+        expect( $selectedMedia )->toBe( [$media[0]->id, $media[2]->id] );
     }
 }

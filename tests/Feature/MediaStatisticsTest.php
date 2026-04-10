@@ -682,7 +682,7 @@ class MediaStatisticsTest extends TestCase
 
         expect( $component->get( 'totalMedia' ) )->toBe( 1 );
         expect( $component->get( 'totalStorageBytes' ) )->toBe( 1000 );
-        expect( $component->get( 'averageFileSize' ) )->toContain( 'B');
-        expect( $component->get( 'largestFile'))->not->toBeNull();
+        expect( $component->get( 'averageFileSize' ) )->toContain( 'B' );
+        expect( $component->get( 'largestFile' ) )->not->toBeNull();
     }
 }

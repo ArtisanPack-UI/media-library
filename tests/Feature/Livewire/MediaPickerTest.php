@@ -885,7 +885,7 @@ class MediaPickerTest extends TestCase
         Livewire::actingAs( $this->user )
             ->test( MediaPicker::class, ['context' => 'test-context'] )
             ->call( 'open', 'test-context' )
-            ->call( 'close')
-            ->assertDispatched( 'media-picker-closed', context: 'test-context');
+            ->call( 'close' )
+            ->assertDispatched( 'media-picker-closed', context: 'test-context' );
     }
 }

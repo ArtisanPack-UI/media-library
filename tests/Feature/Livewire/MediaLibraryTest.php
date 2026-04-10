@@ -666,6 +666,6 @@ class MediaLibraryTest extends TestCase
         $component = Livewire::actingAs( $this->user )
             ->test( MediaLibrary::class );
 
-        expect( $component->instance()->canExportXlsx())->toBeBool();
+        expect( $component->instance()->canExportXlsx() )->toBeBool();
     }
 }

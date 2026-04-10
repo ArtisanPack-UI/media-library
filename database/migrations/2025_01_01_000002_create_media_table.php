@@ -217,7 +217,7 @@ return new class extends Migration {
             $hasCreatedAtIndex = in_array( 'media_created_at_index', $indexNames, true )
                 || in_array( 'media_created_at_idx', $indexNames, true );
             if ( ! $hasCreatedAtIndex ) {
-                $table->index( 'created_at');
+                $table->index( 'created_at' );
             }
         });
     }

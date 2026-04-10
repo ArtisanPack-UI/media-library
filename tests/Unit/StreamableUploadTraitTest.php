@@ -324,6 +324,6 @@ class StreamableUploadTraitTest extends TestCase
         $method->invoke( $this->component, 5, 0, 5 );
 
         $content = json_decode( $this->component->streamCalls[0]['content'], true );
-        expect( $content['status'] )->toContain( '5');
+        expect( $content['status'] )->toContain( '5' );
     }
 }

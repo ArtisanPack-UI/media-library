@@ -461,6 +461,6 @@ class TypeDefinitionsTest extends TestCase
      */
     private function getTypeDefinitionsContents(): string
     {
-        return file_get_contents( dirname( __DIR__, 2 ) . '/resources/types/media.d.ts');
+        return file_get_contents( dirname( __DIR__, 2 ) . '/resources/types/media.d.ts' );
     }
 }

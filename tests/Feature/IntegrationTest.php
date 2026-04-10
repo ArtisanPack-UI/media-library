@@ -488,7 +488,7 @@ class IntegrationTest extends TestCase
             // Selections preserved during various operations
             ->set( 'search', 'test' )
             ->assertSet( 'selectedMedia', $mediaIds )
-            ->call( 'switchTab', 'upload')
-            ->assertSet( 'selectedMedia', $mediaIds);
+            ->call( 'switchTab', 'upload' )
+            ->assertSet( 'selectedMedia', $mediaIds );
     }
 }

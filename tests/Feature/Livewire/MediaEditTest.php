@@ -449,6 +449,6 @@ class MediaEditTest extends TestCase
         $this->expectException( \Illuminate\Database\Eloquent\ModelNotFoundException::class );
 
         Livewire::actingAs( $this->user )
-            ->test( MediaEdit::class, ['mediaId' => 99999]);
+            ->test( MediaEdit::class, ['mediaId' => 99999] );
     }
 }
