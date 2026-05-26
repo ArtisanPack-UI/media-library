@@ -3,7 +3,7 @@
   "description": "Media library package for ArtisanPack UI",
   "type": "library",
   "license": "MIT",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "autoload": {
     "psr-4": {
       "ArtisanPackUI\\MediaLibrary\\": "src/",
@@ -32,7 +32,7 @@
     "artisanpack-ui/core": "^1.0",
     "artisanpack-ui/accessibility": "^2.0",
     "artisanpack-ui/livewire-ui-components": "^2.0",
-    "artisanpack-ui/security": "^1.0",
+    "artisanpack-ui/security": "^1.0|^2.0",
     "artisanpack-ui/hooks": "^1.1",
     "intervention/image": "^3.0",
     "php-ffmpeg/php-ffmpeg": "^1.0",
