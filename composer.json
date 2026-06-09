@@ -3,7 +3,7 @@
   "description": "Media library package for ArtisanPack UI",
   "type": "library",
   "license": "MIT",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "autoload": {
     "psr-4": {
       "ArtisanPackUI\\MediaLibrary\\": "src/",

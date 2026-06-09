@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-06-09
+
 ### Added
 
 - Laravel 13 support. The package now allows `laravel/framework` `^12.17|^13.0` and `illuminate/support` `^12.17.0|^13.0`, and `orchestra/testbench` `^10.0|^11.0`. PHP 8.3+ is required when using Laravel 13 (enforced by Laravel 13's own constraint); existing users on Laravel 12 remain on PHP 8.2+. The `laravel/framework` floor is aligned with `illuminate/support` (`12.17.0`); this matches the floor the package's transitive constraints have effectively required since `1.2.0`.
