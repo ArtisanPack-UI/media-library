@@ -2,7 +2,7 @@
 
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)]()
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue)]()
-[![Laravel Version](https://img.shields.io/badge/laravel-%3E%3D12.0-red)]()
+[![Laravel Version](https://img.shields.io/badge/laravel-12%20%7C%2013-red)]()
 
 A comprehensive media management package for Laravel applications with support for image processing, folder organization, tagging, and modern image format conversion (WebP/AVIF).
 
@@ -34,8 +34,8 @@ A comprehensive media management package for Laravel applications with support f
 
 ## Requirements
 
-- PHP 8.2 or higher
-- Laravel 12.0 or higher
+- PHP 8.2 or higher (PHP 8.3+ required when using Laravel 13)
+- Laravel 12.0 or 13.0
 - Intervention Image 3.0 for image processing
 - FFmpeg (optional, for video thumbnail extraction)
 
