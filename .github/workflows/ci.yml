@@ -34,7 +34,8 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Strip local path repository
-        run: composer config --unset repositories.0
+        run: |
+          python3 -c "import json; c=json.load(open('composer.json')); c.pop('repositories', None); json.dump(c, open('composer.json','w'), indent=2)"
 
       - name: Install dependencies
         run: composer update artisanpack-ui/ai --with-all-dependencies --no-interaction --prefer-dist --optimize-autoloader
@@ -79,7 +80,8 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-lw${{ matrix.livewire }}-
 
       - name: Strip local path repository
-        run: composer config --unset repositories.0
+        run: |
+          python3 -c "import json; c=json.load(open('composer.json')); c.pop('repositories', None); json.dump(c, open('composer.json','w'), indent=2)"
 
       - name: Install dependencies
         run: composer update artisanpack-ui/ai --with-all-dependencies --no-interaction --prefer-dist
