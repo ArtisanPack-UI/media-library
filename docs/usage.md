@@ -29,6 +29,14 @@ Advanced usage with Eloquent models:
 - Complex queries and filtering
 - Type checking methods
 
+### [AI Features](Usage-AI-Features)
+
+*Added in v1.3.0.* Vision-powered helpers for alt text, tag suggestions, and paragraph-length image descriptions:
+- Three JSON endpoints — `POST /api/media/{id}/ai/{alt-text|tags|description}`
+- Wired into the Livewire `MediaEdit` and `MediaUpload` components and the shipped React/Vue components
+- Filename-based fallback so the alt-text field is never left silently empty
+- Requires `artisanpack-ui/ai` `^1.0`
+
 ### [Livewire Components](Usage-Livewire-Components)
 
 UI components for media management:

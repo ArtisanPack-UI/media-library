@@ -105,6 +105,35 @@ Export your media library to various formats:
 />
 ```
 
+## AI features
+
+Media Library integrates with [`artisanpack-ui/ai`](https://github.com/ArtisanPack-UI/ai) to offer three vision-powered helpers for image media items. Each feature is toggled through the ai package's feature registry (`config('artisanpack.ai.features.*')` or the AI settings admin surface).
+
+| Feature key                | Agent                                                                       | What it does                                                                 |
+|----------------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| `ai.alt_text`              | `ArtisanPackUI\Ai\Agents\AltTextGenerationAgent` (ships in `artisanpack-ui/ai`) | Suggests accessibility-friendly alt text for an image.                       |
+| `media.suggest_tags`       | `ArtisanPackUI\MediaLibrary\Ai\Agents\ImageTagSuggestionAgent`             | Picks matching tags from the existing `media_tags` taxonomy (opt-in new tags). |
+| `media.image_description`  | `ArtisanPackUI\MediaLibrary\Ai\Agents\ImageDescriptionAgent`              | Produces a paragraph-length image description for galleries, portfolios, etc. |
+
+### Surfaces
+
+- **Livewire** — the `<livewire:media::media-edit>` and `<livewire:media::media-upload>` components gain "AI suggest" buttons next to the alt-text, description, and tag fields. Buttons hide themselves when the feature is disabled or `artisanpack-ui/ai` is absent.
+- **React** — the shipped `MediaEdit.tsx` component wires "Suggest with AI" and "Describe with AI" buttons around the alt-text, description, and tag fields. `resources/js/react/utils/api.ts` exports typed helpers (`suggestMediaAltText`, `suggestMediaTags`, `suggestMediaDescription`). AI is post-upload only in React/Vue because the JSON endpoints require a persisted media item — the Livewire `MediaUpload` supports pre-upload suggestions by handing the AI agent a `TemporaryUploadedFile` directly.
+- **Vue** — the shipped `MediaEdit.vue` component mirrors the React wiring. The same helpers are exported from `resources/js/vue/utils/api.ts`.
+- **Any HTTP client** — all three features are exposed as JSON endpoints under the existing `api/media` prefix. Roll your own client if you're not using our React/Vue components:
+
+  ```
+  POST /api/media/{id}/ai/alt-text                       -> { data: { alt_text, confidence, warnings } }
+  POST /api/media/{id}/ai/tags       { allow_new: bool } -> { data: { tags[], new_tags[], confidence } }
+  POST /api/media/{id}/ai/description { length: "short" | "medium" | "long" } -> { data: { description, confidence, warnings } }
+  ```
+
+  Each endpoint enforces the `update` policy on the media item and returns `403` when the feature is disabled, `422` when the target media isn't an image, and `503` when no AI credentials are configured.
+
+### Enabling the features
+
+`artisanpack-ui/ai` is a required dependency starting in v1.3. Configure credentials via `config/artisanpack.php` or the "AI → Settings" admin page and toggle individual features from "AI → Features".
+
 ## Documentation
 
 📚 **[Complete Documentation](docs/home.md)**
@@ -121,6 +150,7 @@ Export your media library to various formats:
 - **[Livewire Components](docs/usage/livewire-components.md)** - UI component guide
 - **[Streaming Uploads](docs/usage/streaming-uploads.md)** - Livewire 4 real-time upload progress
 - **[Table Export](docs/usage/table-export.md)** - Export media data to CSV/XLSX/PDF
+- **[AI Features](docs/usage/ai-features.md)** - Alt text, tag suggestions, image descriptions (v1.3)
 
 ### Visual Editor Integration
 - **[MediaPicker Component](docs/visual-editor/media-picker.md)** - Visual editor media selection

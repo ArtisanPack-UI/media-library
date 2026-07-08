@@ -86,6 +86,7 @@ abstract class TestCase extends BaseTestCase
             \BladeUI\Icons\BladeIconsServiceProvider::class,
             \BladeUI\Heroicons\BladeHeroiconsServiceProvider::class,
             \ArtisanPack\LivewireUiComponents\LivewireUiComponentsServiceProvider::class,
+            \ArtisanPackUI\Ai\AiServiceProvider::class,
             MediaLibraryServiceProvider::class,
             \Laravel\Sanctum\SanctumServiceProvider::class,
         ];

@@ -15,6 +15,9 @@
 
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
+use ArtisanPackUI\Ai\Agents\AltTextGenerationAgent;
+use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageDescriptionAgent;
+use ArtisanPackUI\MediaLibrary\Ai\Concerns\InteractsWithMediaAi;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
@@ -39,6 +42,7 @@ use Log;
  */
 class MediaUpload extends Component
 {
+    use InteractsWithMediaAi;
     use StreamableUpload;
     use WithFileUploads;
 
@@ -138,6 +142,67 @@ class MediaUpload extends Component
         'caption'     => '',
         'description' => '',
     ];
+
+    /**
+     * Requested description length tier for the description agent.
+     *
+     * @since 1.3.0
+     *
+     * @var string
+     */
+    public string $aiDescriptionLength = 'medium';
+
+    /**
+     * Whether the current `metadata.alt_text` came from the alt-text
+     * agent this session.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $altTextIsAiSuggested = false;
+
+    /**
+     * Whether the current `metadata.description` came from the
+     * description agent this session.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $descriptionIsAiSuggested = false;
+
+    /**
+     * Note surfaced under the alt-text input when the agent returned
+     * an empty suggestion (e.g. the model classified the image as
+     * decorative). Cleared on the next successful suggestion or edit.
+     *
+     * @since 1.3.0
+     *
+     * @var string
+     */
+    public string $altTextAiNote = '';
+
+    /**
+     * Consumed once by the property-updated hooks to distinguish a
+     * user edit from the `$wire.set(...)` echo dispatched right after
+     * an AI suggestion; keeps the "AI suggested" badge from being
+     * wiped out by the follow-up round-trip.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $suppressNextAltTextHook = false;
+
+    /**
+     * Companion suppression flag for the description hook.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $suppressNextDescriptionHook = false;
 
     /**
      * Get total count of all files (both selected and dropped).
@@ -369,6 +434,146 @@ class MediaUpload extends Component
     }
 
     /**
+     * Clear the "AI suggested" badge as soon as the user edits alt text.
+     *
+     * @since 1.3.0
+     */
+    public function updatedMetadataAltText(): void
+    {
+        if ( $this->suppressNextAltTextHook ) {
+            $this->suppressNextAltTextHook = false;
+
+            return;
+        }
+
+        $this->altTextIsAiSuggested = false;
+        $this->altTextAiNote        = '';
+    }
+
+    /**
+     * Clear the "AI suggested" badge as soon as the user edits the
+     * description.
+     *
+     * @since 1.3.0
+     */
+    public function updatedMetadataDescription(): void
+    {
+        if ( $this->suppressNextDescriptionHook ) {
+            $this->suppressNextDescriptionHook = false;
+
+            return;
+        }
+
+        $this->descriptionIsAiSuggested = false;
+    }
+
+    /**
+     * Suggest alt text for the first pending image upload using the
+     * `ai.alt_text` agent.
+     *
+     * @since 1.3.0
+     */
+    public function suggestAltText(): void
+    {
+        $file = $this->firstImageUpload();
+
+        if ( ! $this->guardUploadAi( 'ai.alt_text', $file ) ) {
+            return;
+        }
+
+        $this->runAi( function () use ( $file ): void {
+            $result = AltTextGenerationAgent::for( [
+                'source' => 'path',
+                'value'  => $file->getRealPath(),
+            ] )->run();
+
+            $altText  = trim( (string) ( $result['alt_text'] ?? '' ) );
+            $warnings = (array) ( $result['warnings'] ?? [] );
+
+            Log::info( 'MediaUpload::suggestAltText result', [
+                'alt_text_length' => strlen( $altText ),
+                'warnings'        => $warnings,
+            ] );
+
+            if ( '' === $altText ) {
+                // Some models still return an empty string despite the
+                // "always describe" prompt. Fall back to a filename-based
+                // stub so the user is never left with a silently empty
+                // field — they can still edit it before uploading.
+                $altText = $this->filenameFallbackAltText( $file->getClientOriginalName() );
+
+                $this->altTextAiNote = __(
+                    'AI could not confidently describe this image; a filename-based placeholder was inserted.',
+                );
+            } else {
+                $this->altTextAiNote = '';
+            }
+
+            $this->metadata['alt_text']    = $altText;
+            $this->altTextIsAiSuggested    = true;
+            $this->suppressNextAltTextHook = true;
+            $this->js( sprintf(
+                "\$wire.set('metadata.alt_text', %s)",
+                json_encode( $altText, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+            ) );
+        } );
+    }
+
+    /**
+     * Suggest a paragraph-length description for the first pending
+     * image upload using the `media.image_description` agent.
+     *
+     * @since 1.3.0
+     */
+    public function suggestDescription(): void
+    {
+        $file = $this->firstImageUpload();
+
+        if ( ! $this->guardUploadAi( 'media.image_description', $file ) ) {
+            return;
+        }
+
+        $this->runAi( function () use ( $file ): void {
+            $result = ImageDescriptionAgent::for( [
+                'image'  => [ 'source' => 'path', 'value' => $file->getRealPath() ],
+                'length' => $this->aiDescriptionLength,
+            ] )->run();
+
+            $description = (string) ( $result['description'] ?? '' );
+
+            if ( '' === $description ) {
+                $this->reportAiInfo( __( 'The AI did not produce a description for this image.' ) );
+
+                return;
+            }
+
+            $this->metadata['description']     = $description;
+            $this->descriptionIsAiSuggested    = true;
+            $this->suppressNextDescriptionHook = true;
+            $this->js( sprintf(
+                "\$wire.set('metadata.description', %s)",
+                json_encode( $description, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+            ) );
+
+            $this->reportAiSuccess( __( 'AI-suggested description populated.' ) );
+        } );
+    }
+
+    /**
+     * Whether the pending upload set contains at least one image the AI
+     * features can act on. Used by the Blade view to hide the AI buttons
+     * when nothing selectable is queued.
+     *
+     * @since 1.3.0
+     *
+     * @return bool
+     */
+    public function hasImageUpload(): bool
+    {
+        return null !== $this->firstImageUpload();
+    }
+
+    /**
      * Renders the component.
      *
      * @since 1.0.0
@@ -378,6 +583,62 @@ class MediaUpload extends Component
     public function render(): View
     {
         return view( 'media::livewire.pages.media-upload' );
+    }
+
+    /**
+     * Feature-toggle + image-payload guard used before dispatching an
+     * upload-time agent run.
+     *
+     * @since 1.3.0
+     *
+     * @param  string                       $featureKey  Feature key to check.
+     * @param  TemporaryUploadedFile|null   $file        Selected image upload, if any.
+     *
+     * @return bool True if the caller may proceed.
+     */
+    protected function guardUploadAi( string $featureKey, ?TemporaryUploadedFile $file ): bool
+    {
+        if ( ! $this->isAiAvailable() ) {
+            $this->reportAiError( __( 'AI features are not installed.' ) );
+
+            return false;
+        }
+
+        if ( ! $this->isAiFeatureEnabled( $featureKey ) ) {
+            $this->reportAiError( __( 'This AI feature is disabled.' ) );
+
+            return false;
+        }
+
+        if ( null === $file ) {
+            $this->reportAiError( __( 'Add an image to the upload queue before requesting an AI suggestion.' ) );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Locate the first image-typed pending upload across `$files` and
+     * `$droppedFiles`. Returns null if none of the queued uploads is an
+     * image the vision agents can process.
+     *
+     * @since 1.3.0
+     *
+     * @return TemporaryUploadedFile|null
+     */
+    protected function firstImageUpload(): ?TemporaryUploadedFile
+    {
+        foreach ( array_merge( $this->files, $this->droppedFiles ) as $file ) {
+            if ( $file instanceof TemporaryUploadedFile
+                && str_starts_with( (string) $file->getMimeType(), 'image/' )
+            ) {
+                return $file;
+            }
+        }
+
+        return null;
     }
 
     /**
