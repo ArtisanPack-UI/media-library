@@ -7,17 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-08
+
 ### Added
 
-- **AI integrations** — three vision-powered features consumed by the Livewire, React, and Vue frontends alike through a single set of JSON endpoints (`POST /api/media/{id}/ai/alt-text|tags|description`). No package-specific React/Vue components are shipped; consumers call the endpoints from whichever frontend they already run.
-  - `ai.alt_text` — cross-cutting alt-text agent (ships in `artisanpack-ui/ai`), wired into the `MediaEdit` Livewire component and the JSON API (#80).
+- **AI integrations** — three vision-powered features consumed by the Livewire, React, and Vue frontends alike through a single set of JSON endpoints (`POST /api/media/{id}/ai/alt-text|tags|description`).
+  - `ai.alt_text` — cross-cutting alt-text agent (ships in `artisanpack-ui/ai`), wired into `MediaEdit`, `MediaUpload`, and the JSON API (#80). Media library injects a stricter default prompt so the model never returns empty for images it classifies as decorative (deferring to any operator override); both surfaces also fall back to a filename-derived stub when the model still declines.
   - `media.suggest_tags` — new `ImageTagSuggestionAgent` that picks matching tags from the existing `media_tags` taxonomy, with an opt-in `allow_new` mode for out-of-taxonomy suggestions (#81).
-  - `media.image_description` — new `ImageDescriptionAgent` producing paragraph-length descriptions (short / medium / long) distinct from alt text (#82).
-- The `MediaEdit` Livewire component gains "AI suggest" buttons next to the alt-text, description, and tag fields; buttons hide themselves automatically when the feature is disabled or `artisanpack-ui/ai` is not installed.
+  - `media.image_description` — new `ImageDescriptionAgent` producing paragraph-length descriptions in short / medium / long tiers, distinct from alt text (#82).
+- Shipped `MediaEdit.tsx` (React) and `MediaEdit.vue` (Vue) components gain the same "Suggest with AI" / "Describe with AI" / "Suggest tags" buttons via typed helpers exported from `resources/js/{react,vue}/utils/api.ts`. No changes to `@artisanpack-ui/react` or `@artisanpack-ui/vue` are required to adopt the feature.
+- Livewire `MediaUpload` gains upload-time AI suggestions for alt text and description, operating on the pending `TemporaryUploadedFile` before the record is persisted.
 
 ### Changed
 
-- **BREAKING**: `artisanpack-ui/ai` `^1.0` is now a required dependency.
+- **BREAKING**: `artisanpack-ui/ai` `^1.0` is now a required dependency. Configure credentials via `config/artisanpack.php` or the AI settings admin surface before adopting v1.3.
+
+### Documentation
+
+- Added the "AI features" section to the README with the endpoint contract and per-surface wiring notes.
+- Added `docs/usage/ai-features.md` covering configuration, endpoints, agent inputs/outputs, and Livewire component wiring.
 
 ## [1.2.2] - 2026-06-09
 

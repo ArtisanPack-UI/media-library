@@ -27,6 +27,7 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
   - [Livewire Components](Usage-Livewire-Components)
   - [Streaming Uploads](Usage-Streaming-Uploads) *(v1.1)*
   - [Table Export](Usage-Table-Export) *(v1.1)*
+  - [AI Features](Usage-AI-Features) *(v1.3)*
 
 - **Frontend Components** *(v1.2)*
   - [Overview](Frontend-Components)
@@ -75,6 +76,13 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - 🖱️ **Media Modal Component** - Single/multi-select modal with context support
 - 🔐 **Permission-based Access Control** - Granular capability-based permissions
 
+### New in v1.3
+- 🪄 **AI Alt Text** - Vision-powered accessibility-friendly alt text via the cross-cutting `ai.alt_text` agent
+- 🏷️ **AI Tag Suggestions** - Auto-suggest tags from the existing taxonomy (opt-in mode for new tags too)
+- 📝 **AI Image Descriptions** - Paragraph-length descriptions in short / medium / long tiers
+- 🌐 **Framework-agnostic JSON API** - `POST /api/media/{id}/ai/{alt-text|tags|description}` consumed by Livewire, React, Vue alike
+- 🛟 **Filename fallback** - Alt-text field is never left silently empty when the model declines
+
 ### New in v1.2
 - ⚛️ **React Components** - Full React component set with hooks for Inertia.js apps
 - 🟢 **Vue Components** - Full Vue 3 component set with composables for Inertia.js apps
@@ -98,6 +106,10 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - [Helper Functions](Usage-Helper-Functions) - Common usage patterns
 - [API Endpoints](Api-Endpoints) - Complete API reference
 - [Troubleshooting](Reference-Troubleshooting) - Common issues and solutions
+
+### v1.3 Features
+- [AI Features](Usage-AI-Features) - Alt text, tag suggestions, image descriptions
+- Requires [`artisanpack-ui/ai`](https://github.com/ArtisanPack-UI/ai) `^1.0`
 
 ### v1.2 Features
 - [React Components](Frontend-Components-React) - React media library UI

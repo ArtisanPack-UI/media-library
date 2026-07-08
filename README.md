@@ -150,6 +150,7 @@ Media Library integrates with [`artisanpack-ui/ai`](https://github.com/ArtisanPa
 - **[Livewire Components](docs/usage/livewire-components.md)** - UI component guide
 - **[Streaming Uploads](docs/usage/streaming-uploads.md)** - Livewire 4 real-time upload progress
 - **[Table Export](docs/usage/table-export.md)** - Export media data to CSV/XLSX/PDF
+- **[AI Features](docs/usage/ai-features.md)** - Alt text, tag suggestions, image descriptions (v1.3)
 
 ### Visual Editor Integration
 - **[MediaPicker Component](docs/visual-editor/media-picker.md)** - Visual editor media selection
