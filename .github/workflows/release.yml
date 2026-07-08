@@ -32,8 +32,12 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Strip local path repository
+        run: |
+          python3 -c "import json; c=json.load(open('composer.json')); c.pop('repositories', None); json.dump(c, open('composer.json','w'), indent=2)"
+
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer update artisanpack-ui/ai --with-all-dependencies --no-interaction --prefer-dist
 
       - name: Run tests
         env:
