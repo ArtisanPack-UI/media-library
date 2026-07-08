@@ -15,11 +15,16 @@
 namespace ArtisanPackUI\MediaLibrary\Livewire\Components;
 
 use ArtisanPack\LivewireUiComponents\Traits\Toast;
+use ArtisanPackUI\Ai\Agents\AltTextGenerationAgent;
+use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageDescriptionAgent;
+use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageTagSuggestionAgent;
+use ArtisanPackUI\MediaLibrary\Ai\Concerns\InteractsWithMediaAi;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use ArtisanPackUI\MediaLibrary\Models\MediaTag;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -36,6 +41,7 @@ use Livewire\Component;
  */
 class MediaEdit extends Component
 {
+    use InteractsWithMediaAi;
     use Toast;
 
     /**
@@ -79,6 +85,68 @@ class MediaEdit extends Component
      * @var bool
      */
     public bool $isSaving = false;
+
+    /**
+     * Whether the current alt_text value came from the alt-text agent
+     * this session. The Blade template uses this to render an "AI
+     * suggested" badge until the user edits or confirms.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $altTextIsAiSuggested = false;
+
+    /**
+     * Whether the current description value came from the description
+     * agent this session.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $descriptionIsAiSuggested = false;
+
+    /**
+     * Tag IDs the tag-suggestion agent proposed this session — used to
+     * highlight suggested tags in the taxonomy picker.
+     *
+     * @since 1.3.0
+     *
+     * @var array<int, int>
+     */
+    public array $aiSuggestedTagIds = [];
+
+    /**
+     * Requested description length tier for the description agent.
+     *
+     * @since 1.3.0
+     *
+     * @var string
+     */
+    public string $aiDescriptionLength = 'medium';
+
+    /**
+     * Consumed once by `updatedFormAltText()` to distinguish a user
+     * edit from the client-side `$wire.set('form.alt_text', ...)`
+     * echo dispatched right after an AI suggestion. Without this the
+     * echo request would immediately reset `$altTextIsAiSuggested` to
+     * false and the badge would never appear.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $suppressNextAltTextHook = false;
+
+    /**
+     * Companion suppression flag for the description hook.
+     *
+     * @since 1.3.0
+     *
+     * @var bool
+     */
+    public bool $suppressNextDescriptionHook = false;
 
     /**
      * Mount the component.
@@ -162,6 +230,210 @@ class MediaEdit extends Component
     }
 
     /**
+     * Clear the "AI suggested" badge as soon as the user edits alt text.
+     *
+     * @since 1.3.0
+     */
+    public function updatedFormAltText(): void
+    {
+        if ( $this->suppressNextAltTextHook ) {
+            $this->suppressNextAltTextHook = false;
+
+            return;
+        }
+
+        $this->altTextIsAiSuggested = false;
+    }
+
+    /**
+     * Clear the "AI suggested" badge as soon as the user edits the
+     * description.
+     *
+     * @since 1.3.0
+     */
+    public function updatedFormDescription(): void
+    {
+        if ( $this->suppressNextDescriptionHook ) {
+            $this->suppressNextDescriptionHook = false;
+
+            return;
+        }
+
+        $this->descriptionIsAiSuggested = false;
+    }
+
+    /**
+     * Suggest alt text for the current media item using the
+     * `ai.alt_text` agent.
+     *
+     * @since 1.3.0
+     */
+    public function suggestAltText(): void
+    {
+        if ( ! $this->guardAi( 'ai.alt_text' ) ) {
+            return;
+        }
+
+        $this->runAi( function (): void {
+            $result = AltTextGenerationAgent::for( $this->imageReference() )->run();
+
+            $altText = trim( (string) ( $result['alt_text'] ?? '' ) );
+
+            if ( '' === $altText ) {
+                // Fall back to a filename-based stub rather than leaving
+                // the field silently empty when the model refuses to
+                // describe an image.
+                $altText = $this->filenameFallbackAltText(
+                    (string) ( $this->media->file_name ?? '' ),
+                    (string) ( $this->media->title ?? '' ),
+                );
+
+                $this->info( __(
+                    'AI could not confidently describe this image; a filename-based placeholder was inserted.',
+                ) );
+            } else {
+                $this->success( __( 'AI-suggested alt text populated.' ) );
+            }
+
+            $this->form['alt_text']        = $altText;
+            $this->altTextIsAiSuggested    = true;
+            $this->suppressNextAltTextHook = true;
+            $this->js( sprintf(
+                "\$wire.set('form.alt_text', %s)",
+                json_encode( $altText, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+            ) );
+        } );
+    }
+
+    /**
+     * Suggest tags for the current media item using the
+     * `media.suggest_tags` agent.
+     *
+     * @since 1.3.0
+     *
+     * @param  bool  $allowNew  Whether to accept net-new tags outside the existing taxonomy.
+     */
+    public function suggestTags( bool $allowNew = false ): void
+    {
+        if ( ! $this->guardAi( 'media.suggest_tags' ) ) {
+            return;
+        }
+
+        $this->runAi( function () use ( $allowNew ): void {
+            $existingTags = MediaTag::query()->orderBy( 'name' )->pluck( 'name', 'id' )->all();
+
+            $result = ImageTagSuggestionAgent::for( [
+                'image'         => $this->imageReference(),
+                'existing_tags' => array_values( $existingTags ),
+                'filename'      => (string) ( $this->media->file_name ?? '' ),
+                'folder'        => (string) ( $this->media->folder?->name ?? '' ),
+                'allow_new'     => $allowNew,
+            ] )->run();
+
+            $selected  = $this->selectedTags;
+            $suggested = [];
+
+            $lookup = [];
+
+            foreach ( $existingTags as $id => $name ) {
+                $lookup[ strtolower( $name ) ] = (int) $id;
+            }
+
+            foreach ( (array) ( $result['tags'] ?? [] ) as $tagName ) {
+                $tagId = $lookup[ strtolower( (string) $tagName ) ] ?? null;
+
+                if ( null === $tagId ) {
+                    continue;
+                }
+
+                $suggested[] = $tagId;
+
+                if ( ! in_array( $tagId, $selected, true ) ) {
+                    $selected[] = $tagId;
+                }
+            }
+
+            $this->selectedTags      = array_values( array_unique( $selected ) );
+            $this->aiSuggestedTagIds = $suggested;
+
+            if ( $allowNew ) {
+                foreach ( (array) ( $result['new_tags'] ?? [] ) as $tagName ) {
+                    $tagName = trim( (string) $tagName );
+
+                    if ( '' === $tagName ) {
+                        continue;
+                    }
+
+                    $tag = MediaTag::firstOrCreate(
+                        [ 'name' => $tagName ],
+                        [ 'slug' => \Illuminate\Support\Str::slug( $tagName ) ],
+                    );
+
+                    $this->selectedTags[]      = $tag->id;
+                    $this->aiSuggestedTagIds[] = $tag->id;
+                }
+
+                $this->selectedTags      = array_values( array_unique( $this->selectedTags ) );
+                $this->aiSuggestedTagIds = array_values( array_unique( $this->aiSuggestedTagIds ) );
+
+                unset( $this->tags );
+            }
+
+            $count = count( $suggested ) + count( (array) ( $result['new_tags'] ?? [] ) );
+
+            if ( 0 === $count ) {
+                $this->info( __( 'The AI did not suggest any tags for this image.' ) );
+
+                return;
+            }
+
+            $this->success( trans_choice(
+                ':count tag suggested by AI.|:count tags suggested by AI.',
+                $count,
+                [ 'count' => $count ],
+            ) );
+        } );
+    }
+
+    /**
+     * Suggest a paragraph-length description for the current media item
+     * using the `media.image_description` agent.
+     *
+     * @since 1.3.0
+     */
+    public function suggestDescription(): void
+    {
+        if ( ! $this->guardAi( 'media.image_description' ) ) {
+            return;
+        }
+
+        $this->runAi( function (): void {
+            $result = ImageDescriptionAgent::for( [
+                'image'  => $this->imageReference(),
+                'length' => $this->aiDescriptionLength,
+            ] )->run();
+
+            $description = (string) ( $result['description'] ?? '' );
+
+            if ( '' === $description ) {
+                $this->info( __( 'The AI did not produce a description for this image.' ) );
+
+                return;
+            }
+
+            $this->form['description']         = $description;
+            $this->descriptionIsAiSuggested    = true;
+            $this->suppressNextDescriptionHook = true;
+            $this->js( sprintf(
+                "\$wire.set('form.description', %s)",
+                json_encode( $description, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+            ) );
+
+            $this->success( __( 'AI-suggested description populated.' ) );
+        } );
+    }
+
+    /**
      * Get all tags for the tag selector.
      *
      * @since 1.0.0
@@ -206,5 +478,59 @@ class MediaEdit extends Component
     public function render(): View
     {
         return view( 'media::livewire.pages.media-edit' );
+    }
+
+    /**
+     * Verify the current media is image-typed and the requested feature
+     * is enabled before dispatching an agent run.
+     *
+     * @since 1.3.0
+     *
+     * @param  string  $featureKey  Feature key to check.
+     *
+     * @return bool True if the caller may proceed.
+     */
+    protected function guardAi( string $featureKey ): bool
+    {
+        if ( ! $this->isAiAvailable() ) {
+            $this->error( __( 'AI features are not installed.' ) );
+
+            return false;
+        }
+
+        if ( ! $this->media->isImage() ) {
+            $this->error( __( 'AI features are only available for image media items.' ) );
+
+            return false;
+        }
+
+        if ( ! $this->isAiFeatureEnabled( $featureKey ) ) {
+            $this->error( __( 'This AI feature is disabled.' ) );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Build the laravel/ai image reference for the current media item.
+     *
+     * @since 1.3.0
+     *
+     * @return array{ source: string, value: string }
+     */
+    protected function imageReference(): array
+    {
+        $url = $this->media->url();
+
+        if ( str_starts_with( $url, 'http://' ) || str_starts_with( $url, 'https://' ) ) {
+            return [ 'source' => 'url', 'value' => $url ];
+        }
+
+        return [
+            'source' => 'path',
+            'value'  => Storage::disk( $this->media->disk )->path( $this->media->file_path ),
+        ];
     }
 }

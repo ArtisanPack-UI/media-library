@@ -14,7 +14,17 @@ import { cn } from '@artisanpack-ui/tokens';
 
 import type { Media, MediaFolder, MediaTag, MediaUpdatePayload } from '../types/media';
 
-import { updateMedia, deleteMedia, fetchFolders, fetchTags } from '../utils/api';
+import {
+    updateMedia,
+    deleteMedia,
+    fetchFolders,
+    fetchTags,
+    suggestMediaAltText,
+    suggestMediaTags,
+    suggestMediaDescription,
+    filenameFallbackAltText,
+    type AiDescriptionLength,
+} from '../utils/api';
 import { Portal } from '../utils/Portal';
 
 /**
@@ -58,6 +68,10 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
     const [ saving, setSaving ]               = useState( false );
     const [ error, setError ]                 = useState<string | null>( null );
     const [ showDeleteConfirm, setShowDelete ] = useState( false );
+    const [ aiBusy, setAiBusy ]                  = useState<'alt' | 'tags' | 'description' | null>( null );
+    const [ aiNotice, setAiNotice ]              = useState<string | null>( null );
+    const [ aiSuggestedTagIds, setAiSuggestedTagIds ] = useState<number[]>( [] );
+    const [ aiDescriptionLength, setAiDescriptionLength ] = useState<AiDescriptionLength>( 'medium' );
 
     // Sync form state when media prop changes
     const prevMediaId = useRef( media.id );
@@ -96,6 +110,72 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
                 : [ ...prev, tagId ],
         );
     }, [] );
+
+    const handleSuggestAltText = useCallback( async () => {
+        setAiBusy( 'alt' );
+        setAiNotice( null );
+        try {
+            const result   = await suggestMediaAltText( media.id );
+            const altText  = result.alt_text?.trim() ||
+                filenameFallbackAltText( media.file_name, media.title );
+            updateField( 'alt_text', altText );
+            if ( ! result.alt_text?.trim() ) {
+                setAiNotice( 'AI could not confidently describe this image; a filename-based placeholder was inserted.' );
+            }
+        } catch ( err ) {
+            setAiNotice( err instanceof Error ? err.message : 'AI request failed' );
+        } finally {
+            setAiBusy( null );
+        }
+    }, [ media.id, media.file_name, media.title, updateField ] );
+
+    const handleSuggestTags = useCallback( async ( allowNew: boolean ) => {
+        setAiBusy( 'tags' );
+        setAiNotice( null );
+        try {
+            const result       = await suggestMediaTags( media.id, { allowNew } );
+            const nameToId     = new Map<string, number>();
+            tags.forEach( ( t ) => nameToId.set( t.name.toLowerCase(), t.id ) );
+            const nextSelected = new Set( selectedTagIds );
+            const nextAi: number[] = [];
+
+            for ( const name of result.tags ) {
+                const id = nameToId.get( name.toLowerCase() );
+                if ( id !== undefined ) {
+                    nextSelected.add( id );
+                    nextAi.push( id );
+                }
+            }
+
+            if ( allowNew && result.new_tags.length > 0 ) {
+                setAiNotice( `AI proposed ${ result.new_tags.length } new tag(s): ${ result.new_tags.join( ', ' ) }. Create them from the tag manager to attach.` );
+            }
+
+            setSelectedTagIds( Array.from( nextSelected ) );
+            setAiSuggestedTagIds( nextAi );
+        } catch ( err ) {
+            setAiNotice( err instanceof Error ? err.message : 'AI request failed' );
+        } finally {
+            setAiBusy( null );
+        }
+    }, [ media.id, tags, selectedTagIds ] );
+
+    const handleSuggestDescription = useCallback( async () => {
+        setAiBusy( 'description' );
+        setAiNotice( null );
+        try {
+            const result = await suggestMediaDescription( media.id, aiDescriptionLength );
+            if ( result.description ) {
+                updateField( 'description', result.description );
+            } else {
+                setAiNotice( 'AI did not produce a description for this image.' );
+            }
+        } catch ( err ) {
+            setAiNotice( err instanceof Error ? err.message : 'AI request failed' );
+        } finally {
+            setAiBusy( null );
+        }
+    }, [ media.id, aiDescriptionLength, updateField ] );
 
     const handleSave = useCallback( async () => {
         setSaving( true );
@@ -213,13 +293,25 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
                     />
 
                     { media.is_image && (
-                        <Input
-                            label="Alt Text"
-                            value={ form.alt_text }
-                            onChange={ ( e ) => updateField( 'alt_text', e.target.value ) }
-                            placeholder="Describe this image for accessibility"
-                            hint="Important for accessibility and SEO"
-                        />
+                        <div>
+                            <Input
+                                label="Alt Text"
+                                value={ form.alt_text }
+                                onChange={ ( e ) => updateField( 'alt_text', e.target.value ) }
+                                placeholder="Describe this image for accessibility"
+                                hint="Important for accessibility and SEO"
+                            />
+                            <div className="mt-2 flex items-center gap-3">
+                                <Button
+                                    size="sm"
+                                    onClick={ handleSuggestAltText }
+                                    loading={ aiBusy === 'alt' }
+                                    disabled={ aiBusy !== null }
+                                >
+                                    ✨ Suggest with AI
+                                </Button>
+                            </div>
+                        </div>
                     ) }
 
                     <Input
@@ -229,12 +321,38 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
                         placeholder="Optional caption"
                     />
 
-                    <Textarea
-                        label="Description"
-                        value={ form.description }
-                        onChange={ ( e ) => updateField( 'description', e.target.value ) }
-                        placeholder="Optional description"
-                    />
+                    <div>
+                        <Textarea
+                            label="Description"
+                            value={ form.description }
+                            onChange={ ( e ) => updateField( 'description', e.target.value ) }
+                            placeholder="Optional description"
+                        />
+                        { media.is_image && (
+                            <div className="mt-2 flex items-center gap-3">
+                                <Select
+                                    options={ [
+                                        { value: 'short', label: 'Short' },
+                                        { value: 'medium', label: 'Medium' },
+                                        { value: 'long', label: 'Long' },
+                                    ] }
+                                    value={ aiDescriptionLength }
+                                    onChange={ ( e ) => setAiDescriptionLength( e.target.value as AiDescriptionLength ) }
+                                    optionValue="value"
+                                    optionLabel="label"
+                                    className="w-32"
+                                />
+                                <Button
+                                    size="sm"
+                                    onClick={ handleSuggestDescription }
+                                    loading={ aiBusy === 'description' }
+                                    disabled={ aiBusy !== null }
+                                >
+                                    ✨ Describe with AI
+                                </Button>
+                            </div>
+                        ) }
+                    </div>
 
                     <Select
                         label="Folder"
@@ -250,9 +368,31 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
 
                     { /* Tags */ }
                     <div>
-                        <label className="label">
-                            <span className="label-text">Tags</span>
-                        </label>
+                        <div className="flex items-center justify-between">
+                            <label className="label">
+                                <span className="label-text">Tags</span>
+                            </label>
+                            { media.is_image && (
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        size="sm"
+                                        onClick={ () => handleSuggestTags( false ) }
+                                        loading={ aiBusy === 'tags' }
+                                        disabled={ aiBusy !== null }
+                                    >
+                                        ✨ Suggest tags
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={ () => handleSuggestTags( true ) }
+                                        disabled={ aiBusy !== null }
+                                        title="Allow the AI to propose brand-new tags outside the existing taxonomy"
+                                    >
+                                        + Allow new
+                                    </Button>
+                                </div>
+                            ) }
+                        </div>
                         <div className="flex flex-wrap gap-2">
                             { tags.map( ( tag ) => (
                                 <button
@@ -261,7 +401,7 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
                                     onClick={ () => toggleTag( tag.id ) }
                                 >
                                     <Badge
-                                        value={ tag.name }
+                                        value={ aiSuggestedTagIds.includes( tag.id ) ? `${ tag.name } (AI)` : tag.name }
                                         color={ selectedTagIds.includes( tag.id ) ? 'primary' : 'neutral' }
                                     />
                                 </button>
@@ -270,6 +410,9 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
                                 <p className="text-sm text-base-content/50">No tags available</p>
                             ) }
                         </div>
+                        { aiNotice && (
+                            <p className="mt-2 text-xs text-info">{ aiNotice }</p>
+                        ) }
                     </div>
                 </div>
             </div>

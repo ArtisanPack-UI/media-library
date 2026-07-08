@@ -1,5 +1,6 @@
 <?php
 
+use ArtisanPackUI\MediaLibrary\Http\Controllers\Ai\MediaAiController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaConfigController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaController;
 use ArtisanPackUI\MediaLibrary\Http\Controllers\MediaFolderController;
@@ -32,6 +33,11 @@ Route::middleware( ['auth:sanctum'] )->group( function (): void {
 
     // Media download route (API)
     Route::get( 'media/{id}/download', [MediaController::class, 'download'] )->name( 'api.media.download' );
+
+    // Media AI endpoints — consumed by the Livewire admin, React, and Vue frontends.
+    Route::post( 'media/{id}/ai/alt-text', [MediaAiController::class, 'altText'] )->name( 'api.media.ai.alt-text' );
+    Route::post( 'media/{id}/ai/tags', [MediaAiController::class, 'suggestTags'] )->name( 'api.media.ai.tags' );
+    Route::post( 'media/{id}/ai/description', [MediaAiController::class, 'describe'] )->name( 'api.media.ai.description' );
 
     // Media resource routes (last to avoid catching folder/tag routes)
     Route::apiResource( 'media', MediaController::class );

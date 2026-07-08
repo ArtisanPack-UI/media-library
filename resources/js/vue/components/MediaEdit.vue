@@ -15,7 +15,17 @@ import { cn } from '@artisanpack-ui/tokens';
 
 import type { Media, MediaFolder, MediaTag, MediaUpdatePayload } from '../types/media';
 
-import { updateMedia, deleteMedia, fetchFolders, fetchTags } from '../utils/api';
+import {
+    updateMedia,
+    deleteMedia,
+    fetchFolders,
+    fetchTags,
+    suggestMediaAltText,
+    suggestMediaTags,
+    suggestMediaDescription,
+    filenameFallbackAltText,
+    type AiDescriptionLength,
+} from '../utils/api';
 
 const props = defineProps<{
     media: Media;
@@ -34,6 +44,10 @@ const error            = ref<string | null>( null );
 const folders          = ref<MediaFolder[]>( [] );
 const tags             = ref<MediaTag[]>( [] );
 const selectedTagIds   = ref<number[]>( props.media.tags?.map( ( t ) => t.id ) || [] );
+const aiBusy               = ref<'alt' | 'tags' | 'description' | null>( null );
+const aiNotice             = ref<string | null>( null );
+const aiSuggestedTagIds    = ref<number[]>( [] );
+const aiDescriptionLength  = ref<AiDescriptionLength>( 'medium' );
 
 const form = reactive( {
     title:       props.media.title || '',
@@ -67,6 +81,72 @@ function toggleTag( tagId: number ) {
         selectedTagIds.value = selectedTagIds.value.filter( ( id ) => id !== tagId );
     } else {
         selectedTagIds.value = [ ...selectedTagIds.value, tagId ];
+    }
+}
+
+async function handleSuggestAltText() {
+    aiBusy.value   = 'alt';
+    aiNotice.value = null;
+    try {
+        const result  = await suggestMediaAltText( props.media.id );
+        const altText = result.alt_text?.trim() ||
+            filenameFallbackAltText( props.media.file_name, props.media.title );
+        form.alt_text = altText;
+        if ( ! result.alt_text?.trim() ) {
+            aiNotice.value = 'AI could not confidently describe this image; a filename-based placeholder was inserted.';
+        }
+    } catch ( err ) {
+        aiNotice.value = err instanceof Error ? err.message : 'AI request failed';
+    } finally {
+        aiBusy.value = null;
+    }
+}
+
+async function handleSuggestTags( allowNew: boolean ) {
+    aiBusy.value   = 'tags';
+    aiNotice.value = null;
+    try {
+        const result   = await suggestMediaTags( props.media.id, { allowNew } );
+        const nameToId = new Map<string, number>();
+        tags.value.forEach( ( t ) => nameToId.set( t.name.toLowerCase(), t.id ) );
+        const nextSelected = new Set( selectedTagIds.value );
+        const nextAi: number[] = [];
+
+        for ( const name of result.tags ) {
+            const id = nameToId.get( name.toLowerCase() );
+            if ( id !== undefined ) {
+                nextSelected.add( id );
+                nextAi.push( id );
+            }
+        }
+
+        if ( allowNew && result.new_tags.length > 0 ) {
+            aiNotice.value = `AI proposed ${ result.new_tags.length } new tag(s): ${ result.new_tags.join( ', ' ) }. Create them from the tag manager to attach.`;
+        }
+
+        selectedTagIds.value    = Array.from( nextSelected );
+        aiSuggestedTagIds.value = nextAi;
+    } catch ( err ) {
+        aiNotice.value = err instanceof Error ? err.message : 'AI request failed';
+    } finally {
+        aiBusy.value = null;
+    }
+}
+
+async function handleSuggestDescription() {
+    aiBusy.value   = 'description';
+    aiNotice.value = null;
+    try {
+        const result = await suggestMediaDescription( props.media.id, aiDescriptionLength.value );
+        if ( result.description ) {
+            form.description = result.description;
+        } else {
+            aiNotice.value = 'AI did not produce a description for this image.';
+        }
+    } catch ( err ) {
+        aiNotice.value = err instanceof Error ? err.message : 'AI request failed';
+    } finally {
+        aiBusy.value = null;
     }
 }
 
@@ -160,15 +240,48 @@ const folderOptions = () => [
                 <!-- Form -->
                 <div class="flex flex-col gap-4">
                     <Input label="Title" v-model="form.title" placeholder="Media title" />
-                    <Input
-                        v-if="media.is_image"
-                        label="Alt Text"
-                        v-model="form.alt_text"
-                        placeholder="Describe this image for accessibility"
-                        hint="Important for accessibility and SEO"
-                    />
+                    <div v-if="media.is_image">
+                        <Input
+                            label="Alt Text"
+                            v-model="form.alt_text"
+                            placeholder="Describe this image for accessibility"
+                            hint="Important for accessibility and SEO"
+                        />
+                        <div class="mt-2 flex items-center gap-3">
+                            <Button
+                                size="sm"
+                                :loading="aiBusy === 'alt'"
+                                :disabled="aiBusy !== null"
+                                @click="handleSuggestAltText()"
+                            >
+                                ✨ Suggest with AI
+                            </Button>
+                        </div>
+                    </div>
                     <Input label="Caption" v-model="form.caption" placeholder="Optional caption" />
-                    <Textarea label="Description" v-model="form.description" placeholder="Optional description" />
+                    <div>
+                        <Textarea label="Description" v-model="form.description" placeholder="Optional description" />
+                        <div v-if="media.is_image" class="mt-2 flex items-center gap-3">
+                            <Select
+                                :options="[
+                                    { value: 'short', label: 'Short' },
+                                    { value: 'medium', label: 'Medium' },
+                                    { value: 'long', label: 'Long' },
+                                ]"
+                                :model-value="aiDescriptionLength"
+                                @update:model-value="( v ) => aiDescriptionLength = v as AiDescriptionLength"
+                                class="w-32"
+                            />
+                            <Button
+                                size="sm"
+                                :loading="aiBusy === 'description'"
+                                :disabled="aiBusy !== null"
+                                @click="handleSuggestDescription()"
+                            >
+                                ✨ Describe with AI
+                            </Button>
+                        </div>
+                    </div>
                     <Select
                         label="Folder"
                         :options="folderOptions()"
@@ -178,7 +291,27 @@ const folderOptions = () => [
 
                     <!-- Tags -->
                     <div>
-                        <label class="label"><span class="label-text">Tags</span></label>
+                        <div class="flex items-center justify-between">
+                            <label class="label"><span class="label-text">Tags</span></label>
+                            <div v-if="media.is_image" class="flex items-center gap-2">
+                                <Button
+                                    size="sm"
+                                    :loading="aiBusy === 'tags'"
+                                    :disabled="aiBusy !== null"
+                                    @click="handleSuggestTags( false )"
+                                >
+                                    ✨ Suggest tags
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    :disabled="aiBusy !== null"
+                                    title="Allow the AI to propose brand-new tags outside the existing taxonomy"
+                                    @click="handleSuggestTags( true )"
+                                >
+                                    + Allow new
+                                </Button>
+                            </div>
+                        </div>
                         <div class="flex flex-wrap gap-2">
                             <button
                                 v-for="tag in tags"
@@ -188,12 +321,13 @@ const folderOptions = () => [
                                 @click="toggleTag( tag.id )"
                             >
                                 <Badge
-                                    :value="tag.name"
+                                    :value="aiSuggestedTagIds.includes( tag.id ) ? `${ tag.name } (AI)` : tag.name"
                                     :color="selectedTagIds.includes( tag.id ) ? 'primary' : 'neutral'"
                                 />
                             </button>
                             <p v-if="tags.length === 0" class="text-sm text-base-content/50">No tags available</p>
                         </div>
+                        <p v-if="aiNotice" class="mt-2 text-xs text-info">{{ aiNotice }}</p>
                     </div>
                 </div>
             </div>
