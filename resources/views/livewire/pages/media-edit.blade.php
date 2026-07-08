@@ -116,12 +116,32 @@
 
 					{{-- Alt Text --}}
 					@if($media->isImage())
-						<x-artisanpack-input
-							wire:model="form.alt_text"
-							:label="__('Alt Text')"
-							:placeholder="__('Enter alt text for accessibility...')"
-							:help="__('Describe the image for screen readers and search engines')"
-						/>
+						<div>
+							<x-artisanpack-input
+								wire:model="form.alt_text"
+								:label="__('Alt Text')"
+								:placeholder="__('Enter alt text for accessibility...')"
+								:help="__('Describe the image for screen readers and search engines')"
+							/>
+							@if($this->isAiFeatureEnabled('ai.alt_text'))
+								<div class="mt-2 flex items-center gap-3">
+									<x-artisanpack-button
+										wire:click="suggestAltText"
+										wire:loading.attr="disabled"
+										wire:target="suggestAltText"
+										variant="ghost"
+										size="sm"
+									>
+										<x-artisanpack-icon name="fas.magic" class="mr-2"/>
+										<span wire:loading.remove wire:target="suggestAltText">{{ __('Suggest with AI') }}</span>
+										<span wire:loading wire:target="suggestAltText">{{ __('Thinking…') }}</span>
+									</x-artisanpack-button>
+									@if($altTextIsAiSuggested)
+										<span class="text-xs text-info">{{ __('AI suggested — edit or save to confirm') }}</span>
+									@endif
+								</div>
+							@endif
+						</div>
 					@endif
 
 					{{-- Caption --}}
@@ -133,12 +153,44 @@
 					/>
 
 					{{-- Description --}}
-					<x-artisanpack-textarea
-						wire:model="form.description"
-						:label="__('Description')"
-						:placeholder="__('Enter description...')"
-						rows="4"
-					/>
+					<div>
+						<x-artisanpack-textarea
+							wire:model="form.description"
+							:label="__('Description')"
+							:placeholder="__('Enter description...')"
+							rows="4"
+						/>
+						@if($media->isImage() && $this->isAiFeatureEnabled('media.image_description'))
+							<div class="mt-2 flex items-center gap-3">
+								<x-artisanpack-select
+									wire:model="aiDescriptionLength"
+									:options="collect([
+										['value' => 'short', 'label' => __('Short')],
+										['value' => 'medium', 'label' => __('Medium')],
+										['value' => 'long', 'label' => __('Long')],
+									])"
+									option-value="value"
+									option-label="label"
+									size="sm"
+									class="w-32"
+								/>
+								<x-artisanpack-button
+									wire:click="suggestDescription"
+									wire:loading.attr="disabled"
+									wire:target="suggestDescription"
+									variant="ghost"
+									size="sm"
+								>
+									<x-artisanpack-icon name="fas.magic" class="mr-2"/>
+									<span wire:loading.remove wire:target="suggestDescription">{{ __('Describe with AI') }}</span>
+									<span wire:loading wire:target="suggestDescription">{{ __('Thinking…') }}</span>
+								</x-artisanpack-button>
+								@if($descriptionIsAiSuggested)
+									<span class="text-xs text-info">{{ __('AI suggested — edit or save to confirm') }}</span>
+								@endif
+							</div>
+						@endif
+					</div>
 
 					{{-- Folder --}}
 					<x-artisanpack-select
@@ -152,7 +204,34 @@
 
 					{{-- Tags --}}
 					<div>
-						<x-artisanpack-heading level="3" class="mb-4">{{ __('Tags') }}</x-artisanpack-heading>
+						<div class="flex items-center justify-between mb-4">
+							<x-artisanpack-heading level="3">{{ __('Tags') }}</x-artisanpack-heading>
+							@if($media->isImage() && $this->isAiFeatureEnabled('media.suggest_tags'))
+								<div class="flex items-center gap-2">
+									<x-artisanpack-button
+										wire:click="suggestTags(false)"
+										wire:loading.attr="disabled"
+										wire:target="suggestTags"
+										variant="ghost"
+										size="sm"
+									>
+										<x-artisanpack-icon name="fas.magic" class="mr-2"/>
+										<span wire:loading.remove wire:target="suggestTags">{{ __('Suggest tags with AI') }}</span>
+										<span wire:loading wire:target="suggestTags">{{ __('Thinking…') }}</span>
+									</x-artisanpack-button>
+									<x-artisanpack-button
+										wire:click="suggestTags(true)"
+										wire:loading.attr="disabled"
+										wire:target="suggestTags"
+										variant="ghost"
+										size="sm"
+										:title="__('Allow the AI to propose new tags outside the current taxonomy')"
+									>
+										{{ __('+ Allow new') }}
+									</x-artisanpack-button>
+								</div>
+							@endif
+						</div>
 						<div class="flex flex-wrap gap-2 mt-2">
 							@foreach($this->tags as $tag)
 								<label class="inline-flex items-center">
@@ -162,7 +241,12 @@
 										value="{{ $tag->id }}"
 										class="rounded border-zinc-300 text-primary focus:ring-primary dark:border-zinc-700 dark:bg-zinc-800"
 									/>
-									<span class="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{{ $tag->name }}</span>
+									<span class="ml-2 text-sm text-zinc-700 dark:text-zinc-300">
+										{{ $tag->name }}
+										@if(in_array($tag->id, $aiSuggestedTagIds, true))
+											<span class="ml-1 text-xs text-info">({{ __('AI') }})</span>
+										@endif
+									</span>
 								</label>
 							@endforeach
 						</div>

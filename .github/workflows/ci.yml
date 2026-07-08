@@ -33,10 +33,15 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Strip local path repository
+        run: |
+          python3 -c "import json; c=json.load(open('composer.json')); c.pop('repositories', None); json.dump(c, open('composer.json','w'), indent=2)"
+
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: composer update artisanpack-ui/ai --with-all-dependencies --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Run PHP-CS-Fixer
+
         run: ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: Run PHPCS
@@ -74,8 +79,12 @@ jobs:
           key: ${{ runner.os }}-composer-lw${{ matrix.livewire }}-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-lw${{ matrix.livewire }}-
 
+      - name: Strip local path repository
+        run: |
+          python3 -c "import json; c=json.load(open('composer.json')); c.pop('repositories', None); json.dump(c, open('composer.json','w'), indent=2)"
+
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer update artisanpack-ui/ai --with-all-dependencies --no-interaction --prefer-dist
 
       - name: Install Livewire ${{ matrix.livewire }}
         run: composer require livewire/livewire:"^${{ matrix.livewire }}" -W --no-interaction

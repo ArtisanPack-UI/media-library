@@ -406,3 +406,107 @@ export async function detachTag( tagId: number, mediaIds: number[] ): Promise<vo
         body: JSON.stringify( { media_ids: mediaIds } ),
     } );
 }
+
+/* ------------------------------------------------------------------ */
+/* AI suggestions                                                      */
+/* ------------------------------------------------------------------ */
+
+export interface AiAltTextResult {
+    alt_text: string;
+    confidence: number;
+    warnings: string[];
+}
+
+export interface AiTagSuggestionResult {
+    tags: string[];
+    new_tags: string[];
+    confidence: number;
+}
+
+export interface AiDescriptionResult {
+    description: string;
+    confidence: number;
+    warnings: string[];
+}
+
+export type AiDescriptionLength = 'short' | 'medium' | 'long';
+
+/**
+ * Ask the AI to suggest alt text for a stored media item.
+ *
+ * Backed by the cross-cutting `ai.alt_text` agent.
+ */
+export async function suggestMediaAltText( mediaId: number ): Promise<AiAltTextResult> {
+    const response = await apiFetch<{ data: AiAltTextResult }>(
+        `/api/media/${ mediaId }/ai/alt-text`,
+        { method: 'POST' },
+    );
+    return response.data;
+}
+
+/**
+ * Ask the AI to suggest tags from the stored taxonomy for a media item.
+ *
+ * When `allowNew` is true, the model may also propose brand-new tags in
+ * the returned `new_tags` array.
+ */
+export async function suggestMediaTags(
+    mediaId: number,
+    options: { allowNew?: boolean } = {},
+): Promise<AiTagSuggestionResult> {
+    const response = await apiFetch<{ data: AiTagSuggestionResult }>(
+        `/api/media/${ mediaId }/ai/tags`,
+        {
+            method: 'POST',
+            body: JSON.stringify( { allow_new: Boolean( options.allowNew ) } ),
+        },
+    );
+    return response.data;
+}
+
+/**
+ * Ask the AI for a paragraph-length description of a media item.
+ */
+/**
+ * Filename-based fallback alt-text stub for cases where the model
+ * returned an empty suggestion.
+ *
+ * Mirrors the PHP `InteractsWithMediaAi::filenameFallbackAltText()` on
+ * the server — `filename` is stripped of any extension, `title` is
+ * used as-is so titled strings like `Roadmap v1.0` aren't truncated.
+ * Both callers must produce the same value so React/Vue/Livewire agree
+ * on what the fallback looks like.
+ */
+export function filenameFallbackAltText( filename?: string | null, title?: string | null ): string {
+    const humanise = ( base: string ): string => {
+        const cleaned = base.replace( /[-_]+/g, ' ' ).trim();
+        if ( ! cleaned ) return 'Image';
+        return cleaned.charAt( 0 ).toUpperCase() + cleaned.slice( 1 );
+    };
+
+    const trimmedFilename = ( filename ?? '' ).trim();
+    if ( trimmedFilename ) {
+        return humanise( trimmedFilename.replace( /\.[^./]+$/, '' ) );
+    }
+
+    const trimmedTitle = ( title ?? '' ).trim();
+    if ( trimmedTitle ) {
+        return humanise( trimmedTitle );
+    }
+
+    return 'Image';
+}
+
+export async function suggestMediaDescription(
+    mediaId: number,
+    length: AiDescriptionLength = 'medium',
+): Promise<AiDescriptionResult> {
+    const response = await apiFetch<{ data: AiDescriptionResult }>(
+        `/api/media/${ mediaId }/ai/description`,
+        {
+            method: 'POST',
+            body: JSON.stringify( { length } ),
+        },
+    );
+    return response.data;
+}

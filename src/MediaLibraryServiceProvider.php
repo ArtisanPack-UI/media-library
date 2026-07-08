@@ -14,6 +14,8 @@
 
 namespace ArtisanPackUI\MediaLibrary;
 
+use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageDescriptionAgent;
+use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageTagSuggestionAgent;
 use ArtisanPackUI\MediaLibrary\Console\Commands\InstallFrontendCommand;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\FolderManager;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaEdit;
@@ -87,6 +89,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->mergeConfiguration();
+        $this->overrideAiInstructions();
         $this->publishConfiguration();
         $this->publishTypeDefinitions();
         $this->publishReactComponents();
@@ -98,6 +101,99 @@ class MediaLibraryServiceProvider extends ServiceProvider
         $this->registerLivewireComponents();
         $this->registerBladeComponents();
         $this->registerCommands();
+    }
+
+    /**
+     * AI features exposed by the media library.
+     *
+     * Picked up by the `artisanpack-ui/ai` service provider's feature
+     * discovery pass — see `discoverFeaturesFromProviders()` in ai's
+     * service provider. When the ai package is not installed this method
+     * is simply never called.
+     *
+     * `ai.alt_text` is not re-declared here — the cross-cutting agent lives
+     * in `artisanpack-ui/ai` and is registered by that package's own
+     * service provider.
+     *
+     * @since 1.3.0
+     *
+     * @return array<string, array{ agent: class-string, package: string }>
+     */
+    public function aiFeatures(): array
+    {
+        return [
+            'media.suggest_tags'      => [
+                'agent'   => ImageTagSuggestionAgent::class,
+                'package' => 'artisanpack-ui/media-library',
+            ],
+            'media.image_description' => [
+                'agent'   => ImageDescriptionAgent::class,
+                'package' => 'artisanpack-ui/media-library',
+            ],
+        ];
+    }
+
+    /**
+     * Override the cross-cutting alt-text agent's default prompt so it
+     * never returns an empty suggestion for media-library uploads.
+     *
+     * The shipped ai package prompt permits an empty `alt_text` when the
+     * model classifies an image as decorative, which is unhelpful in an
+     * asset-management context where every image needs a caption. This
+     * override tightens the instruction to always produce descriptive
+     * text.
+     *
+     * Honors any pre-existing `artisanpack.ai.features.ai.alt_text.instructions`
+     * value so operators (via ai settings) still take precedence.
+     *
+     * @since 1.3.0
+     */
+    protected function overrideAiInstructions(): void
+    {
+        // Feature keys are literal dot-notation strings inside the
+        // `artisanpack.ai.features` array (looked up via `$features[$key]`
+        // in ArtisanPackAgent::featureConfig()), so we can't use dot-path
+        // config() — that would build a nested tree. Mutate the array
+        // in place and write it back.
+        $features = (array) config( 'artisanpack.ai.features', [] );
+
+        $entry = isset( $features['ai.alt_text'] ) && is_array( $features['ai.alt_text'] )
+            ? $features['ai.alt_text']
+            : [];
+
+        if ( isset( $entry['instructions'] ) && is_string( $entry['instructions'] ) && '' !== $entry['instructions'] ) {
+            return;
+        }
+
+        $entry['instructions']     = $this->defaultAltTextInstructions();
+        $features['ai.alt_text']   = $entry;
+
+        config( [ 'artisanpack.ai.features' => $features ] );
+    }
+
+    /**
+     * Media-library's stricter alt-text prompt: always describe the
+     * image, never return empty for "decorative" classification.
+     *
+     * @since 1.3.0
+     *
+     * @return string
+     */
+    protected function defaultAltTextInstructions(): string
+    {
+        return <<<'PROMPT'
+You generate concise, accessibility-friendly alt text for the supplied image.
+
+Requirements:
+- ALWAYS return a non-empty `alt_text`. Never return an empty string, even if the image looks decorative — describe what is visually present.
+- Describe the image's meaningful content in <= 150 characters.
+- Prefer active voice; do not start with "Image of" or "Picture of".
+- Do not include a trailing period.
+- If the image is a screenshot of text, transcribe the visible text and add a warning "screenshot of text — provide the transcription in body content".
+- If the image is unreadable or corrupt, still return your best-guess description of what you can see and add a warning describing the problem.
+
+Return a JSON object with keys: alt_text (string, always non-empty), confidence (float 0..1), warnings (array of strings).
+PROMPT;
     }
 
     /**

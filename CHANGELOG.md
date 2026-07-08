@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **AI integrations** — three vision-powered features consumed by the Livewire, React, and Vue frontends alike through a single set of JSON endpoints (`POST /api/media/{id}/ai/alt-text|tags|description`). No package-specific React/Vue components are shipped; consumers call the endpoints from whichever frontend they already run.
+  - `ai.alt_text` — cross-cutting alt-text agent (ships in `artisanpack-ui/ai`), wired into the `MediaEdit` Livewire component and the JSON API (#80).
+  - `media.suggest_tags` — new `ImageTagSuggestionAgent` that picks matching tags from the existing `media_tags` taxonomy, with an opt-in `allow_new` mode for out-of-taxonomy suggestions (#81).
+  - `media.image_description` — new `ImageDescriptionAgent` producing paragraph-length descriptions (short / medium / long) distinct from alt text (#82).
+- The `MediaEdit` Livewire component gains "AI suggest" buttons next to the alt-text, description, and tag fields; buttons hide themselves automatically when the feature is disabled or `artisanpack-ui/ai` is not installed.
+
+### Changed
+
+- **BREAKING**: `artisanpack-ui/ai` `^1.0` is now a required dependency.
+
 ## [1.2.2] - 2026-06-09
 
 ### Added

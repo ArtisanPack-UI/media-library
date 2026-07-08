@@ -239,11 +239,34 @@
 					:placeholder="__('Enter title...')"
 				/>
 
-				<x-artisanpack-input
-					wire:model="metadata.alt_text"
-					:label="__('Alt Text') . ' ' . __('(Optional)')"
-					:placeholder="__('Enter alt text...')"
-				/>
+				<div>
+					<x-artisanpack-input
+						wire:model="metadata.alt_text"
+						:label="__('Alt Text') . ' ' . __('(Optional)')"
+						:placeholder="__('Enter alt text...')"
+					/>
+					@if($this->isAiFeatureEnabled('ai.alt_text') && $this->hasImageUpload())
+						<div class="mt-2 flex items-center gap-3">
+							<x-artisanpack-button
+								wire:click="suggestAltText"
+								wire:loading.attr="disabled"
+								wire:target="suggestAltText"
+								variant="ghost"
+								size="sm"
+							>
+								<x-artisanpack-icon name="fas.magic" class="mr-2"/>
+								<span wire:loading.remove wire:target="suggestAltText">{{ __('Suggest with AI') }}</span>
+								<span wire:loading wire:target="suggestAltText">{{ __('Thinking…') }}</span>
+							</x-artisanpack-button>
+							@if($altTextIsAiSuggested)
+								<span class="text-xs text-info">{{ __('AI suggested — edit or upload to confirm') }}</span>
+							@endif
+						</div>
+					@endif
+					@if($altTextAiNote !== '')
+						<p class="mt-1 text-xs text-warning">{{ $altTextAiNote }}</p>
+					@endif
+				</div>
 
 				<x-artisanpack-textarea
 					wire:model="metadata.caption"
@@ -252,12 +275,44 @@
 					rows="2"
 				/>
 
-				<x-artisanpack-textarea
-					wire:model="metadata.description"
-					:label="__('Description') . ' ' . __('(Optional)')"
-					:placeholder="__('Enter description...')"
-					rows="3"
-				/>
+				<div>
+					<x-artisanpack-textarea
+						wire:model="metadata.description"
+						:label="__('Description') . ' ' . __('(Optional)')"
+						:placeholder="__('Enter description...')"
+						rows="3"
+					/>
+					@if($this->isAiFeatureEnabled('media.image_description') && $this->hasImageUpload())
+						<div class="mt-2 flex items-center gap-3">
+							<x-artisanpack-select
+								wire:model="aiDescriptionLength"
+								:options="collect([
+									['value' => 'short', 'label' => __('Short')],
+									['value' => 'medium', 'label' => __('Medium')],
+									['value' => 'long', 'label' => __('Long')],
+								])"
+								option-value="value"
+								option-label="label"
+								size="sm"
+								class="w-32"
+							/>
+							<x-artisanpack-button
+								wire:click="suggestDescription"
+								wire:loading.attr="disabled"
+								wire:target="suggestDescription"
+								variant="ghost"
+								size="sm"
+							>
+								<x-artisanpack-icon name="fas.magic" class="mr-2"/>
+								<span wire:loading.remove wire:target="suggestDescription">{{ __('Describe with AI') }}</span>
+								<span wire:loading wire:target="suggestDescription">{{ __('Thinking…') }}</span>
+							</x-artisanpack-button>
+							@if($descriptionIsAiSuggested)
+								<span class="text-xs text-info">{{ __('AI suggested — edit or upload to confirm') }}</span>
+							@endif
+						</div>
+					@endif
+				</div>
 			</div>
 
 			{{-- Upload Button --}}
