@@ -88,6 +88,7 @@ class MediaLibraryServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Support\HookAliases::register();
         $this->mergeConfiguration();
         $this->overrideAiInstructions();
         $this->publishConfiguration();

@@ -152,21 +152,25 @@ Override permission checks using hooks:
 
 ```php
 // Customize viewAny capability
-addFilter('ap.media.viewAny', function($capability) {
+addFilter('ap.mediaLibrary.abilities.viewAny', function($capability) {
     return 'custom.media.view';
 });
 
 // Customize create capability
-addFilter('ap.media.create', function($capability) {
+addFilter('ap.mediaLibrary.abilities.create', function($capability) {
     return 'custom.media.upload';
 });
 
 // Other available hooks:
-// ap.media.view
-// ap.media.update
-// ap.media.delete
-// ap.media.restore
-// ap.media.forceDelete
+// ap.mediaLibrary.abilities.view
+// ap.mediaLibrary.abilities.update
+// ap.mediaLibrary.abilities.delete
+// ap.mediaLibrary.abilities.restore
+// ap.mediaLibrary.abilities.forceDelete
+
+// Legacy `ap.media.*` names remain aliased to the new hooks for
+// backwards compatibility and will be removed in the next major version.
+// A deprecation notice is logged the first time a legacy alias fires.
 ```
 
 ## Ownership-Based Permissions
