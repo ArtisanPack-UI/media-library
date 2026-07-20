@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - Unreleased
+
+### Changed
+
+- **BREAKING**: Renamed the seven `MediaPolicy` ability filters from `ap.media.*` to `ap.mediaLibrary.abilities.*` for cross-package consistency with the `abilities.` sub-namespace pattern used elsewhere in the ArtisanPack UI ecosystem. Old hook names remain registered as deprecation aliases via `artisanpack-ui/hooks` `deprecateHook()`, so existing subscribers keep firing (an info-level deprecation notice is logged on first use). Aliases will be removed in the next major version. Requires `artisanpack-ui/hooks: ^1.3`. (#85)
+  - `ap.media.viewAny` → `ap.mediaLibrary.abilities.viewAny`
+  - `ap.media.view` → `ap.mediaLibrary.abilities.view`
+  - `ap.media.create` → `ap.mediaLibrary.abilities.create`
+  - `ap.media.update` → `ap.mediaLibrary.abilities.update`
+  - `ap.media.delete` → `ap.mediaLibrary.abilities.delete`
+  - `ap.media.restore` → `ap.mediaLibrary.abilities.restore`
+  - `ap.media.forceDelete` → `ap.mediaLibrary.abilities.forceDelete`
+
 ## [1.3.0] - 2026-07-08
 
 ### Added
