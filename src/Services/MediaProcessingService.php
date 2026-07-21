@@ -91,6 +91,19 @@ class MediaProcessingService
             return;
         }
 
+        /**
+         * Fires before an image is processed (thumbnails + modern formats).
+         *
+         * Runs after the media has been confirmed as an image and before
+         * any transformation begins. Use this to seed derived data or
+         * short-circuit processing by mutating configuration.
+         *
+         * @since 1.4.0
+         *
+         * @param Media $media The media instance about to be processed.
+         */
+        doAction( 'ap.mediaLibrary.beforeProcess', $media );
+
         // Generate thumbnails if enabled
         if ( config( 'artisanpack.media.enable_thumbnails', true ) ) {
             $this->generateThumbnails( $media );
@@ -119,8 +132,8 @@ class MediaProcessingService
         }
 
         $thumbnails = [];
-        $imageSizes = $this->getImageSizes();
-        $sourcePath = $this->storageService->path( $media->file_path, $media->disk );
+        $imageSizes = $this->getImageSizes( $media );
+        $sourcePath = $this->storageService->path( $media->file_path, $media->disk, $media );
 
         foreach ( $imageSizes as $sizeName => $sizeConfig ) {
             try {
@@ -130,6 +143,7 @@ class MediaProcessingService
                     $media->disk,
                     $sizeName,
                     $sizeConfig,
+                    $media,
                 );
 
                 if ( null !== $thumbnailPath ) {
@@ -146,6 +160,34 @@ class MediaProcessingService
             $metadata               = $media->metadata ?? [];
             $metadata['thumbnails'] = $thumbnails;
             $media->update( [ 'metadata' => $metadata ] );
+        }
+
+        // Only fire the "thumbnails generated" hook when at least one
+        // thumbnail actually made it to disk — otherwise the empty payload
+        // gives subscribers (CDN pushers, indexers) no signal that
+        // generation failed and would push empty maps as success.
+        if ( ! empty( $thumbnails ) ) {
+            // Build a URL map for hook subscribers so they don't have to
+            // look paths up against the disk themselves.
+            $urls = [];
+            foreach ( $thumbnails as $sizeName => $thumbnailPath ) {
+                $urls[ $sizeName ] = $this->storageService->url( $thumbnailPath, $media->disk, $media );
+            }
+
+            /**
+             * Fires after all thumbnail sizes have been generated for a media
+             * item.
+             *
+             * The media's metadata has already been updated with the thumbnail
+             * paths. Subscribers receive both the media instance and a map of
+             * size name to public URL for downstream CDN pushes, indexing, etc.
+             *
+             * @since 1.4.0
+             *
+             * @param Media                 $media The media instance whose thumbnails were generated.
+             * @param array<string, string> $urls  Map of size name to public thumbnail URL.
+             */
+            doAction( 'ap.mediaLibrary.thumbnailsGenerated', $media, $urls );
         }
 
         return $thumbnails;
@@ -178,7 +220,7 @@ class MediaProcessingService
         }
 
         try {
-            $sourcePath = $this->storageService->path( $media->file_path, $media->disk );
+            $sourcePath = $this->storageService->path( $media->file_path, $media->disk, $media );
             $image      = $this->imageManager->read( $sourcePath );
 
             // Generate modern format filename
@@ -201,7 +243,7 @@ class MediaProcessingService
             }
 
             // Store the converted image
-            $this->storageService->put( $modernPath, (string)$encoded, $media->disk );
+            $this->storageService->put( $modernPath, (string)$encoded, $media->disk, $media );
 
             // Update metadata
             $metadata                              = $media->metadata ?? [];
@@ -278,14 +320,32 @@ class MediaProcessingService
      *
      * @since 1.0.0
      *
+     * @param  Media|null  $media  Optional media context for the filter.
+     *
      * @return array<string, array<string, mixed>> The image sizes configuration.
      */
-    protected function getImageSizes(): array
+    protected function getImageSizes( ?Media $media = null ): array
     {
         $builtInSizes = config( 'artisanpack.media.image_sizes', [] );
         $customSizes  = config( 'artisanpack.media.custom_image_sizes', [] );
+        $sizes        = array_merge( $builtInSizes, $customSizes );
 
-        return array_merge( $builtInSizes, $customSizes );
+        /**
+         * Filters the set of image sizes that will be generated for a media
+         * item.
+         *
+         * Runs immediately before the optimization/thumbnail loop, allowing
+         * applications to add per-image sizes, drop unnecessary ones, or
+         * swap crop settings on a per-media basis.
+         *
+         * @since 1.4.0
+         *
+         * @param array<string, array<string, mixed>> $sizes The resolved image sizes.
+         * @param Media|null                          $media The media instance being processed, when known.
+         *
+         * @return array<string, array<string, mixed>> The (possibly modified) size definitions.
+         */
+        return (array) applyFilters( 'ap.mediaLibrary.imageSizes', $sizes, $media );
     }
 
     /**
@@ -298,6 +358,7 @@ class MediaProcessingService
      * @param string               $disk           The storage disk.
      * @param string               $sizeName       The size name (e.g., 'thumbnail', 'medium').
      * @param array<string, mixed> $sizeConfig     The size configuration.
+     * @param Media|null           $media          Optional media context passed to the storageDisk filter.
      *
      * @return string|null The generated thumbnail path or null on failure.
      */
@@ -307,6 +368,7 @@ class MediaProcessingService
         string $disk,
         string $sizeName,
         array $sizeConfig,
+        ?Media $media = null,
     ): ?string {
         try {
             // Load the image
@@ -335,7 +397,7 @@ class MediaProcessingService
             $encoded = $image->toJpeg( $quality );
 
             // Store the thumbnail
-            $this->storageService->put( $thumbnailPath, (string)$encoded, $disk );
+            $this->storageService->put( $thumbnailPath, (string)$encoded, $disk, $media );
 
             return $thumbnailPath;
         } catch ( Exception $e ) {

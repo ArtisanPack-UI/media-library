@@ -51,7 +51,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.viewAny', 'media.view' );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.viewAny', 'media.view' );
 
         return $user->can( $capability );
     }
@@ -81,7 +81,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.view', 'media.view', $media );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.view', 'media.view', $media );
 
         return $user->can( $capability );
     }
@@ -106,7 +106,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.create', 'media.upload' );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.create', 'media.upload' );
 
         return $user->can( $capability );
     }
@@ -133,7 +133,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.update', 'media.edit', $media );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.update', 'media.edit', $media );
 
         return $user->can( $capability );
     }
@@ -160,7 +160,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.delete', 'media.delete', $media );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.delete', 'media.delete', $media );
 
         return $user->can( $capability );
     }
@@ -187,7 +187,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.restore', 'media.delete', $media );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.restore', 'media.delete', $media );
 
         return $user->can( $capability );
     }
@@ -214,7 +214,7 @@ class MediaPolicy
          *
          * @return string Filtered capability slug.
          */
-        $capability = applyFilters( 'ap.media.forceDelete', 'media.delete', $media );
+        $capability = applyFilters( 'ap.mediaLibrary.abilities.forceDelete', 'media.delete', $media );
 
         return $user->can( $capability );
     }

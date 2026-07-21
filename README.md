@@ -134,6 +134,40 @@ Media Library integrates with [`artisanpack-ui/ai`](https://github.com/ArtisanPa
 
 `artisanpack-ui/ai` is a required dependency starting in v1.3. Configure credentials via `config/artisanpack.php` or the "AI → Settings" admin page and toggle individual features from "AI → Features".
 
+## Pipeline hooks
+
+Media Library exposes the full media pipeline through [`artisanpack-ui/hooks`](https://github.com/ArtisanPack-UI/hooks) so applications can intercept upload, processing, thumbnail, and delete lifecycle events without subclassing the shipped services. Register subscribers with `addAction()` / `addFilter()` from a service provider.
+
+| Hook                                  | Type   | Fires from                                             | Payload                                          |
+|---------------------------------------|--------|--------------------------------------------------------|--------------------------------------------------|
+| `ap.mediaLibrary.uploading`           | action | `MediaUploadService::upload()` start                   | `(UploadedFile $file, array $options)`           |
+| `ap.mediaLibrary.uploadOptions`       | filter | Before the `Media` record is persisted                 | `(array $options, UploadedFile $file)`           |
+| `ap.mediaLibrary.uploaded`            | action | After the `Media` record is created and tags attached  | `(Media $media)`                                 |
+| `ap.mediaLibrary.filenameGenerated`   | filter | `MediaUploadService::generateFileName()`               | `(string $filename, UploadedFile $file)`         |
+| `ap.mediaLibrary.allowedMimeTypes`    | filter | Every read of the allowed MIME allow-list              | `(array $mimes)`                                 |
+| `ap.mediaLibrary.maxFileSize`         | filter | Every read of the max upload size (KB)                 | `(int $sizeKb, ?Authenticatable $user)`          |
+| `ap.mediaLibrary.storageDisk`         | filter | `MediaStorageService::resolveDisk()`                   | `(string $disk, ?Media $media)`                  |
+| `ap.mediaLibrary.beforeProcess`       | action | `MediaProcessingService::processImage()` start         | `(Media $media)`                                 |
+| `ap.mediaLibrary.imageSizes`          | filter | Before the thumbnail generation loop                   | `(array $sizes, ?Media $media)`                  |
+| `ap.mediaLibrary.thumbnailsGenerated` | action | `MediaProcessingService::generateThumbnails()` end     | `(Media $media, array $urls)`                    |
+| `ap.mediaLibrary.beforeDelete`        | action | Eloquent `deleting` event on `Media`                   | `(Media $media)`                                 |
+| `ap.mediaLibrary.deleted`             | action | Eloquent `deleted` event on `Media`                    | `(Media $media)`                                 |
+| `ap.mediaLibrary.altTextSuggestion`   | filter | AI alt-text seam (`MediaEdit`, `MediaAiController`)    | `(?string $suggestion, Media $media)`            |
+
+Example — cap uploads at 2 MB for guests and route enterprise-tier accounts to a dedicated disk:
+
+```php
+addFilter( 'ap.mediaLibrary.maxFileSize', function ( int $size, $user ): int {
+    return $user?->onEnterprisePlan() ? $size : 2048;
+} );
+
+addFilter( 'ap.mediaLibrary.storageDisk', function ( string $disk, ?Media $media ) use ( $tenantResolver ): string {
+    return $tenantResolver->diskFor( $media?->uploaded_by ) ?? $disk;
+} );
+```
+
+Filters must return a value; actions do not. See [`artisanpack-ui/hooks`](https://github.com/ArtisanPack-UI/hooks) for priority ordering, removal semantics, and Facade / Blade usage.
+
 ## Documentation
 
 📚 **[Complete Documentation](docs/home.md)**
