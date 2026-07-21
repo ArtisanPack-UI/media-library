@@ -37,6 +37,21 @@ class Media extends Model
     use SoftDeletes;
 
     /**
+     * Memoized filtered-disk value for this instance. Not persisted.
+     *
+     * @since 1.4.0
+     */
+    protected ?string $resolvedDiskCache = null;
+
+    /**
+     * Raw disk value the memoized value was computed from. When
+     * `$this->disk` changes, the cache is invalidated on the next read.
+     *
+     * @since 1.4.0
+     */
+    protected ?string $resolvedDiskCacheKey = null;
+
+    /**
      * The table associated with the model.
      *
      * @since 1.0.0
@@ -179,8 +194,10 @@ class Media extends Model
         $pathInfo  = pathinfo( $this->file_path );
         $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $size . '.' . $pathInfo['extension'];
 
-        if ( Storage::disk( $this->disk )->exists( $sizedPath ) ) {
-            return Storage::disk( $this->disk )->url( $sizedPath );
+        $disk = $this->resolvedDisk();
+
+        if ( Storage::disk( $disk )->exists( $sizedPath ) ) {
+            return Storage::disk( $disk )->url( $sizedPath );
         }
 
         // Fallback to original if sized version doesn't exist
@@ -196,7 +213,23 @@ class Media extends Model
      */
     public function url(): string
     {
-        return Storage::disk( $this->disk )->url( $this->file_path );
+        return Storage::disk( $this->resolvedDisk() )->url( $this->file_path );
+    }
+
+    /**
+     * Get the absolute filesystem path to the media file.
+     *
+     * Routes through the storageDisk filter so per-tenant / per-media
+     * disk reroutes apply uniformly to path lookups too — callers should
+     * prefer this over `Storage::disk( $media->disk )->path( ... )`.
+     *
+     * @since 1.4.0
+     *
+     * @return string The absolute filesystem path.
+     */
+    public function path(): string
+    {
+        return Storage::disk( $this->resolvedDisk() )->path( $this->file_path );
     }
 
     /**
@@ -282,12 +315,13 @@ class Media extends Model
         $sizes      = [];
         $pathInfo   = pathinfo( $this->file_path );
         $imageSizes = config( 'artisanpack.media.image_sizes', [] );
+        $disk       = $this->resolvedDisk();
 
         foreach ( $imageSizes as $sizeName => $config ) {
             $sizedPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
 
-            if ( Storage::disk( $this->disk )->exists( $sizedPath ) ) {
-                $sizes[ $sizeName ] = Storage::disk( $this->disk )->url( $sizedPath );
+            if ( Storage::disk( $disk )->exists( $sizedPath ) ) {
+                $sizes[ $sizeName ] = Storage::disk( $disk )->url( $sizedPath );
             }
         }
 
@@ -303,7 +337,7 @@ class Media extends Model
      */
     public function deleteFiles(): bool
     {
-        $storage = Storage::disk( $this->disk );
+        $storage = Storage::disk( $this->resolvedDisk() );
         $deleted = true;
 
         // Delete original file
@@ -451,6 +485,39 @@ class Media extends Model
     }
 
     /**
+     * Resolve the storage disk for this media, applying the
+     * `ap.mediaLibrary.storageDisk` filter with `$this` as context so
+     * per-tenant / per-media routing works uniformly for Model helpers.
+     *
+     * Memoized per instance so serialization stays cheap: one filter
+     * chain per instance regardless of how many URL/path accessors
+     * touch it during `toArray()`. A 50-item grid still runs 50 chains
+     * (one per Media) but not 50×N-accessors. The cache invalidates
+     * when `$this->disk` changes so re-assignment stays correct.
+     *
+     * @since 1.4.0
+     *
+     * @return string The (possibly-filtered) disk name.
+     */
+    protected function resolvedDisk(): string
+    {
+        $rawDisk = (string) $this->disk;
+
+        if ( isset( $this->resolvedDiskCache ) && $this->resolvedDiskCacheKey === $rawDisk ) {
+            return $this->resolvedDiskCache;
+        }
+
+        $this->resolvedDiskCacheKey = $rawDisk;
+        $this->resolvedDiskCache    = (string) applyFilters(
+            'ap.mediaLibrary.storageDisk',
+            $rawDisk,
+            $this,
+        );
+
+        return $this->resolvedDiskCache;
+    }
+
+    /**
      * Create a new factory instance for the model.
      *
      * @since 1.0.0
@@ -460,6 +527,45 @@ class Media extends Model
     protected static function newFactory(): MediaFactory
     {
         return MediaFactory::new();
+    }
+
+    /**
+     * Register model event hooks so applications can observe the media
+     * delete lifecycle through the artisanpack-ui/hooks system.
+     *
+     * @since 1.4.0
+     */
+    protected static function booted(): void
+    {
+        static::deleting( function ( Media $media ): void {
+            /**
+             * Fires before a Media record is deleted (soft or forced).
+             *
+             * Runs from the Eloquent `deleting` event, so subscribers see
+             * every delete path — model `delete()`, `forceDelete()`, and
+             * cascading deletes.
+             *
+             * @since 1.4.0
+             *
+             * @param Media $media The media record about to be deleted.
+             */
+            doAction( 'ap.mediaLibrary.beforeDelete', $media );
+        } );
+
+        static::deleted( function ( Media $media ): void {
+            /**
+             * Fires after a Media record has been deleted (soft or forced).
+             *
+             * Use this to clean up derived state, invalidate caches, or
+             * emit domain events. Note that soft-deleted records still
+             * exist in the database with a populated `deleted_at`.
+             *
+             * @since 1.4.0
+             *
+             * @param Media $media The media record that was just deleted.
+             */
+            doAction( 'ap.mediaLibrary.deleted', $media );
+        } );
     }
 
     /**

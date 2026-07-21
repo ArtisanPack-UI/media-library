@@ -18,6 +18,7 @@ use ArtisanPackUI\MediaLibrary\Http\Requests\MediaStoreRequest;
 use ArtisanPackUI\MediaLibrary\Http\Requests\MediaUpdateRequest;
 use ArtisanPackUI\MediaLibrary\Http\Resources\MediaResource;
 use ArtisanPackUI\MediaLibrary\Models\Media;
+use ArtisanPackUI\MediaLibrary\Services\MediaStorageService;
 use ArtisanPackUI\MediaLibrary\Services\MediaUploadService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -25,7 +26,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -243,13 +243,18 @@ class MediaController extends Controller
 
         $this->authorize( 'view', $media );
 
-        $disk = $media->disk ?? config( 'artisanpack.media.disk', 'public' );
+        // Route through MediaStorageService so the `ap.mediaLibrary.storageDisk`
+        // filter applies — otherwise a subscriber that reroutes uploads to
+        // a per-tenant bucket would leave the download endpoint pointing
+        // at the old disk and 404 for every request. Pass the raw
+        // $media->disk (not a pre-resolved value) so the filter fires
+        // exactly once for exists() and once for the final download().
+        $storage = app( MediaStorageService::class );
 
-        // Validate file exists on disk before attempting download
-        if ( ! Storage::disk( $disk )->exists( $media->file_path ) ) {
+        if ( ! $storage->exists( $media->file_path, $media->disk, $media ) ) {
             abort( 404, __( 'File not found on storage.' ) );
         }
 
-        return Storage::disk( $disk )->download( $media->file_path, $media->file_name);
+        return $storage->getDisk( $media->disk, $media )->download( $media->file_path, $media->file_name );
     }
 }

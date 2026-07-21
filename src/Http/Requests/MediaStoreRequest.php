@@ -47,7 +47,11 @@ class MediaStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxFileSize         = config( 'artisanpack.media.max_file_size', 10240 );
+        $maxFileSize = (int) applyFilters(
+            'ap.mediaLibrary.maxFileSize',
+            (int) config( 'artisanpack.media.max_file_size', 10240 ),
+            $this->user(),
+        );
         $allowedExtensions   = $this->getAllowedExtensions();
         $allowedExtensionStr = implode( ',', $allowedExtensions );
 
@@ -104,7 +108,10 @@ class MediaStoreRequest extends FormRequest
      */
     protected function getAllowedExtensions(): array
     {
-        $mimeTypes  = config( 'artisanpack.media.allowed_mime_types', [] );
+        $mimeTypes  = (array) applyFilters(
+            'ap.mediaLibrary.allowedMimeTypes',
+            (array) config( 'artisanpack.media.allowed_mime_types', [] ),
+        );
         $extensions = [];
 
         $mimeToExtension = [

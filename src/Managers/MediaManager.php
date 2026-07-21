@@ -90,7 +90,18 @@ class MediaManager
      */
     public function getAllowedMimeTypes(): array
     {
-        return config( 'artisanpack.media.allowed_mime_types', [] );
+        $mimes = (array) config( 'artisanpack.media.allowed_mime_types', [] );
+
+        /**
+         * Filters the list of MIME types accepted by the media library.
+         *
+         * @since 1.4.0
+         *
+         * @param array<int, string> $mimes The configured allowed MIME types.
+         *
+         * @return array<int, string> The (possibly modified) MIME type list.
+         */
+        return (array) applyFilters( 'ap.mediaLibrary.allowedMimeTypes', $mimes );
     }
 
     /**
@@ -121,7 +132,21 @@ class MediaManager
      */
     public function getMaxFileSize(): int
     {
-        return (int) config( 'artisanpack.media.max_file_size', 10240 );
+        $size = (int) config( 'artisanpack.media.max_file_size', 10240 );
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        /**
+         * Filters the maximum upload size (in kilobytes) allowed by the
+         * media library.
+         *
+         * @since 1.4.0
+         *
+         * @param int                                              $size The configured max file size (KB).
+         * @param \Illuminate\Contracts\Auth\Authenticatable|null  $user The authenticated user, or null for guests.
+         *
+         * @return int The (possibly modified) max file size in KB.
+         */
+        return (int) applyFilters( 'ap.mediaLibrary.maxFileSize', $size, $user );
     }
 
     /**

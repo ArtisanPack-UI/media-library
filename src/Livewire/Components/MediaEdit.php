@@ -24,7 +24,6 @@ use ArtisanPackUI\MediaLibrary\Models\MediaFolder;
 use ArtisanPackUI\MediaLibrary\Models\MediaTag;
 use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -277,23 +276,59 @@ class MediaEdit extends Component
         $this->runAi( function (): void {
             $result = AltTextGenerationAgent::for( $this->imageReference() )->run();
 
-            $altText = trim( (string) ( $result['alt_text'] ?? '' ) );
+            $altText      = trim( (string) ( $result['alt_text'] ?? '' ) );
+            $usedFallback = false;
 
             if ( '' === $altText ) {
                 // Fall back to a filename-based stub rather than leaving
                 // the field silently empty when the model refuses to
                 // describe an image.
-                $altText = $this->filenameFallbackAltText(
+                $altText     = $this->filenameFallbackAltText(
                     (string) ( $this->media->file_name ?? '' ),
                     (string) ( $this->media->title ?? '' ),
                 );
-
-                $this->info( __(
-                    'AI could not confidently describe this image; a filename-based placeholder was inserted.',
-                ) );
-            } else {
-                $this->success( __( 'AI-suggested alt text populated.' ) );
+                $usedFallback = true;
             }
+
+            /**
+             * Filters an AI-generated alt-text suggestion before it is
+             * shown to the user.
+             *
+             * Runs after the fallback stub is applied, so the suggestion
+             * is guaranteed non-empty. Applications can rewrite the
+             * suggestion, translate it, or clear it (by returning null)
+             * without touching the AI agent itself.
+             *
+             * Null-return semantics vary by fire site: this Livewire
+             * site leaves the field untouched and does not flip the
+             * AI-suggested flag or emit a toast. The JSON endpoint
+             * (`MediaAiController::altText`) instead nulls out the
+             * `alt_text` field in the response so React/Vue clients
+             * can distinguish "AI declined" from an empty string.
+             *
+             * @since 1.4.0
+             *
+             * @param string|null $altText The AI-produced (or fallback) alt-text suggestion.
+             * @param Media       $media   The media instance the suggestion is for.
+             *
+             * @return string|null The (possibly modified) alt-text suggestion.
+             */
+            $altText = applyFilters( 'ap.mediaLibrary.altTextSuggestion', $altText, $this->media );
+
+            // Subscribers can opt out entirely by returning null — leave
+            // the field untouched, don't flag it as AI-suggested, and
+            // don't flash any toast (they made an explicit no-op choice).
+            if ( null === $altText ) {
+                return;
+            }
+
+            $altText = (string) $altText;
+
+            $usedFallback
+                ? $this->info( __(
+                    'AI could not confidently describe this image; a filename-based placeholder was inserted.',
+                ) )
+                : $this->success( __( 'AI-suggested alt text populated.' ) );
 
             $this->form['alt_text']        = $altText;
             $this->altTextIsAiSuggested    = true;
@@ -530,7 +565,7 @@ class MediaEdit extends Component
 
         return [
             'source' => 'path',
-            'value'  => Storage::disk( $this->media->disk )->path( $this->media->file_path ),
+            'value'  => $this->media->path(),
         ];
     }
 }
