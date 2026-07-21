@@ -6,8 +6,91 @@ title: Upgrading
 
 This guide covers upgrading between versions of the ArtisanPack UI Media Library.
 
+- [Upgrading from v1.3 to v1.4](#upgrading-from-v13-to-v14)
 - [Upgrading from v1.1 to v1.2](#upgrading-from-v11-to-v12)
 - [Upgrading from v1.0 to v1.1](#upgrading-from-v10-to-v11)
+
+---
+
+## Upgrading from v1.3 to v1.4
+
+The v1.4 release introduces the media pipeline hooks and renames the seven `MediaPolicy` ability filters. It contains one BREAKING change that ships with backward-compatible deprecation aliases, so existing subscribers keep firing during the upgrade window.
+
+### Requirements
+
+| Requirement | Version |
+|-------------|---------|
+| PHP | 8.2 or higher (8.3+ on Laravel 13) |
+| Laravel | 12.17+ or 13.0+ |
+| artisanpack-ui/hooks | ^1.3 |
+
+### Upgrade Steps
+
+#### 1. Update Dependencies
+
+```bash
+composer update artisanpack-ui/media-library artisanpack-ui/hooks
+```
+
+The `artisanpack-ui/hooks: ^1.3` bump is required so the renamed policy hooks can register their legacy aliases via `deprecateHook()`.
+
+#### 2. Rename Policy Ability Hook Subscribers
+
+If your application subscribes to any of the seven `MediaPolicy` ability filters, rename them to the new `ap.mediaLibrary.abilities.*` namespace. The old names still fire (an info-level deprecation notice is logged on first use) but will be removed in the next major version.
+
+| Old name (deprecated) | New name |
+|-----------------------|----------|
+| `ap.media.viewAny` | `ap.mediaLibrary.abilities.viewAny` |
+| `ap.media.view` | `ap.mediaLibrary.abilities.view` |
+| `ap.media.create` | `ap.mediaLibrary.abilities.create` |
+| `ap.media.update` | `ap.mediaLibrary.abilities.update` |
+| `ap.media.delete` | `ap.mediaLibrary.abilities.delete` |
+| `ap.media.restore` | `ap.mediaLibrary.abilities.restore` |
+| `ap.media.forceDelete` | `ap.mediaLibrary.abilities.forceDelete` |
+
+See [`docs/integration/permissions.md`](integration/permissions.md) for the current subscriber signature.
+
+#### 3. Clear Caches
+
+```bash
+php artisan config:clear
+php artisan view:clear
+```
+
+### Breaking Changes
+
+- The seven `MediaPolicy` ability filters were renamed from `ap.media.*` to `ap.mediaLibrary.abilities.*` for cross-package consistency with the `abilities.` sub-namespace pattern used elsewhere in the ArtisanPack UI ecosystem. Legacy names remain registered as deprecation aliases; migrate before the next major release.
+
+### New Features Available
+
+#### Media Pipeline Hooks
+
+Thirteen new hooks cover the upload → process → thumbnail → delete lifecycle, so applications can intercept every stage without subclassing the shipped services.
+
+**Actions (6):**
+
+| Hook | Fires |
+|------|-------|
+| `ap.mediaLibrary.uploading` | Before an upload begins |
+| `ap.mediaLibrary.uploaded` | After a `Media` record is persisted |
+| `ap.mediaLibrary.beforeProcess` | Before image processing runs |
+| `ap.mediaLibrary.thumbnailsGenerated` | After thumbnails are written |
+| `ap.mediaLibrary.beforeDelete` | Before a `Media` record is deleted |
+| `ap.mediaLibrary.deleted` | After deletion completes |
+
+**Filters (7):**
+
+| Hook | Filters |
+|------|---------|
+| `ap.mediaLibrary.uploadOptions` | The options array passed to the upload service |
+| `ap.mediaLibrary.filenameGenerated` | The stored filename before persistence |
+| `ap.mediaLibrary.allowedMimeTypes` | The MIME allow-list |
+| `ap.mediaLibrary.maxFileSize` | The maximum upload size |
+| `ap.mediaLibrary.storageDisk` | The disk used for storage |
+| `ap.mediaLibrary.imageSizes` | The registered image size definitions |
+| `ap.mediaLibrary.altTextSuggestion` | Suggested alt text before it's applied |
+
+See the "Pipeline hooks" section of the README and [`docs/integration/customization.md`](integration/customization.md) for payload signatures and examples.
 
 ---
 

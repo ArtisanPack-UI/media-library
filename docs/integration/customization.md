@@ -255,47 +255,79 @@ class CustomMediaStoreRequest extends BaseRequest
 }
 ```
 
-## Hooks & Filters
+## Pipeline hooks
 
-Use hooks to modify behavior:
+The media library dispatches 13 hooks across the upload → process → thumbnail → delete lifecycle, so applications can intercept every stage without subclassing the shipped services. All hook names use the `ap.mediaLibrary.*` namespace introduced in v1.4. See the "Pipeline hooks" section of the README for the full payload signatures.
+
+**Actions**
+
+| Hook | Fires |
+|------|-------|
+| `ap.mediaLibrary.uploading` | Before an upload begins |
+| `ap.mediaLibrary.uploaded` | After a `Media` record is persisted |
+| `ap.mediaLibrary.beforeProcess` | Before image processing runs |
+| `ap.mediaLibrary.thumbnailsGenerated` | After thumbnails are written |
+| `ap.mediaLibrary.beforeDelete` | Before a `Media` record is deleted |
+| `ap.mediaLibrary.deleted` | After deletion completes |
+
+**Filters**
+
+| Hook | Filters |
+|------|---------|
+| `ap.mediaLibrary.uploadOptions` | The options array passed to the upload service |
+| `ap.mediaLibrary.filenameGenerated` | The stored filename before persistence |
+| `ap.mediaLibrary.allowedMimeTypes` | The MIME allow-list |
+| `ap.mediaLibrary.maxFileSize` | The maximum upload size |
+| `ap.mediaLibrary.storageDisk` | The disk used for storage |
+| `ap.mediaLibrary.imageSizes` | The registered image size definitions |
+| `ap.mediaLibrary.altTextSuggestion` | Suggested alt text before it's applied |
+
+### Examples
 
 ```php
-// Customize allowed MIME types
-addFilter('media.allowed_mime_types', function ($types) {
+// Extend the MIME allow-list
+addFilter('ap.mediaLibrary.allowedMimeTypes', function (array $types) {
     return array_merge($types, [
         'application/zip',
         'text/plain',
     ]);
 });
 
-// Modify upload path
-addFilter('media.upload_path', function ($path, $file, $user) {
-    // Organize by user ID
-    return "media/users/{$user->id}/" . date('Y/m');
+// Rewrite the generated filename (e.g., organize by user)
+addFilter('ap.mediaLibrary.filenameGenerated', function (string $filename, $file, $context) {
+    $user = $context['user'] ?? null;
+
+    return $user
+        ? "users/{$user->id}/" . date('Y/m') . "/{$filename}"
+        : $filename;
 }, 10, 3);
 
-// Add custom image sizes dynamically
-addAction('media.register_image_sizes', function () {
+// Register additional image sizes dynamically
+addFilter('ap.mediaLibrary.imageSizes', function (array $sizes) {
     if (config('theme.enable_retina')) {
-        apRegisterImageSize('thumbnail-2x', 300, 300, true);
-        apRegisterImageSize('medium-2x', 600, 600, false);
+        $sizes['thumbnail-2x'] = ['width' => 300, 'height' => 300, 'crop' => true];
+        $sizes['medium-2x']    = ['width' => 600, 'height' => 600, 'crop' => false];
     }
+
+    return $sizes;
 });
 
-// Before media deletion
-addAction('media.before_delete', function ($media) {
-    // Check if media is in use
+// Guard deletion of media that's still in use
+addAction('ap.mediaLibrary.beforeDelete', function ($media) {
     if ($media->isInUse()) {
-        throw new \Exception('Cannot delete media that is in use');
+        throw new \RuntimeException('Cannot delete media that is in use');
     }
 });
 
-// After media upload
-addAction('media.after_upload', function ($media) {
-    // Send notification
+// Notify administrators after a successful upload
+addAction('ap.mediaLibrary.uploaded', function ($media) {
     Notification::send($admins, new MediaUploadedNotification($media));
 });
 ```
+
+### Policy ability filters
+
+The seven `MediaPolicy` ability filters were renamed from `ap.media.*` to `ap.mediaLibrary.abilities.*` in v1.4 for cross-package consistency. The legacy names remain registered as deprecation aliases (an info-level notice is logged on first use) and will be removed in the next major version. See [`docs/integration/permissions.md`](permissions.md) for the current subscriber signatures.
 
 ## Custom Livewire Components
 
