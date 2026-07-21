@@ -77,6 +77,20 @@ class MediaUploadService
      */
     public function upload( UploadedFile $file, array $options = [] ): Media
     {
+        /**
+         * Fires when a media upload begins, before validation.
+         *
+         * Allows applications to observe uploads or short-circuit them by
+         * throwing an exception. Runs on every upload attempt regardless of
+         * validity.
+         *
+         * @since 1.4.0
+         *
+         * @param UploadedFile         $file    The incoming uploaded file.
+         * @param array<string, mixed> $options Caller-supplied upload options.
+         */
+        doAction( 'ap.mediaLibrary.uploading', $file, $options );
+
         // Validate the file
         $this->validateFile( $file );
 
@@ -89,14 +103,38 @@ class MediaUploadService
         // Full file path
         $filePath = $uploadPath . '/' . $fileName;
 
-        // Get disk
+        // Persist the caller-supplied (or configured default) disk on the
+        // Media record — the storageDisk filter is applied lazily by
+        // MediaStorageService and by Media::resolvedDisk() on every read,
+        // so a subscriber that reroutes uploads to a per-tenant bucket
+        // will still find the file when Media::url() runs later.
         $disk = $options['disk'] ?? config( 'artisanpack.media.disk', 'public' );
 
-        // Store the file
+        // store() applies the storageDisk filter internally, so the file
+        // lands on the filter-resolved disk even when we persist the
+        // pre-filter value above.
         $storedPath = $this->storageService->store( $file, $filePath, $disk );
 
         // Extract metadata
         $metadata = $this->extractMetadata( $file, $storedPath, $disk );
+
+        /**
+         * Filters the upload options immediately before the Media record is
+         * persisted.
+         *
+         * Applications can inject or override title, alt text, caption,
+         * description, folder assignment, tags, or any other option before
+         * the record is created. The file has already been stored and its
+         * metadata extracted at this point.
+         *
+         * @since 1.4.0
+         *
+         * @param array<string, mixed> $options The resolved upload options.
+         * @param UploadedFile         $file    The uploaded file.
+         *
+         * @return array<string, mixed> The (possibly modified) options.
+         */
+        $options = (array) applyFilters( 'ap.mediaLibrary.uploadOptions', $options, $file );
 
         // Create the media record
         $media = Media::create( [
@@ -122,6 +160,19 @@ class MediaUploadService
             $media->tags()->attach( $options['tags'] );
         }
 
+        /**
+         * Fires after a Media record has been created from an upload.
+         *
+         * Runs after tag attachment and before the media is returned to the
+         * caller. Use this to trigger downstream processing (thumbnail
+         * generation, indexing, notifications).
+         *
+         * @since 1.4.0
+         *
+         * @param Media $media The freshly created media record.
+         */
+        doAction( 'ap.mediaLibrary.uploaded', $media );
+
         return $media;
     }
 
@@ -136,8 +187,8 @@ class MediaUploadService
      */
     public function validateFile( UploadedFile $file ): bool
     {
-        $allowedMimeTypes = config( 'artisanpack.media.allowed_mime_types', [] );
-        $maxFileSize      = config( 'artisanpack.media.max_file_size', 10240 );
+        $allowedMimeTypes = $this->resolveAllowedMimeTypes();
+        $maxFileSize      = $this->resolveMaxFileSize();
 
         // Check file size (convert to bytes)
         $maxFileSizeBytes = $maxFileSize * 1024;
@@ -176,7 +227,22 @@ class MediaUploadService
         // Generate unique suffix
         $uniqueId = Str::random( 8 );
 
-        return $baseName . '-' . $uniqueId . '.' . $extension;
+        $fileName = $baseName . '-' . $uniqueId . '.' . $extension;
+
+        /**
+         * Filters the generated filename before it is used for storage.
+         *
+         * Applications can substitute a custom naming scheme (dates, hashes,
+         * user-scoped prefixes) while preserving the file extension.
+         *
+         * @since 1.4.0
+         *
+         * @param string       $fileName The generated filename.
+         * @param UploadedFile $file     The uploaded file.
+         *
+         * @return string The (possibly modified) filename.
+         */
+        return (string) applyFilters( 'ap.mediaLibrary.filenameGenerated', $fileName, $file );
     }
 
     /**
@@ -288,6 +354,65 @@ class MediaUploadService
         $metadata = $this->videoService->extractMetadata( $storedPath, $disk );
 
         return empty( $metadata ) ? null : $metadata;
+    }
+
+    /**
+     * Resolve the allowed MIME types, applying the configuration filter.
+     *
+     * @since 1.4.0
+     *
+     * @return array<int, string> The allowed MIME types.
+     */
+    protected function resolveAllowedMimeTypes(): array
+    {
+        $mimes = (array) config( 'artisanpack.media.allowed_mime_types', [] );
+
+        /**
+         * Filters the list of MIME types accepted by the media library.
+         *
+         * Runs at every read of the configured allow-list so runtime
+         * subscribers (feature flags, per-tenant policies) can adjust it
+         * without touching the underlying config value.
+         *
+         * @since 1.4.0
+         *
+         * @param array<int, string> $mimes The configured allowed MIME types.
+         *
+         * @return array<int, string> The (possibly modified) MIME type list.
+         */
+        return (array) applyFilters( 'ap.mediaLibrary.allowedMimeTypes', $mimes );
+    }
+
+    /**
+     * Resolve the maximum upload file size in kilobytes, applying the filter.
+     *
+     * @since 1.4.0
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user  Optional user context. Defaults to the current auth user.
+     *
+     * @return int The maximum file size in kilobytes.
+     */
+    protected function resolveMaxFileSize( $user = null ): int
+    {
+        $size = (int) config( 'artisanpack.media.max_file_size', 10240 );
+        $user ??= Auth::user();
+
+        /**
+         * Filters the maximum upload size (in kilobytes) allowed by the
+         * media library.
+         *
+         * Runs at every read of the configured limit so runtime subscribers
+         * (per-plan quotas, admin overrides) can adjust it. The user context
+         * is provided so subscribers can vary the limit per account.
+         *
+         * @since 1.4.0
+         *
+         * @param int                                              $size The configured max file size (KB).
+         * @param \Illuminate\Contracts\Auth\Authenticatable|null  $user The authenticated user, or null for guests.
+         *
+         * @return int The (possibly modified) max file size in KB.
+         */
+        return (int) applyFilters( 'ap.mediaLibrary.maxFileSize', $size, $user );
     }
 
     /**

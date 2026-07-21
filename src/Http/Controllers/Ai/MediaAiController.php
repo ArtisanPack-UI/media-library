@@ -66,7 +66,38 @@ class MediaAiController extends Controller
         }
 
         return $this->runAgent( function () use ( $media ): array {
-            return AltTextGenerationAgent::for( $this->imageReferenceFor( $media ) )->run();
+            $result = AltTextGenerationAgent::for( $this->imageReferenceFor( $media ) )->run();
+
+            $suggestion = isset( $result['alt_text'] ) ? trim( (string) $result['alt_text'] ) : null;
+
+            /**
+             * Filters an AI-generated alt-text suggestion returned by the
+             * JSON endpoint.
+             *
+             * Runs after the alt-text agent produces its result and before
+             * the JSON response is emitted, so React/Vue callers receive
+             * the same corrections applied to the Livewire path.
+             *
+             * Null-return semantics vary by fire site: this JSON site
+             * nulls out `alt_text` in the response payload so clients
+             * can distinguish "AI declined" from an empty string. The
+             * Livewire fire site (`MediaEdit::suggestAltText`) instead
+             * leaves the field untouched and emits no toast.
+             *
+             * @since 1.4.0
+             *
+             * @param string|null $suggestion The AI-produced alt-text suggestion, or null when the model returned nothing.
+             * @param Media       $media      The media instance the suggestion is for.
+             *
+             * @return string|null The (possibly modified) alt-text suggestion.
+             */
+            $filtered = applyFilters( 'ap.mediaLibrary.altTextSuggestion', $suggestion, $media );
+
+            if ( $filtered !== $suggestion ) {
+                $result['alt_text'] = null === $filtered ? null : (string) $filtered;
+            }
+
+            return $result;
         } );
     }
 
@@ -180,9 +211,7 @@ class MediaAiController extends Controller
             return [ 'source' => 'url', 'value' => $url ];
         }
 
-        $disk = \Illuminate\Support\Facades\Storage::disk( $media->disk );
-
-        return [ 'source' => 'path', 'value' => $disk->path( $media->file_path ) ];
+        return [ 'source' => 'path', 'value' => $media->path() ];
     }
 
     /**

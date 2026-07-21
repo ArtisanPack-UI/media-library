@@ -98,7 +98,7 @@ class VideoProcessingService
         }
 
         try {
-            $videoPath = $this->storageService->path( $media->file_path, $media->disk );
+            $videoPath = $this->storageService->path( $media->file_path, $media->disk, $media );
             $video     = $this->ffmpeg->open( $videoPath );
 
             // Generate thumbnail filename
@@ -117,7 +117,7 @@ class VideoProcessingService
             if ( file_exists( $tempThumbPath ) ) {
                 $contents = file_get_contents( $tempThumbPath );
                 if ( false !== $contents ) {
-                    $this->storageService->put( $thumbnailPath, $contents, $media->disk );
+                    $this->storageService->put( $thumbnailPath, $contents, $media->disk, $media );
                 }
 
                 // Clean up temp file
@@ -205,7 +205,7 @@ class VideoProcessingService
         $previews = [];
 
         try {
-            $videoPath = $this->storageService->path( $media->file_path, $media->disk );
+            $videoPath = $this->storageService->path( $media->file_path, $media->disk, $media );
             $video     = $this->ffmpeg->open( $videoPath );
 
             // Calculate time intervals
@@ -230,7 +230,7 @@ class VideoProcessingService
                 if ( file_exists( $tempPath ) ) {
                     $contents = file_get_contents( $tempPath );
                     if ( false !== $contents ) {
-                        $this->storageService->put( $previewPath, $contents, $media->disk );
+                        $this->storageService->put( $previewPath, $contents, $media->disk, $media );
                         $previews[] = $previewPath;
                     }
 
