@@ -70,9 +70,11 @@ class OptimizationStatusTest extends TestCase
         expect( $media->optimization_status )->toBe( Media::OPTIMIZATION_STATUS_OPTIMIZED );
         expect( $media->optimized_at )->not->toBeNull();
         expect( $media->optimization_original_size )->toBeGreaterThan( 0 );
-        expect( $media->optimization_bytes_saved )->toBeGreaterThanOrEqual( 0 );
+        // With modern-format conversion disabled there's no derived file to
+        // compare against, so bytes_saved is left null on purpose.
+        expect( $media->optimization_bytes_saved )->toBeNull();
         expect( $media->optimization_error )->toBeNull();
-        expect( $media->optimization_formats )->toBeArray();
+        expect( $media->optimization_formats )->toBe( [] );
     }
 
     public function test_process_image_records_generated_modern_formats(): void
@@ -100,8 +102,6 @@ class OptimizationStatusTest extends TestCase
     {
         $media = $this->createTestMedia();
 
-        // Force a failure inside the pipeline by removing the source file
-        // between the pre-flight snapshot and the thumbnail pass.
         config( [
             'artisanpack.media.enable_thumbnails' => true,
             'artisanpack.media.image_sizes'       => [
@@ -126,6 +126,29 @@ class OptimizationStatusTest extends TestCase
 
         expect( $media->optimization_status )->toBe( Media::OPTIMIZATION_STATUS_FAILED );
         expect( $media->optimization_error )->toBe( 'boom' );
+    }
+
+    public function test_process_image_persists_failure_when_before_process_listener_throws(): void
+    {
+        $media = $this->createTestMedia();
+
+        addAction( 'ap.mediaLibrary.beforeProcess', function ( Media $m ): void {
+            throw new RuntimeException( 'listener boom' );
+        }, 5 );
+
+        try {
+            $this->service->processImage( $media );
+            $this->fail( 'Expected listener exception to bubble.' );
+        } catch ( RuntimeException $e ) {
+            expect( $e->getMessage() )->toBe( 'listener boom' );
+        } finally {
+            removeAllActions( 'ap.mediaLibrary.beforeProcess' );
+        }
+
+        $media->refresh();
+
+        expect( $media->optimization_status )->toBe( Media::OPTIMIZATION_STATUS_FAILED );
+        expect( $media->optimization_error )->toBe( 'listener boom' );
     }
 
     public function test_process_image_ignores_non_image_rows(): void

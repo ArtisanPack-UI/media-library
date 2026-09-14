@@ -62,14 +62,22 @@ class BackfillOptimizationStatusCommand extends Command
             ->whereNull( 'optimization_status' )
             ->chunkById( $chunkSize, function ( $rows ) use ( &$updated ): void {
                 foreach ( $rows as $media ) {
-                    $media->forceFill( [
-                        'optimization_status'      => Media::OPTIMIZATION_STATUS_OPTIMIZED,
-                        'optimized_at'             => $media->updated_at ?? $media->created_at ?? now(),
-                        'optimization_bytes_saved' => null,
-                        'optimization_error'       => null,
-                    ] )->save();
+                    // Atomic conditional update — only mark this row as
+                    // optimized if it's still pending backfill. Prevents
+                    // clobbering a `pending` / `failed` status that a
+                    // concurrent MediaProcessingService run may have
+                    // written between the chunk read and this write.
+                    $affected = Media::query()
+                        ->whereKey( $media->getKey() )
+                        ->whereNull( 'optimization_status' )
+                        ->update( [
+                            'optimization_status'      => Media::OPTIMIZATION_STATUS_OPTIMIZED,
+                            'optimized_at'             => $media->updated_at ?? $media->created_at ?? now(),
+                            'optimization_bytes_saved' => null,
+                            'optimization_error'       => null,
+                        ] );
 
-                    $updated++;
+                    $updated += $affected;
                 }
             } );
 
