@@ -168,6 +168,34 @@ addFilter( 'ap.mediaLibrary.storageDisk', function ( string $disk, ?Media $media
 
 Filters must return a value; actions do not. See [`artisanpack-ui/hooks`](https://github.com/ArtisanPack-UI/hooks) for priority ordering, removal semantics, and Facade / Blade usage.
 
+## Events
+
+For work that should run on a queue rather than in the upload request lifecycle, subscribe to Laravel events instead of the synchronous hooks above.
+
+| Event                                                | Fires from                              | Payload                     |
+|------------------------------------------------------|-----------------------------------------|-----------------------------|
+| `ArtisanPackUI\MediaLibrary\Events\MediaUploaded`    | `MediaUploadService::upload()` (after `ap.mediaLibrary.uploaded`) | `public Media $media` |
+
+Example — queue AI alt-text generation on every upload:
+
+```php
+use ArtisanPackUI\MediaLibrary\Events\MediaUploaded;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class GenerateAltText implements ShouldQueue
+{
+    public function handle( MediaUploaded $event ): void
+    {
+        // $event->media is the persisted Media record.
+    }
+}
+
+// In EventServiceProvider::$listen:
+protected $listen = [
+    MediaUploaded::class => [ GenerateAltText::class ],
+];
+```
+
 ## Documentation
 
 📚 **[Complete Documentation](docs/home.md)**
