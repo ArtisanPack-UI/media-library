@@ -16,9 +16,12 @@ namespace ArtisanPackUI\MediaLibrary\Services;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use Exception;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
+use Throwable;
 
 /**
  * Media Processing Service
@@ -104,15 +107,56 @@ class MediaProcessingService
          */
         doAction( 'ap.mediaLibrary.beforeProcess', $media );
 
-        // Generate thumbnails if enabled
-        if ( config( 'artisanpack.media.enable_thumbnails', true ) ) {
-            $this->generateThumbnails( $media );
-        }
+        $originalSize = $this->currentFileSize( $media );
 
-        // Convert to modern format if enabled
-        if ( config( 'artisanpack.media.enable_modern_formats', true ) ) {
-            $format = config( 'artisanpack.media.modern_format', 'webp' );
-            $this->convertToModernFormat( $media, $format );
+        $media->forceFill( [
+            'optimization_status'        => Media::OPTIMIZATION_STATUS_PENDING,
+            'optimization_original_size' => $originalSize,
+            'optimized_at'               => null,
+            'optimization_bytes_saved'   => null,
+            'optimization_formats'       => null,
+            'optimization_error'         => null,
+        ] )->save();
+
+        try {
+            // Generate thumbnails if enabled
+            if ( config( 'artisanpack.media.enable_thumbnails', true ) ) {
+                $this->generateThumbnails( $media );
+            }
+
+            $generatedFormats = [];
+
+            // Convert to modern format if enabled
+            if ( config( 'artisanpack.media.enable_modern_formats', true ) ) {
+                $format = config( 'artisanpack.media.modern_format', 'webp' );
+                $result = $this->convertToModernFormat( $media, $format );
+
+                if ( null !== $result ) {
+                    $generatedFormats[ $format ] = true;
+                }
+            }
+
+            $finalSize   = $this->currentFileSize( $media );
+            $bytesSaved  = null;
+
+            if ( null !== $originalSize && null !== $finalSize ) {
+                $bytesSaved = max( 0, $originalSize - $finalSize );
+            }
+
+            $media->forceFill( [
+                'optimization_status'      => Media::OPTIMIZATION_STATUS_OPTIMIZED,
+                'optimized_at'             => now(),
+                'optimization_bytes_saved' => $bytesSaved,
+                'optimization_formats'     => $generatedFormats,
+                'optimization_error'       => null,
+            ] )->save();
+        } catch ( Throwable $e ) {
+            $media->forceFill( [
+                'optimization_status' => Media::OPTIMIZATION_STATUS_FAILED,
+                'optimization_error'  => Str::limit( $e->getMessage(), 500 ),
+            ] )->save();
+
+            throw $e;
         }
     }
 
@@ -296,6 +340,33 @@ class MediaProcessingService
     public function optimizeImage( string $path, int $quality = 85 ): void
     {
         $this->optimizationService->optimize( $path, [ 'quality' => $quality ] );
+    }
+
+    /**
+     * Read the current on-disk size for a media item, tolerating missing
+     * files by returning null so the optimization delta stays honest.
+     *
+     * @since 1.5.0
+     *
+     * @param Media $media The media instance.
+     *
+     * @return int|null The current file size in bytes, or null if unavailable.
+     */
+    protected function currentFileSize( Media $media ): ?int
+    {
+        try {
+            $disk = Storage::disk( $media->disk );
+
+            if ( ! $disk->exists( $media->file_path ) ) {
+                return $media->file_size ?: null;
+            }
+
+            $size = $disk->size( $media->file_path );
+
+            return is_int( $size ) ? $size : (int) $size;
+        } catch ( Throwable $e ) {
+            return $media->file_size ?: null;
+        }
     }
 
     /**
