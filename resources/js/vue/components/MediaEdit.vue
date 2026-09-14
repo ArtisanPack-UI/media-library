@@ -317,6 +317,7 @@ const folderOptions = () => [
                                 v-for="tag in tags"
                                 :key="tag.id"
                                 type="button"
+                                class="cursor-pointer rounded-full hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 :aria-pressed="selectedTagIds.includes( tag.id )"
                                 @click="toggleTag( tag.id )"
                             >
