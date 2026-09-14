@@ -174,6 +174,7 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                 { /* All tags option */ }
                 <button
                     type="button"
+                    className="cursor-pointer rounded-full hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={ () => onTagSelect?.( null ) }
                 >
                     <Badge
@@ -186,6 +187,7 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                     <div key={ tag.id } className="group relative inline-flex" tabIndex={ 0 }>
                         <button
                             type="button"
+                            className="cursor-pointer rounded-full hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             onClick={ () => onTagSelect?.( tag.slug ) }
                         >
                             <Badge
@@ -197,7 +199,7 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                         <div className="absolute -top-1 -right-1 invisible flex gap-0.5 group-hover:visible group-focus-within:visible">
                             <button
                                 type="button"
-                                className="w-4 h-4 rounded-full bg-base-300 flex items-center justify-center"
+                                className="w-4 h-4 rounded-full bg-base-300 flex items-center justify-center cursor-pointer hover:bg-base-content/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                 onClick={ () => handleEdit( tag ) }
                                 aria-label={ `Edit ${ tag.name }` }
                             >
@@ -207,7 +209,7 @@ export const TagManager: React.FC<TagManagerProps> = ( {
                             </button>
                             <button
                                 type="button"
-                                className="w-4 h-4 rounded-full bg-error text-error-content flex items-center justify-center"
+                                className="w-4 h-4 rounded-full bg-error text-error-content flex items-center justify-center cursor-pointer hover:bg-error/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                 onClick={ () => setDeleting( tag ) }
                                 aria-label={ `Delete ${ tag.name }` }
                             >

@@ -210,7 +210,9 @@ const tabItems = computed( () => [
                                         :key="item.id"
                                         type="button"
                                         :class="cn(
-                                            'w-14 h-14 shrink-0 rounded-lg overflow-hidden ring-2 transition-all',
+                                            'w-14 h-14 shrink-0 rounded-lg overflow-hidden ring-2 transition-all cursor-pointer',
+                                            'focus:outline-none focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100',
+                                            'disabled:cursor-not-allowed disabled:opacity-50',
                                             picker.selectedMedia.value.some( ( m ) => m.id === item.id )
                                                 ? 'ring-primary'
                                                 : 'ring-transparent hover:ring-base-300',
