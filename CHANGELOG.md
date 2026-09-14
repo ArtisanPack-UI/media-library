@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Optimization status tracking on Media** — persists per-item pipeline state so consumers can render a status badge (optimized / pending / failed / N/A), bytes saved, and generated formats without recomputing. New columns: `optimization_status`, `optimized_at`, `optimization_bytes_saved`, `optimization_original_size`, `optimization_formats`, `optimization_error`. `MediaProcessingService::processImage()` now flips `pending → optimized` on success and `failed` on any pipeline exception (the exception is still surfaced). `MediaResource` gains an `optimization` block with a stable shape (null values for non-image rows). New artisan command `media:backfill-optimization-status` marks existing image rows as optimized so legacy libraries don't render as pending. TypeScript types add `OptimizationStatus` and `MediaOptimization`. (#92)
+
 ## [1.4.0] - 2026-07-21
 
 ### Added

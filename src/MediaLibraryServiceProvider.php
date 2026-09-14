@@ -16,6 +16,7 @@ namespace ArtisanPackUI\MediaLibrary;
 
 use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageDescriptionAgent;
 use ArtisanPackUI\MediaLibrary\Ai\Agents\ImageTagSuggestionAgent;
+use ArtisanPackUI\MediaLibrary\Console\Commands\BackfillOptimizationStatusCommand;
 use ArtisanPackUI\MediaLibrary\Console\Commands\InstallFrontendCommand;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\FolderManager;
 use ArtisanPackUI\MediaLibrary\Livewire\Components\MediaEdit;
@@ -393,6 +394,7 @@ PROMPT;
         if ( $this->app->runningInConsole() ) {
             $this->commands( [
                 InstallFrontendCommand::class,
+                BackfillOptimizationStatusCommand::class,
             ] );
         }
     }

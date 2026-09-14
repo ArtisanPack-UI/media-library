@@ -16,9 +16,11 @@ namespace ArtisanPackUI\MediaLibrary\Services;
 
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use Exception;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
+use Throwable;
 
 /**
  * Media Processing Service
@@ -91,28 +93,81 @@ class MediaProcessingService
             return;
         }
 
-        /**
-         * Fires before an image is processed (thumbnails + modern formats).
-         *
-         * Runs after the media has been confirmed as an image and before
-         * any transformation begins. Use this to seed derived data or
-         * short-circuit processing by mutating configuration.
-         *
-         * @since 1.4.0
-         *
-         * @param Media $media The media instance about to be processed.
-         */
-        doAction( 'ap.mediaLibrary.beforeProcess', $media );
+        $originalSize = $this->currentFileSize( $media );
 
-        // Generate thumbnails if enabled
-        if ( config( 'artisanpack.media.enable_thumbnails', true ) ) {
-            $this->generateThumbnails( $media );
-        }
+        $media->forceFill( [
+            'optimization_status'        => Media::OPTIMIZATION_STATUS_PENDING,
+            'optimization_original_size' => $originalSize,
+            'optimized_at'               => null,
+            'optimization_bytes_saved'   => null,
+            'optimization_formats'       => null,
+            'optimization_error'         => null,
+        ] )->save();
 
-        // Convert to modern format if enabled
-        if ( config( 'artisanpack.media.enable_modern_formats', true ) ) {
-            $format = config( 'artisanpack.media.modern_format', 'webp' );
-            $this->convertToModernFormat( $media, $format );
+        try {
+            /**
+             * Fires before an image is processed (thumbnails + modern formats).
+             *
+             * Runs after the media has been confirmed as an image and before
+             * any transformation begins. Use this to seed derived data or
+             * short-circuit processing by mutating configuration.
+             *
+             * Fired inside the pipeline's try/catch, so a listener that
+             * throws marks the row as `failed` before the exception
+             * propagates.
+             *
+             * @since 1.4.0
+             *
+             * @param Media $media The media instance about to be processed.
+             */
+            doAction( 'ap.mediaLibrary.beforeProcess', $media );
+
+            // Generate thumbnails if enabled
+            if ( config( 'artisanpack.media.enable_thumbnails', true ) ) {
+                $this->generateThumbnails( $media );
+            }
+
+            $generatedFormats = [];
+            $modernPath       = null;
+
+            // Convert to modern format if enabled
+            if ( config( 'artisanpack.media.enable_modern_formats', true ) ) {
+                $format     = config( 'artisanpack.media.modern_format', 'webp' );
+                $modernPath = $this->convertToModernFormat( $media, $format );
+
+                if ( null !== $modernPath ) {
+                    $generatedFormats[ $format ] = true;
+                }
+            }
+
+            // Bytes saved is meaningful only when we produced a modern-format
+            // replacement to compare against the original. Thumbnails write
+            // separate sized files and don't shrink the original, so we
+            // leave `bytes_saved` as null when no modern format was written.
+            $bytesSaved = null;
+
+            if ( null !== $originalSize && null !== $modernPath ) {
+                $modernSize = $this->fileSizeAt( $media, $modernPath );
+
+                if ( null !== $modernSize ) {
+                    $bytesSaved = max( 0, $originalSize - $modernSize );
+                }
+            }
+
+            $media->forceFill( [
+                'optimization_status'      => Media::OPTIMIZATION_STATUS_OPTIMIZED,
+                'optimized_at'             => now(),
+                'optimization_bytes_saved' => $bytesSaved,
+                'optimization_formats'     => $generatedFormats,
+                'optimization_error'       => null,
+            ] )->save();
+        } catch ( Throwable $e ) {
+            $media->forceFill( [
+                'optimization_status' => Media::OPTIMIZATION_STATUS_FAILED,
+                'optimization_error'  => Str::limit( $e->getMessage(), 500 ),
+            ] )->save();
+
+            throw $e;
         }
     }
 
@@ -296,6 +351,54 @@ class MediaProcessingService
     public function optimizeImage( string $path, int $quality = 85 ): void
     {
         $this->optimizationService->optimize( $path, [ 'quality' => $quality ] );
+    }
+
+    /**
+     * Read the current on-disk size for a media item, tolerating missing
+     * files by returning null so the optimization delta stays honest.
+     *
+     * @since 1.5.0
+     *
+     * @param Media $media The media instance.
+     *
+     * @return int|null The current file size in bytes, or null if unavailable.
+     */
+    protected function currentFileSize( Media $media ): ?int
+    {
+        $size = $this->fileSizeAt( $media, $media->file_path );
+
+        if ( null !== $size ) {
+            return $size;
+        }
+
+        return $media->file_size ?: null;
+    }
+
+    /**
+     * Reads the on-disk size of an arbitrary file for a media item,
+     * routing through the ap.mediaLibrary.storageDisk filter so per-tenant
+     * or per-media disk reroutes are respected.
+     *
+     * @since 1.5.0
+     *
+     * @param Media  $media The media instance (for disk resolution).
+     * @param string $path  The file path (relative to the media's disk).
+     *
+     * @return int|null The file size in bytes, or null if it cannot be read.
+     */
+    protected function fileSizeAt( Media $media, string $path ): ?int
+    {
+        try {
+            if ( ! $this->storageService->exists( $path, $media->disk, $media ) ) {
+                return null;
+            }
+
+            $size = $this->storageService->size( $path, $media->disk, $media );
+
+            return (int) $size;
+        } catch ( Throwable $e ) {
+            return null;
+        }
     }
 
     /**
