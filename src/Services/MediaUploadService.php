@@ -14,6 +14,7 @@
 
 namespace ArtisanPackUI\MediaLibrary\Services;
 
+use ArtisanPackUI\MediaLibrary\Events\MediaUploaded;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use Exception;
 use Illuminate\Http\UploadedFile;
@@ -172,6 +173,17 @@ class MediaUploadService
          * @param Media $media The freshly created media record.
          */
         doAction( 'ap.mediaLibrary.uploaded', $media );
+
+        /**
+         * Dispatches the queueable {@see MediaUploaded} event so downstream
+         * packages can subscribe with `ShouldQueue` listeners (e.g. queued
+         * AI alt-text generation) without running work in the upload
+         * request lifecycle. Fires immediately after the synchronous
+         * `ap.mediaLibrary.uploaded` hook.
+         *
+         * @since 1.5.0
+         */
+        MediaUploaded::dispatch( $media );
 
         return $media;
     }

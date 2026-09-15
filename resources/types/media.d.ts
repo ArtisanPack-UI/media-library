@@ -41,6 +41,32 @@ export type MediaSortField =
  */
 export type SortDirection = 'asc' | 'desc';
 
+/**
+ * Optimization status for a media item. `null` on the optimization payload
+ * means "N/A" — either the row is not an image, or it predates the
+ * optimization pipeline.
+ *
+ * @since 1.5.0
+ */
+export type OptimizationStatus = 'pending' | 'optimized' | 'failed';
+
+/**
+ * Persisted result of the image optimization pipeline. The shape is stable
+ * across all media types — non-image rows carry every field as `null` so
+ * consumers can encode this as one interface rather than a discriminated
+ * union.
+ *
+ * @since 1.5.0
+ */
+export interface MediaOptimization {
+    status: OptimizationStatus | null;
+    optimized_at: string | null;
+    bytes_saved: number | null;
+    original_size: number | null;
+    formats: Record<string, boolean> | null;
+    error: string | null;
+}
+
 // =============================================================================
 // Model Types (matching MediaResource output)
 // =============================================================================
@@ -69,6 +95,7 @@ export interface Media {
     is_video: boolean;
     is_audio: boolean;
     is_document: boolean;
+    optimization?: MediaOptimization;
     folder: MediaFolderRef;
     uploaded_by: MediaUserRef;
     tags: MediaTag[];

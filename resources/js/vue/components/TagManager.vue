@@ -143,12 +143,12 @@ async function handleDelete() {
 
         <!-- Tag list -->
         <div class="flex flex-wrap gap-2">
-            <button type="button" :aria-pressed="selectedTag === null" @click="emit( 'tagSelect', null )">
+            <button type="button" class="cursor-pointer rounded-full hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" :aria-pressed="selectedTag === null" @click="emit( 'tagSelect', null )">
                 <Badge value="All" :color="selectedTag === null ? 'primary' : 'neutral'" />
             </button>
 
             <div v-for="tag in tags" :key="tag.id" class="group relative inline-flex" tabindex="0">
-                <button type="button" :aria-pressed="selectedTag === tag.slug" @click="emit( 'tagSelect', tag.slug )">
+                <button type="button" class="cursor-pointer rounded-full hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" :aria-pressed="selectedTag === tag.slug" @click="emit( 'tagSelect', tag.slug )">
                     <Badge
                         :value="`${ tag.name }${ tag.media_count !== undefined ? ` (${ tag.media_count })` : '' }`"
                         :color="selectedTag === tag.slug ? 'primary' : 'neutral'"
@@ -156,12 +156,12 @@ async function handleDelete() {
                 </button>
 
                 <div class="absolute -top-1 -right-1 invisible flex gap-0.5 group-hover:visible group-focus-within:visible">
-                    <button type="button" class="w-4 h-4 rounded-full bg-base-300 flex items-center justify-center" :aria-label="`Edit ${ tag.name }`" @click="handleEdit( tag )">
+                    <button type="button" class="w-4 h-4 rounded-full bg-base-300 flex items-center justify-center cursor-pointer hover:bg-base-content/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50" :aria-label="`Edit ${ tag.name }`" @click="handleEdit( tag )">
                         <svg class="w-2.5 h-2.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
                         </svg>
                     </button>
-                    <button type="button" class="w-4 h-4 rounded-full bg-error text-error-content flex items-center justify-center" :aria-label="`Delete ${ tag.name }`" @click="deleting = tag; showDeleteConfirm = true">
+                    <button type="button" class="w-4 h-4 rounded-full bg-error text-error-content flex items-center justify-center cursor-pointer hover:bg-error/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50" :aria-label="`Delete ${ tag.name }`" @click="deleting = tag; showDeleteConfirm = true">
                         <svg class="w-2.5 h-2.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>

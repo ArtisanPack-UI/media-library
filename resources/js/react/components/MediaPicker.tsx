@@ -101,7 +101,7 @@ export const MediaPicker: React.FC<MediaPickerProps> = ( {
                             <button
                                 type="button"
                                 onClick={ () => handleRemove( media.id ) }
-                                className="absolute top-1 right-1 w-5 h-5 bg-error text-error-content rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-opacity"
+                                className="absolute top-1 right-1 w-5 h-5 bg-error text-error-content rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer hover:bg-error/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                 aria-label={ `Remove ${ media.title || media.file_name }` }
                             >
                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={ 2 }>

@@ -37,6 +37,35 @@ class Media extends Model
     use SoftDeletes;
 
     /**
+     * Optimization status for a media item still awaiting the pipeline.
+     *
+     * @since 1.5.0
+     *
+     * @var string
+     */
+    public const OPTIMIZATION_STATUS_PENDING = 'pending';
+
+    /**
+     * Optimization status for a media item that has been successfully
+     * processed through the optimization pipeline.
+     *
+     * @since 1.5.0
+     *
+     * @var string
+     */
+    public const OPTIMIZATION_STATUS_OPTIMIZED = 'optimized';
+
+    /**
+     * Optimization status for a media item whose pipeline run raised an
+     * exception before completion.
+     *
+     * @since 1.5.0
+     *
+     * @var string
+     */
+    public const OPTIMIZATION_STATUS_FAILED = 'failed';
+
+    /**
      * Memoized filtered-disk value for this instance. Not persisted.
      *
      * @since 1.4.0
@@ -94,6 +123,12 @@ class Media extends Model
         'folder_id',
         'uploaded_by',
         'metadata',
+        'optimization_status',
+        'optimized_at',
+        'optimization_bytes_saved',
+        'optimization_original_size',
+        'optimization_formats',
+        'optimization_error',
     ];
 
     /**
@@ -578,11 +613,15 @@ class Media extends Model
     protected function casts(): array
     {
         return [
-            'metadata'  => 'array',
-            'file_size' => 'integer',
-            'width'     => 'integer',
-            'height'    => 'integer',
-            'duration'  => 'integer',
+            'metadata'                   => 'array',
+            'file_size'                  => 'integer',
+            'width'                      => 'integer',
+            'height'                     => 'integer',
+            'duration'                   => 'integer',
+            'optimized_at'               => 'datetime',
+            'optimization_bytes_saved'   => 'integer',
+            'optimization_original_size' => 'integer',
+            'optimization_formats'       => 'array',
         ];
     }
 }

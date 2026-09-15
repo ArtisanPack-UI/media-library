@@ -398,6 +398,7 @@ export const MediaEdit: React.FC<MediaEditProps> = ( {
                                 <button
                                     key={ tag.id }
                                     type="button"
+                                    className="cursor-pointer rounded-full hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     onClick={ () => toggleTag( tag.id ) }
                                 >
                                     <Badge
