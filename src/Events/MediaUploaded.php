@@ -25,9 +25,12 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Fired after a Media record has been persisted from an upload.
  *
- * Companion to the synchronous `ap.mediaLibrary.uploaded` hook. Use this
- * event when a subscriber needs to implement `ShouldQueue` so the work
- * runs on a queue worker rather than in the upload request lifecycle.
+ * Companion to the synchronous `ap.mediaLibrary.uploaded` hook. A listener
+ * that implements `ShouldQueue` is dispatched onto the configured queue
+ * connection — on an asynchronous connection with a running worker it
+ * runs outside the upload request, while Laravel's `sync` connection
+ * executes it immediately in the current request. Choose the connection
+ * that matches how the listener should run.
  *
  * @since 1.5.0
  */

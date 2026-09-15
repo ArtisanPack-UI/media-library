@@ -331,7 +331,9 @@ The seven `MediaPolicy` ability filters were renamed from `ap.media.*` to `ap.me
 
 ## `MediaUploaded` queueable event
 
-*Added in v1.5.0.* The synchronous `ap.mediaLibrary.uploaded` hook is the right entry point when you want to observe uploads in-band — inside the upload request lifecycle. For work that should run **after** the response goes out (queued AI alt-text generation, indexing, notifications, thumbnails on a worker), subscribe to the Laravel event `ArtisanPackUI\MediaLibrary\Events\MediaUploaded` instead.
+*Added in v1.5.0.* The synchronous `ap.mediaLibrary.uploaded` hook is the right entry point when you want to observe uploads in-band — inside the upload request lifecycle. For work that should not block the upload request (queued AI alt-text generation, indexing, notifications, thumbnails on a worker), subscribe to the Laravel event `ArtisanPackUI\MediaLibrary\Events\MediaUploaded` instead.
+
+`ShouldQueue` listeners are dispatched onto the configured queue connection: an asynchronous connection (e.g. `redis`, `database`, `sqs`) with a running worker runs the listener outside the upload request, while Laravel's `sync` connection still executes it immediately in the current request. Pick the connection that matches how the listener should run.
 
 The event carries the freshly persisted `Media` record and uses `SerializesModels`, so listeners can implement `ShouldQueue` safely:
 

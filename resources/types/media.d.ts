@@ -95,7 +95,7 @@ export interface Media {
     is_video: boolean;
     is_audio: boolean;
     is_document: boolean;
-    optimization: MediaOptimization;
+    optimization?: MediaOptimization;
     folder: MediaFolderRef;
     uploaded_by: MediaUserRef;
     tags: MediaTag[];

@@ -39,9 +39,12 @@ Media::OPTIMIZATION_STATUS_FAILED;    // 'failed'
 
 `MediaProcessingService::processImage()` owns the transitions:
 
-1. A new upload lands as `pending` when the pipeline queues it.
-2. On success, the service atomically flips `pending → optimized` and populates `optimized_at`, `optimization_bytes_saved`, `optimization_original_size`, and `optimization_formats`.
-3. On any exception, the service flips `pending → failed` and records the truncated message in `optimization_error`. The exception itself is still surfaced to the caller — the persisted status is a display aid, not a substitute for handling the error.
+1. A new upload persists with `optimization_status = null` — the pipeline has not run yet, so consumers render this as "N/A" (not "pending"). Applications typically invoke `processImage()` from a subscriber to `ap.mediaLibrary.uploaded` or the `MediaUploaded` event, so exactly when the row leaves `null` depends on how that subscriber is wired.
+2. When `processImage()` is called on an image, the service writes `optimization_status = pending` (along with `optimization_original_size`) at method entry, before running the pipeline.
+3. On success, the service overwrites the row with `optimization_status = optimized`, sets `optimized_at` to the completion timestamp, and populates `optimization_bytes_saved`, `optimization_formats`, and (already set) `optimization_original_size`.
+4. On any exception thrown by the pipeline, the service writes `optimization_status = failed` and the truncated message to `optimization_error`, then rethrows. The exception is still surfaced to the caller — the persisted status is a display aid, not a substitute for handling the error.
+
+The writes are ordinary Eloquent `forceFill()->save()` calls rather than compare-and-set updates, so concurrent runs on the same row (a retry firing while an original attempt is still in flight) can overwrite each other. In practice `processImage()` is expected to run at most once per row at a time; if you queue processing, use a single-worker queue or a job-level lock to serialize retries.
 
 ## Reading the status
 

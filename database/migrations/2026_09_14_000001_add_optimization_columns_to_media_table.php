@@ -76,11 +76,21 @@ return new class extends Migration {
             return;
         }
 
+        // Drop every index that references `optimization_status` before we
+        // touch the column itself. SQLite 3.35+ compiles dropColumn() to a
+        // native `ALTER TABLE ... DROP COLUMN`, which refuses to run while
+        // the column still participates in an index — so we inspect each
+        // index's columns rather than trusting a name convention. `up()`
+        // tolerates a pre-existing alternate index (`_idx` suffix) as
+        // satisfying the requirement, so both the Laravel default name and
+        // any alternate that lands on this single column must be cleared.
         Schema::table( 'media', function ( Blueprint $table ): void {
-            $indexNames = Schema::getIndexListing( 'media' );
+            foreach ( Schema::getIndexes( 'media' ) as $index ) {
+                $columns = $index['columns'] ?? [];
 
-            if ( in_array( 'media_optimization_status_index', $indexNames, true ) ) {
-                $table->dropIndex( 'media_optimization_status_index' );
+                if ( [ 'optimization_status' ] === $columns ) {
+                    $table->dropIndex( $index['name'] );
+                }
             }
         } );
 

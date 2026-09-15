@@ -75,7 +75,7 @@ php artisan view:clear
 
 #### Queueable `MediaUploaded` event
 
-`ArtisanPackUI\MediaLibrary\Events\MediaUploaded` is dispatched from `MediaUploadService::upload()` immediately after the synchronous `ap.mediaLibrary.uploaded` hook. It carries the freshly persisted `Media` record and uses `SerializesModels`, so listeners can implement `ShouldQueue` to run alt-text generation, indexing, or notifications on a queue worker without holding the upload request open.
+`ArtisanPackUI\MediaLibrary\Events\MediaUploaded` is dispatched from `MediaUploadService::upload()` immediately after the synchronous `ap.mediaLibrary.uploaded` hook. It carries the freshly persisted `Media` record and uses `SerializesModels`, so listeners can implement `ShouldQueue` to run alt-text generation, indexing, or notifications through the configured queue connection. An asynchronous connection with a running worker runs the listener outside the upload request; Laravel's `sync` connection still executes it in the current request.
 
 ```php
 namespace App\Listeners;
