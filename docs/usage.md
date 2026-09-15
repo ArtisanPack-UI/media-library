@@ -37,6 +37,14 @@ Advanced usage with Eloquent models:
 - Filename-based fallback so the alt-text field is never left silently empty
 - Requires `artisanpack-ui/ai` `^1.0`
 
+### [Optimization Status](Usage-Optimization-Status)
+
+*Added in v1.5.0.* Persistent per-item state for the image optimization pipeline:
+- Six new columns on the `media` table — `optimization_status`, `optimized_at`, `optimization_bytes_saved`, `optimization_original_size`, `optimization_formats`, `optimization_error`
+- Three model constants (`OPTIMIZATION_STATUS_PENDING`, `OPTIMIZATION_STATUS_OPTIMIZED`, `OPTIMIZATION_STATUS_FAILED`) for status comparisons
+- `MediaResource` returns a stable `optimization` block on every media item (non-image rows carry `null` values)
+- `media:backfill-optimization-status` artisan command for legacy image rows
+
 ### [Livewire Components](Usage-Livewire-Components)
 
 UI components for media management:

@@ -329,6 +329,31 @@ addAction('ap.mediaLibrary.uploaded', function ($media) {
 
 The seven `MediaPolicy` ability filters were renamed from `ap.media.*` to `ap.mediaLibrary.abilities.*` in v1.4 for cross-package consistency. The legacy names remain registered as deprecation aliases (an info-level notice is logged on first use) and will be removed in the next major version. See [`docs/integration/permissions.md`](permissions.md) for the current subscriber signatures.
 
+## `MediaUploaded` queueable event
+
+*Added in v1.5.0.* The synchronous `ap.mediaLibrary.uploaded` hook is the right entry point when you want to observe uploads in-band — inside the upload request lifecycle. For work that should run **after** the response goes out (queued AI alt-text generation, indexing, notifications, thumbnails on a worker), subscribe to the Laravel event `ArtisanPackUI\MediaLibrary\Events\MediaUploaded` instead.
+
+The event carries the freshly persisted `Media` record and uses `SerializesModels`, so listeners can implement `ShouldQueue` safely:
+
+```php
+namespace App\Listeners;
+
+use ArtisanPackUI\MediaLibrary\Events\MediaUploaded;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class GenerateAiAltText implements ShouldQueue
+{
+    public function handle( MediaUploaded $event ): void
+    {
+        // $event->media is the fresh Media record.
+    }
+}
+```
+
+Register the listener the way you would any other Laravel event — via an `EventServiceProvider` mapping or a `#[AsEventListener]` attribute on the listener class.
+
+Both surfaces fire on every successful upload: `ap.mediaLibrary.uploaded` runs first (synchronously, in-request), then `MediaUploaded::dispatch()` runs immediately after. Use whichever matches the work you need to do — you can subscribe to both.
+
 ## Custom Livewire Components
 
 Extend base components:

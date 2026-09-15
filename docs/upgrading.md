@@ -6,9 +6,116 @@ title: Upgrading
 
 This guide covers upgrading between versions of the ArtisanPack UI Media Library.
 
+- [Upgrading from v1.4 to v1.5](#upgrading-from-v14-to-v15)
 - [Upgrading from v1.3 to v1.4](#upgrading-from-v13-to-v14)
 - [Upgrading from v1.1 to v1.2](#upgrading-from-v11-to-v12)
 - [Upgrading from v1.0 to v1.1](#upgrading-from-v10-to-v11)
+
+---
+
+## Upgrading from v1.4 to v1.5
+
+The v1.5 release is fully backward compatible with no breaking changes. It adds a queueable `MediaUploaded` event, persistent optimization status tracking on the `Media` model, and a small button focus/hover polish.
+
+### Requirements
+
+| Requirement | Version |
+|-------------|---------|
+| PHP | 8.2 or higher (8.3+ on Laravel 13) |
+| Laravel | 12.17+ or 13.0+ |
+| artisanpack-ui/hooks | ^1.3 |
+
+### Upgrade Steps
+
+#### 1. Update Dependencies
+
+```bash
+composer update artisanpack-ui/media-library
+```
+
+#### 2. Run Migrations
+
+v1.5 ships one new migration (`2026_09_14_000001_add_optimization_columns_to_media_table.php`) that adds six nullable columns and one index to the `media` table:
+
+- `optimization_status` (string, 20)
+- `optimized_at` (timestamp)
+- `optimization_bytes_saved` (unsigned big integer)
+- `optimization_original_size` (unsigned big integer)
+- `optimization_formats` (json)
+- `optimization_error` (string, 500)
+
+```bash
+php artisan migrate
+```
+
+Each column is added with `hasColumn()` guards, so re-running the migration is safe.
+
+#### 3. Backfill Legacy Image Rows (Optional)
+
+New uploads flow through the optimization pipeline and will land as `optimized` or `failed` on their own. If you have pre-1.5 image rows that should not render as pending in your UI, backfill them:
+
+```bash
+php artisan media:backfill-optimization-status
+```
+
+The command is idempotent — rows that already carry a status are skipped, and each write is guarded by an atomic `whereNull('optimization_status')` check so a concurrent pipeline run can't be clobbered.
+
+#### 4. Clear Caches
+
+```bash
+php artisan config:clear
+php artisan view:clear
+```
+
+### Breaking Changes
+
+**None.** Version 1.5 is fully backward compatible with v1.4.x.
+
+### New Features Available
+
+#### Queueable `MediaUploaded` event
+
+`ArtisanPackUI\MediaLibrary\Events\MediaUploaded` is dispatched from `MediaUploadService::upload()` immediately after the synchronous `ap.mediaLibrary.uploaded` hook. It carries the freshly persisted `Media` record and uses `SerializesModels`, so listeners can implement `ShouldQueue` to run alt-text generation, indexing, or notifications on a queue worker without holding the upload request open.
+
+```php
+namespace App\Listeners;
+
+use ArtisanPackUI\MediaLibrary\Events\MediaUploaded;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class GenerateAiAltText implements ShouldQueue
+{
+    public function handle( MediaUploaded $event ): void
+    {
+        // $event->media is the fresh Media record.
+    }
+}
+```
+
+The event fires from every upload entry point (helper, trait, Livewire, HTTP controller) since they all funnel through the service. The synchronous `ap.mediaLibrary.uploaded` hook still fires first — nothing needs to change for existing subscribers.
+
+#### Optimization status tracking on `Media`
+
+`MediaProcessingService::processImage()` now flips `optimization_status` from `pending → optimized` on success, and `pending → failed` on any pipeline exception (the exception is still surfaced). Consumers can render a per-item badge from `Media::$optimization_status` (three constants live on the model: `OPTIMIZATION_STATUS_PENDING`, `OPTIMIZATION_STATUS_OPTIMIZED`, `OPTIMIZATION_STATUS_FAILED`).
+
+`MediaResource` gains an `optimization` block with a stable shape across every media type — non-image rows return the block with all fields set to `null` so consumers can encode it as one interface rather than a discriminated union:
+
+```json
+"optimization": {
+    "status": "optimized",
+    "optimized_at": "2026-09-14T12:00:00Z",
+    "bytes_saved": 123456,
+    "original_size": 789012,
+    "formats": { "webp": true, "avif": true },
+    "error": null
+}
+```
+
+TypeScript consumers get matching `OptimizationStatus` and `MediaOptimization` exports from `resources/types/media.d.ts`.
+
+#### Button focus/hover polish
+
+Package buttons now render with `cursor-pointer`, hover, and `focus-visible` affordances so keyboard and pointer users get consistent feedback across the media library UI. Purely visual — no API changes required.
 
 ---
 

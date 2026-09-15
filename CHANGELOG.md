@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-14
+
 ### Added
 
 - **`MediaUploaded` queueable event** — new `ArtisanPackUI\MediaLibrary\Events\MediaUploaded` Laravel event dispatched from `MediaUploadService::upload()` immediately after the synchronous `ap.mediaLibrary.uploaded` hook. Provides a queueable surface so downstream packages (e.g. Keystone's AI alt-text generator) can subscribe with `ShouldQueue` listeners without running work in the upload request lifecycle. Fires from every upload entry point (helper, trait, Livewire, HTTP controller) since they all funnel through the service. (#90)
 - **Optimization status tracking on Media** — persists per-item pipeline state so consumers can render a status badge (optimized / pending / failed / N/A), bytes saved, and generated formats without recomputing. New columns: `optimization_status`, `optimized_at`, `optimization_bytes_saved`, `optimization_original_size`, `optimization_formats`, `optimization_error`. `MediaProcessingService::processImage()` now flips `pending → optimized` on success and `failed` on any pipeline exception (the exception is still surfaced). `MediaResource` gains an `optimization` block with a stable shape (null values for non-image rows). New artisan command `media:backfill-optimization-status` marks existing image rows as optimized so legacy libraries don't render as pending. TypeScript types add `OptimizationStatus` and `MediaOptimization`. (#92)
+
+### Fixed
+
+- Package buttons now render with `cursor-pointer`, hover, and `focus-visible` affordances so keyboard and pointer users get consistent feedback across the media library UI. (#91)
 
 ## [1.4.0] - 2026-07-21
 

@@ -28,6 +28,7 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
   - [Streaming Uploads](Usage-Streaming-Uploads) *(v1.1)*
   - [Table Export](Usage-Table-Export) *(v1.1)*
   - [AI Features](Usage-AI-Features) *(v1.3)*
+  - [Optimization Status](Usage-Optimization-Status) *(v1.5)*
 
 - **Frontend Components** *(v1.2)*
   - [Overview](Frontend-Components)
@@ -76,6 +77,12 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - 🖱️ **Media Modal Component** - Single/multi-select modal with context support
 - 🔐 **Permission-based Access Control** - Granular capability-based permissions
 
+### New in v1.5
+- 📨 **Queueable `MediaUploaded` event** — companion to the synchronous `ap.mediaLibrary.uploaded` hook so `ShouldQueue` listeners run outside the upload request
+- 📊 **Optimization status tracking** — per-item `optimized` / `pending` / `failed` state plus bytes saved, generated formats, and truncated error, all persisted on the `Media` row
+- 🧰 `media:backfill-optimization-status` artisan command for legacy libraries
+- 🎯 Consistent `cursor-pointer`, hover, and `focus-visible` affordances on package buttons
+
 ### New in v1.3
 - 🪄 **AI Alt Text** - Vision-powered accessibility-friendly alt text via the cross-cutting `ai.alt_text` agent
 - 🏷️ **AI Tag Suggestions** - Auto-suggest tags from the existing taxonomy (opt-in mode for new tags too)
@@ -106,6 +113,10 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - [Helper Functions](Usage-Helper-Functions) - Common usage patterns
 - [API Endpoints](Api-Endpoints) - Complete API reference
 - [Troubleshooting](Reference-Troubleshooting) - Common issues and solutions
+
+### v1.5 Features
+- [Optimization Status](Usage-Optimization-Status) - Per-item pipeline state, bytes saved, generated formats
+- Queueable `MediaUploaded` event — see [Customization](Integration-Customization)
 
 ### v1.3 Features
 - [AI Features](Usage-AI-Features) - Alt text, tag suggestions, image descriptions
