@@ -212,6 +212,24 @@ function MyPicker() {
 }
 ```
 
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `multiSelect` | `boolean` | `false` | Allow selecting more than one item |
+| `maxSelections` | `number` | — | Maximum items when `multiSelect` is on |
+| `allowedTypes` | `MediaType[]` | — | Restrict browsing to these media types |
+| `context` | `string` | `'default'` | Context passed back to `onSelect` |
+| `perPage` | `number` | `24` | Items per page while browsing |
+| `enabled` | `boolean` | `true` | Whether the picker may fetch. *Added in v1.6.0.* |
+| `onSelect` | `(media, context) => void` | — | Called when the selection is confirmed |
+
+When `enabled` is `false`, the picker makes no `/api/media` requests. The media list and recently used items load the first time it becomes `true`, and later toggles don't refetch unless the filters changed. Page changes and `refresh()` calls made while disabled are applied on the next enable. `MediaModal` passes its `open` prop as `enabled`, so a mounted-but-closed modal stays idle.
+
+```tsx
+const picker = useMediaPicker({ allowedTypes: ['image'], enabled: isOpen });
+```
+
 ### useMediaUpload
 
 Manages file upload state and progress.
