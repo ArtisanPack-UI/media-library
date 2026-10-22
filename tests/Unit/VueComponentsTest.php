@@ -382,6 +382,22 @@ class VueComponentsTest extends TestCase
     }
 
     /**
+     * Test useMediaPicker defers filter, page and refresh loads while disabled.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_picker_defers_loads_while_disabled(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/vue/composables/useMediaPicker.ts',
+        );
+
+        expect( $contents )->toContain( "        if ( ! toValue( enabled ) ) {\n            pendingLoad = true;\n            return;" );
+        expect( $contents )->toContain( "        } else if ( pendingLoad ) {\n            pendingLoad = false;\n            loadMedia();" );
+        expect( substr_count( $contents, 'requestLoad();' ) )->toBe( 3 );
+    }
+
+    /**
      * Test MediaModal only lets the picker fetch while open.
      *
      * @since 1.6.0

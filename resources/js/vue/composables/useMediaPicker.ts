@@ -126,17 +126,35 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
         }
     }
 
+    let initialLoadDone = false;
+    let pendingLoad     = false;
+
+    /**
+     * Load media now, or defer it until enabled. Before the initial load
+     * nothing is queued, since that load reads the latest filters and page.
+     */
+    async function requestLoad() {
+        if ( ! initialLoadDone ) {
+            return;
+        }
+
+        if ( ! toValue( enabled ) ) {
+            pendingLoad = true;
+            return;
+        }
+
+        await loadMedia();
+    }
+
     // Watch filter changes
     watch( [ search, folderId, typeFilter ], () => {
         currentPage.value = 1;
-        loadMedia();
+        requestLoad();
     } );
 
     watch( currentPage, () => {
-        loadMedia();
+        requestLoad();
     } );
-
-    let initialLoadDone = false;
 
     function initialLoad() {
         if ( initialLoadDone ) {
@@ -164,8 +182,15 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
     } );
 
     watch( () => toValue( enabled ), ( isEnabled ) => {
-        if ( isEnabled ) {
+        if ( ! isEnabled ) {
+            return;
+        }
+
+        if ( ! initialLoadDone ) {
             initialLoad();
+        } else if ( pendingLoad ) {
+            pendingLoad = false;
+            loadMedia();
         }
     } );
 
@@ -223,7 +248,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
     }
 
     async function refresh() {
-        await loadMedia();
+        await requestLoad();
     }
 
     function focusNext() {

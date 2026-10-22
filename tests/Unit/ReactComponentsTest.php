@@ -551,9 +551,24 @@ class ReactComponentsTest extends TestCase
 
         expect( $contents )->toContain( 'enabled?: boolean;' );
         expect( $contents )->toContain( 'enabled     = true,' );
-        expect( $contents )->toContain( 'if ( ! enabled || loadedFiltersRef.current === buildFilters ) {' );
-        expect( $contents )->toContain( '}, [ enabled, buildFilters, loadMedia ] );' );
+        expect( $contents )->toContain( 'if ( loadedKeyRef.current === JSON.stringify( filters ) ) {' );
+        expect( $contents )->toContain( '}, [ enabled, buildFilters, loadFilters ] );' );
         expect( $contents )->toContain( 'if ( ! enabled || recentLoadedRef.current ) {' );
+    }
+
+    /**
+     * Test useMediaPicker's goToPage and refresh don't fetch while disabled.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_picker_defers_page_and_refresh_while_disabled(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/react/hooks/useMediaPicker.ts',
+        );
+
+        expect( $contents )->toContain( "        if ( enabled ) {\n            loadFilters( buildFilters() );" );
+        expect( $contents )->toContain( "        if ( ! enabled ) {\n            loadedKeyRef.current = null;\n            return;" );
     }
 
     /**

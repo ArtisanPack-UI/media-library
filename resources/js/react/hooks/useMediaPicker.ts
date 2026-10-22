@@ -200,18 +200,30 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         return filters;
     }, [ search, folderId, typeFilter, allowedTypes ] );
 
-    // Load once enabled, then again only when the filters change. Tracking the
-    // last loaded filters keeps a close/reopen (or StrictMode) from refetching.
-    const loadedFiltersRef = useRef<typeof buildFilters | null>( null );
+    // Key of the last loaded filter values. Comparing values rather than the
+    // buildFilters identity keeps a close/reopen (StrictMode, or a parent
+    // passing an inline allowedTypes array) from refetching unchanged filters.
+    const loadedKeyRef = useRef<string | null>( null );
 
+    const loadFilters = useCallback( ( filters: MediaFilter ) => {
+        loadedKeyRef.current = JSON.stringify( filters );
+
+        return loadMedia( filters );
+    }, [ loadMedia ] );
+
+    // Load once enabled, then again only when the filter values change
     useEffect( () => {
-        if ( ! enabled || loadedFiltersRef.current === buildFilters ) {
+        if ( ! enabled ) {
             return;
         }
 
-        loadedFiltersRef.current = buildFilters;
-        loadMedia( buildFilters() );
-    }, [ enabled, buildFilters, loadMedia ] );
+        const filters = buildFilters();
+        if ( loadedKeyRef.current === JSON.stringify( filters ) ) {
+            return;
+        }
+
+        loadFilters( filters );
+    }, [ enabled, buildFilters, loadFilters ] );
 
     // Load recently used once enabled
     const recentLoadedRef = useRef( false );
@@ -288,14 +300,25 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         setSelected( [] );
     }, [] );
 
+    // While disabled, the page change is kept in filtersRef and picked up by
+    // the load effect once enabled.
     const goToPage = useCallback( ( page: number ) => {
         filtersRef.current = { ...filtersRef.current, page };
-        loadMedia( { ...buildFilters(), page } );
-    }, [ buildFilters, loadMedia ] );
 
+        if ( enabled ) {
+            loadFilters( buildFilters() );
+        }
+    }, [ enabled, buildFilters, loadFilters ] );
+
+    // While disabled, forget the last loaded key so the next enable reloads.
     const refresh = useCallback( async () => {
-        await loadMedia( buildFilters() );
-    }, [ buildFilters, loadMedia ] );
+        if ( ! enabled ) {
+            loadedKeyRef.current = null;
+            return;
+        }
+
+        await loadFilters( buildFilters() );
+    }, [ enabled, buildFilters, loadFilters ] );
 
     // Keyboard navigation
     const focusNext = useCallback( () => {
