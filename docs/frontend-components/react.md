@@ -218,7 +218,7 @@ function MyPicker() {
 |--------|------|---------|-------------|
 | `multiSelect` | `boolean` | `false` | Allow selecting more than one item |
 | `maxSelections` | `number` | — | Maximum items when `multiSelect` is on |
-| `allowedTypes` | `MediaType[]` | — | Restrict browsing to these media types |
+| `allowedTypes` | `MediaType[]` | — | Media types the picker accepts. Browsing is filtered to that type only when the list has exactly one entry; with two or more, all types are listed |
 | `context` | `string` | `'default'` | Context passed back to `onSelect` |
 | `perPage` | `number` | `24` | Items per page while browsing |
 | `enabled` | `boolean` | `true` | Whether the picker may fetch. *Added in v1.6.0.* |

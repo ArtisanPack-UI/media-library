@@ -192,7 +192,7 @@ const {
 |--------|------|---------|-------------|
 | `multiSelect` | `boolean` | `false` | Allow selecting more than one item |
 | `maxSelections` | `number` | — | Maximum items when `multiSelect` is on |
-| `allowedTypes` | `MediaType[]` | — | Restrict browsing to these media types |
+| `allowedTypes` | `MediaType[]` | — | Media types the picker accepts. Browsing is filtered to that type only when the list has exactly one entry; with two or more, all types are listed |
 | `context` | `string` | `'default'` | Context passed back to `onSelect` |
 | `perPage` | `number` | `24` | Items per page while browsing |
 | `enabled` | `MaybeRefOrGetter<boolean>` | `true` | Whether the picker may fetch. *Added in v1.6.0.* |
@@ -202,6 +202,9 @@ When `enabled` is `false`, the picker makes no `/api/media` requests. The media 
 
 ```vue
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useMediaPicker } from '@/vendor/media-library-vue';
+
 const isOpen = ref(false);
 const picker = useMediaPicker({ allowedTypes: ['image'], enabled: isOpen });
 </script>
