@@ -446,6 +446,7 @@ class MediaEditTest extends TestCase
      */
     public function test_throws_exception_for_non_existent_media(): void
     {
+        $this->withoutExceptionHandling();
         $this->expectException( \Illuminate\Database\Eloquent\ModelNotFoundException::class );
 
         Livewire::actingAs( $this->user )

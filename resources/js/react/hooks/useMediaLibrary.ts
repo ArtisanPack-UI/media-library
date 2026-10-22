@@ -131,8 +131,8 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ): UseMedi
     const [ bulkSelectMode, setBulkSelectMode ]   = useState( false );
     const [ viewMode, setViewMode ]               = useState<'grid' | 'list'>( 'grid' );
 
-    // Track whether this is the initial mount
-    const mounted = useRef( false );
+    // Filters from the last effect run; null until the first run
+    const lastFiltersRef = useRef<MediaFilter | null>( null );
 
     /**
      * Fetch media items using the current filters.
@@ -168,10 +168,18 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ): UseMedi
         }
     }, [] );
 
-    // Auto-fetch on mount + refetch when filters change
+    // Auto-fetch on mount + refetch when filters change. Re-runs with the same
+    // filters (StrictMode, autoFetch toggling) are skipped so autoFetch=false
+    // only fetches once the filters actually change.
     useEffect( () => {
-        if ( ! mounted.current ) {
-            mounted.current = true;
+        if ( lastFiltersRef.current === filters ) {
+            return;
+        }
+
+        const isInitialRun     = null === lastFiltersRef.current;
+        lastFiltersRef.current = filters;
+
+        if ( isInitialRun ) {
             if ( autoFetch ) {
                 loadMedia( filters );
                 loadRelatedData();

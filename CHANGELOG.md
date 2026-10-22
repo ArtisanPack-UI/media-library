@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`MediaModal` no longer fetches while closed** — `useMediaPicker` (React and Vue) gains an `enabled` option and `MediaModal` passes its `open` state, so a mounted-but-closed modal makes no `/api/media` requests; the media list and recently used items load the first time the modal opens, closing/reopening doesn't refetch unchanged filters, and page changes or `refresh()` calls made while closed are applied on the next open. `useMediaLibrary` now honours `autoFetch: false` under React StrictMode re-runs, and the Vue composable no longer swallows the first filter change when `autoFetch` is false. (#98)
+
 ## [1.5.0] - 2026-09-14
 
 ### Added

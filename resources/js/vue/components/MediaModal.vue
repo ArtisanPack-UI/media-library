@@ -51,6 +51,7 @@ const picker = useMediaPicker( {
     allowedTypes:  props.allowedTypes,
     context:       props.context,
     perPage:       props.perPage,
+    enabled:       open,
     onSelect:      ( media, ctx ) => {
         emit( 'select', media, ctx );
         open.value = false;
