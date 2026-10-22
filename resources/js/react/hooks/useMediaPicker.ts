@@ -33,6 +33,13 @@ export interface UseMediaPickerOptions {
     context?: string;
     /** Items per page for browsing. Defaults to 24. */
     perPage?: number;
+    /**
+     * Whether the picker may fetch. The initial load is deferred until this is
+     * true (e.g. when the modal opens), then runs once. Defaults to true.
+     *
+     * @since 1.6.0
+     */
+    enabled?: boolean;
     /** Called when selection is confirmed. */
     onSelect?: ( media: Media[], context: string ) => void;
 }
@@ -131,6 +138,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         allowedTypes,
         context     = 'default',
         perPage     = 24,
+        enabled     = true,
         onSelect,
     } = options;
 
@@ -192,14 +200,41 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         return filters;
     }, [ search, folderId, typeFilter, allowedTypes ] );
 
-    // Initial load
-    useEffect( () => {
-        const filters = buildFilters();
-        loadMedia( filters );
-    }, [ buildFilters, loadMedia ] );
+    // Key of the last loaded filter values. Comparing values rather than the
+    // buildFilters identity keeps a close/reopen (StrictMode, or a parent
+    // passing an inline allowedTypes array) from refetching unchanged filters.
+    const loadedKeyRef = useRef<string | null>( null );
 
-    // Load recently used
+    const loadFilters = useCallback( ( filters: MediaFilter ) => {
+        loadedKeyRef.current = JSON.stringify( filters );
+
+        return loadMedia( filters );
+    }, [ loadMedia ] );
+
+    // Load once enabled, then again only when the filter values change
     useEffect( () => {
+        if ( ! enabled ) {
+            return;
+        }
+
+        const filters = buildFilters();
+        if ( loadedKeyRef.current === JSON.stringify( filters ) ) {
+            return;
+        }
+
+        loadFilters( filters );
+    }, [ enabled, buildFilters, loadFilters ] );
+
+    // Load recently used once enabled
+    const recentLoadedRef = useRef( false );
+
+    useEffect( () => {
+        if ( ! enabled || recentLoadedRef.current ) {
+            return;
+        }
+
+        recentLoadedRef.current = true;
+
         const recentIds = loadRecentIds();
         if ( recentIds.length > 0 ) {
             // Fetch recent items from the already-loaded media or make a separate call
@@ -210,7 +245,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
                 } )
                 .catch( () => { /* non-critical */ } );
         }
-    }, [] );
+    }, [ enabled ] );
 
     const setSearch = useCallback( ( value: string ) => {
         setSearchState( value );
@@ -265,14 +300,25 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         setSelected( [] );
     }, [] );
 
+    // While disabled, the page change is kept in filtersRef and picked up by
+    // the load effect once enabled.
     const goToPage = useCallback( ( page: number ) => {
         filtersRef.current = { ...filtersRef.current, page };
-        loadMedia( { ...buildFilters(), page } );
-    }, [ buildFilters, loadMedia ] );
 
+        if ( enabled ) {
+            loadFilters( buildFilters() );
+        }
+    }, [ enabled, buildFilters, loadFilters ] );
+
+    // While disabled, forget the last loaded key so the next enable reloads.
     const refresh = useCallback( async () => {
-        await loadMedia( buildFilters() );
-    }, [ buildFilters, loadMedia ] );
+        if ( ! enabled ) {
+            loadedKeyRef.current = null;
+            return;
+        }
+
+        await loadFilters( buildFilters() );
+    }, [ enabled, buildFilters, loadFilters ] );
 
     // Keyboard navigation
     const focusNext = useCallback( () => {

@@ -6,10 +6,56 @@ title: Upgrading
 
 This guide covers upgrading between versions of the ArtisanPack UI Media Library.
 
+- [Upgrading from v1.5 to v1.6](#upgrading-from-v15-to-v16)
 - [Upgrading from v1.4 to v1.5](#upgrading-from-v14-to-v15)
 - [Upgrading from v1.3 to v1.4](#upgrading-from-v13-to-v14)
 - [Upgrading from v1.1 to v1.2](#upgrading-from-v11-to-v12)
 - [Upgrading from v1.0 to v1.1](#upgrading-from-v10-to-v11)
+
+---
+
+## Upgrading from v1.5 to v1.6
+
+The v1.6 release is fully backward compatible with no breaking changes, no new migrations, and no new configuration. It stops the React and Vue `MediaModal` from fetching media while closed.
+
+### Upgrade Steps
+
+#### 1. Update Dependencies
+
+```bash
+composer update artisanpack-ui/media-library
+```
+
+#### 2. Re-publish Frontend Components (React/Vue only)
+
+If you published the React or Vue components, re-publish them to pick up the `MediaModal`, `useMediaPicker`, and `useMediaLibrary` changes. Merge any local customizations back in afterwards.
+
+```bash
+php artisan media:install-frontend --stack=react --force
+# or
+php artisan media:install-frontend --stack=vue --force
+```
+
+#### 3. Clear Caches
+
+```bash
+php artisan optimize:clear
+```
+
+### Breaking Changes
+
+None.
+
+### New Features Available
+
+#### `enabled` option on `useMediaPicker`
+
+`useMediaPicker` accepts an `enabled` option (a boolean in React, a ref or getter in Vue). While it is `false` the picker makes no API requests; the first load runs when it becomes `true`. `MediaModal` wires this to its open state automatically. See [React Components](Frontend-Components-React) and [Vue Components](Frontend-Components-Vue).
+
+### Behavior Changes
+
+- `useMediaLibrary({ autoFetch: false })` now reliably skips the initial fetch under React StrictMode.
+- The Vue `useMediaLibrary` composable no longer ignores the first filter change when `autoFetch` is `false`.
 
 ---
 

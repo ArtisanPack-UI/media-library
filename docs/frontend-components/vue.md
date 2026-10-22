@@ -186,6 +186,30 @@ const {
 </script>
 ```
 
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `multiSelect` | `boolean` | `false` | Allow selecting more than one item |
+| `maxSelections` | `number` | — | Maximum items when `multiSelect` is on |
+| `allowedTypes` | `MediaType[]` | — | Media types the picker accepts. Browsing is filtered to that type only when the list has exactly one entry; with two or more, all types are listed |
+| `context` | `string` | `'default'` | Context passed back to `onSelect` |
+| `perPage` | `number` | `24` | Items per page while browsing |
+| `enabled` | `MaybeRefOrGetter<boolean>` | `true` | Whether the picker may fetch. *Added in v1.6.0.* |
+| `onSelect` | `(media, context) => void` | — | Called when the selection is confirmed |
+
+When `enabled` is `false`, the picker makes no `/api/media` requests. The media list and recently used items load the first time it becomes `true`, and later toggles don't refetch unless the filters changed. Page changes and `refresh()` calls made while disabled are applied on the next enable. `MediaModal` passes its `v-model:open` state as `enabled`, so a mounted-but-closed modal stays idle.
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useMediaPicker } from '@/vendor/media-library-vue';
+
+const isOpen = ref(false);
+const picker = useMediaPicker({ allowedTypes: ['image'], enabled: isOpen });
+</script>
+```
+
 ### useMediaUpload
 
 Manages file upload state and progress.

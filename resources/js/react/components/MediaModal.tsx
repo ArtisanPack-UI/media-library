@@ -24,7 +24,7 @@ import { MediaUpload } from './MediaUpload';
 /**
  * Props for the MediaModal component.
  */
-export interface MediaModalProps extends Omit<UseMediaPickerOptions, 'onSelect'> {
+export interface MediaModalProps extends Omit<UseMediaPickerOptions, 'onSelect' | 'enabled'> {
     /** Whether the modal is open. */
     open: boolean;
     /** Called when the modal should close. */
@@ -72,6 +72,7 @@ export const MediaModal: React.FC<MediaModalProps> = ( {
         allowedTypes,
         context,
         perPage,
+        enabled: open,
         onSelect: ( media, ctx ) => {
             onSelect?.( media, ctx );
             onClose();

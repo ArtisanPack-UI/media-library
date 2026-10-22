@@ -363,6 +363,68 @@ class VueComponentsTest extends TestCase
         }
     }
 
+    /**
+     * Test useMediaPicker defers its initial load until enabled.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_picker_defers_loading_until_enabled(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/vue/composables/useMediaPicker.ts',
+        );
+
+        expect( $contents )->toContain( 'enabled?: MaybeRefOrGetter<boolean>;' );
+        expect( $contents )->toContain( 'enabled    = true,' );
+        expect( $contents )->toContain( 'if ( initialLoadDone ) {' );
+        expect( $contents )->toContain( 'if ( toValue( enabled ) ) {' );
+        expect( $contents )->toContain( 'watch( () => toValue( enabled ), ( isEnabled ) => {' );
+    }
+
+    /**
+     * Test useMediaPicker defers filter, page and refresh loads while disabled.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_picker_defers_loads_while_disabled(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/vue/composables/useMediaPicker.ts',
+        );
+
+        expect( $contents )->toContain( "        if ( ! toValue( enabled ) ) {\n            pendingLoad = true;\n            return;" );
+        expect( $contents )->toContain( "        } else if ( pendingLoad ) {\n            pendingLoad = false;\n            loadMedia();" );
+        expect( substr_count( $contents, 'requestLoad();' ) )->toBe( 3 );
+    }
+
+    /**
+     * Test MediaModal only lets the picker fetch while open.
+     *
+     * @since 1.6.0
+     */
+    public function test_media_modal_enables_picker_only_while_open(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/vue/components/MediaModal.vue',
+        );
+
+        expect( $contents )->toContain( 'enabled:       open,' );
+    }
+
+    /**
+     * Test useMediaLibrary refetches on the first filter change when autoFetch is false.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_library_refetches_on_first_filter_change(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/vue/composables/useMediaLibrary.ts',
+        );
+
+        expect( $contents )->not->toContain( 'initialised' );
+    }
+
     // =========================================================================
     // Helpers
     // =========================================================================

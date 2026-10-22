@@ -8,7 +8,8 @@
  * @since   1.2.0
  */
 
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, toValue } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 import type {
     Media,
@@ -28,6 +29,13 @@ export interface UseMediaPickerOptions {
     allowedTypes?: MediaType[];
     context?: string;
     perPage?: number;
+    /**
+     * Whether the picker may fetch. The initial load is deferred until this is
+     * true (e.g. when the modal opens), then runs once. Defaults to true.
+     *
+     * @since 1.6.0
+     */
+    enabled?: MaybeRefOrGetter<boolean>;
     onSelect?: ( media: Media[], context: string ) => void;
 }
 
@@ -68,6 +76,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
         allowedTypes,
         context    = 'default',
         perPage    = 24,
+        enabled    = true,
     } = options;
 
     let currentOptions = options;
@@ -117,17 +126,42 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
         }
     }
 
+    let initialLoadDone = false;
+    let pendingLoad     = false;
+
+    /**
+     * Load media now, or defer it until enabled. Before the initial load
+     * nothing is queued, since that load reads the latest filters and page.
+     */
+    async function requestLoad() {
+        if ( ! initialLoadDone ) {
+            return;
+        }
+
+        if ( ! toValue( enabled ) ) {
+            pendingLoad = true;
+            return;
+        }
+
+        await loadMedia();
+    }
+
     // Watch filter changes
     watch( [ search, folderId, typeFilter ], () => {
         currentPage.value = 1;
-        loadMedia();
+        requestLoad();
     } );
 
     watch( currentPage, () => {
-        loadMedia();
+        requestLoad();
     } );
 
-    onMounted( () => {
+    function initialLoad() {
+        if ( initialLoadDone ) {
+            return;
+        }
+
+        initialLoadDone = true;
         loadMedia();
 
         // Load recently used
@@ -138,6 +172,25 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
                     recentlyUsed.value = response.data.filter( ( m ) => recentIds.includes( m.id ) );
                 } )
                 .catch( () => { /* non-critical */ } );
+        }
+    }
+
+    onMounted( () => {
+        if ( toValue( enabled ) ) {
+            initialLoad();
+        }
+    } );
+
+    watch( () => toValue( enabled ), ( isEnabled ) => {
+        if ( ! isEnabled ) {
+            return;
+        }
+
+        if ( ! initialLoadDone ) {
+            initialLoad();
+        } else if ( pendingLoad ) {
+            pendingLoad = false;
+            loadMedia();
         }
     } );
 
@@ -195,7 +248,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
     }
 
     async function refresh() {
-        await loadMedia();
+        await requestLoad();
     }
 
     function focusNext() {

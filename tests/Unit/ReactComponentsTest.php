@@ -538,6 +538,71 @@ class ReactComponentsTest extends TestCase
         expect( $folderManager )->toContain( 'role="treeitem"' );
     }
 
+    /**
+     * Test useMediaPicker defers its initial load until enabled.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_picker_defers_loading_until_enabled(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/react/hooks/useMediaPicker.ts',
+        );
+
+        expect( $contents )->toContain( 'enabled?: boolean;' );
+        expect( $contents )->toContain( 'enabled     = true,' );
+        expect( $contents )->toContain( 'if ( loadedKeyRef.current === JSON.stringify( filters ) ) {' );
+        expect( $contents )->toContain( '}, [ enabled, buildFilters, loadFilters ] );' );
+        expect( $contents )->toContain( 'if ( ! enabled || recentLoadedRef.current ) {' );
+    }
+
+    /**
+     * Test useMediaPicker's goToPage and refresh don't fetch while disabled.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_picker_defers_page_and_refresh_while_disabled(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/react/hooks/useMediaPicker.ts',
+        );
+
+        expect( $contents )->toContain( "        if ( enabled ) {\n            loadFilters( buildFilters() );" );
+        expect( $contents )->toContain( "        if ( ! enabled ) {\n            loadedKeyRef.current = null;\n            return;" );
+    }
+
+    /**
+     * Test MediaModal only lets the picker fetch while open.
+     *
+     * @since 1.6.0
+     */
+    public function test_media_modal_enables_picker_only_while_open(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/react/components/MediaModal.tsx',
+        );
+
+        expect( $contents )->toContain( 'enabled: open,' );
+        expect( $contents )->toContain( "Omit<UseMediaPickerOptions, 'onSelect' | 'enabled'>" );
+    }
+
+    /**
+     * Test useMediaLibrary skips same-filter effect re-runs so autoFetch=false
+     * does not fetch on mount under StrictMode or when autoFetch changes.
+     *
+     * @since 1.6.0
+     */
+    public function test_use_media_library_respects_auto_fetch_on_effect_reruns(): void
+    {
+        $contents = file_get_contents(
+            dirname( __DIR__, 2 ) . '/resources/js/react/hooks/useMediaLibrary.ts',
+        );
+
+        expect( $contents )->toContain( 'if ( lastFiltersRef.current === filters ) {' );
+        expect( $contents )->toContain( 'const isInitialRun     = null === lastFiltersRef.current;' );
+        expect( $contents )->not->toContain( 'mounted.current' );
+    }
+
     // =========================================================================
     // Helpers
     // =========================================================================
