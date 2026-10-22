@@ -33,6 +33,13 @@ export interface UseMediaPickerOptions {
     context?: string;
     /** Items per page for browsing. Defaults to 24. */
     perPage?: number;
+    /**
+     * Whether the picker may fetch. The initial load is deferred until this is
+     * true (e.g. when the modal opens), then runs once. Defaults to true.
+     *
+     * @since 1.6.0
+     */
+    enabled?: boolean;
     /** Called when selection is confirmed. */
     onSelect?: ( media: Media[], context: string ) => void;
 }
@@ -131,6 +138,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         allowedTypes,
         context     = 'default',
         perPage     = 24,
+        enabled     = true,
         onSelect,
     } = options;
 
@@ -192,14 +200,29 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
         return filters;
     }, [ search, folderId, typeFilter, allowedTypes ] );
 
-    // Initial load
-    useEffect( () => {
-        const filters = buildFilters();
-        loadMedia( filters );
-    }, [ buildFilters, loadMedia ] );
+    // Load once enabled, then again only when the filters change. Tracking the
+    // last loaded filters keeps a close/reopen (or StrictMode) from refetching.
+    const loadedFiltersRef = useRef<typeof buildFilters | null>( null );
 
-    // Load recently used
     useEffect( () => {
+        if ( ! enabled || loadedFiltersRef.current === buildFilters ) {
+            return;
+        }
+
+        loadedFiltersRef.current = buildFilters;
+        loadMedia( buildFilters() );
+    }, [ enabled, buildFilters, loadMedia ] );
+
+    // Load recently used once enabled
+    const recentLoadedRef = useRef( false );
+
+    useEffect( () => {
+        if ( ! enabled || recentLoadedRef.current ) {
+            return;
+        }
+
+        recentLoadedRef.current = true;
+
         const recentIds = loadRecentIds();
         if ( recentIds.length > 0 ) {
             // Fetch recent items from the already-loaded media or make a separate call
@@ -210,7 +233,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ): UseMediaP
                 } )
                 .catch( () => { /* non-critical */ } );
         }
-    }, [] );
+    }, [ enabled ] );
 
     const setSearch = useCallback( ( value: string ) => {
         setSearchState( value );

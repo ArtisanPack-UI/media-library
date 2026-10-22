@@ -102,15 +102,12 @@ export function useMediaLibrary( options: UseMediaLibraryOptions = {} ) {
         loadRelatedData();
     }
 
-    // Refetch when filters change after the initial load
-    let initialised = autoFetch;
+    // Refetch when filters change (the watcher is lazy, so it never fires for
+    // the initial values and autoFetch=false still fetches on the first change)
     watch(
         () => ( { ...filters } ),
         () => {
-            if ( initialised ) {
-                loadMedia();
-            }
-            initialised = true;
+            loadMedia();
         },
         { deep: true },
     );

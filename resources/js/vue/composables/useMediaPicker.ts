@@ -8,7 +8,8 @@
  * @since   1.2.0
  */
 
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, toValue } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 import type {
     Media,
@@ -28,6 +29,13 @@ export interface UseMediaPickerOptions {
     allowedTypes?: MediaType[];
     context?: string;
     perPage?: number;
+    /**
+     * Whether the picker may fetch. The initial load is deferred until this is
+     * true (e.g. when the modal opens), then runs once. Defaults to true.
+     *
+     * @since 1.6.0
+     */
+    enabled?: MaybeRefOrGetter<boolean>;
     onSelect?: ( media: Media[], context: string ) => void;
 }
 
@@ -68,6 +76,7 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
         allowedTypes,
         context    = 'default',
         perPage    = 24,
+        enabled    = true,
     } = options;
 
     let currentOptions = options;
@@ -127,7 +136,14 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
         loadMedia();
     } );
 
-    onMounted( () => {
+    let initialLoadDone = false;
+
+    function initialLoad() {
+        if ( initialLoadDone ) {
+            return;
+        }
+
+        initialLoadDone = true;
         loadMedia();
 
         // Load recently used
@@ -138,6 +154,18 @@ export function useMediaPicker( options: UseMediaPickerOptions = {} ) {
                     recentlyUsed.value = response.data.filter( ( m ) => recentIds.includes( m.id ) );
                 } )
                 .catch( () => { /* non-critical */ } );
+        }
+    }
+
+    onMounted( () => {
+        if ( toValue( enabled ) ) {
+            initialLoad();
+        }
+    } );
+
+    watch( () => toValue( enabled ), ( isEnabled ) => {
+        if ( isEnabled ) {
+            initialLoad();
         }
     } );
 
