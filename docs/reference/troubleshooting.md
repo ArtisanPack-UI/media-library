@@ -157,6 +157,18 @@ Common issues and solutions for the Media Library package.
    tail -f storage/logs/laravel.log
    ```
 
+### Thumbnails Lost Transparency or Have the Wrong Format
+
+**Problem:** A PNG, GIF, WebP or AVIF thumbnail has a solid background, or its data doesn't match its extension
+
+**Solution:** Thumbnails created before v1.7.0 were always encoded as JPEG. Rebuild them, then purge any CDN cache:
+
+```bash
+php artisan media:regenerate-thumbnails
+```
+
+See [Thumbnails](Usage-Thumbnails).
+
 ### WebP/AVIF Conversion Fails
 
 **Problem:** Modern format conversion doesn't work

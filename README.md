@@ -11,7 +11,7 @@ A comprehensive media management package for Laravel applications with support f
 ### Core Features
 - 📁 **Hierarchical Folder Organization** - Organize media into nested folders
 - 🏷️ **Tag Management** - Tag media items for easy categorization
-- 🖼️ **Image Processing** - Automatic thumbnail generation in multiple sizes
+- 🖼️ **Image Processing** - Automatic thumbnail generation in multiple sizes, preserving each image's format and transparency
 - 🚀 **Modern Image Formats** - Automatic conversion to WebP and AVIF
 - 📦 **Storage Abstraction** - Support for multiple storage backends via Laravel's filesystem
 - 🎬 **Video Support** - Video thumbnail extraction using FFmpeg (optional)
@@ -204,7 +204,7 @@ protected $listen = [
 - **[Quick Start](docs/getting-started.md)** - Get up and running quickly
 - **[Installation](docs/installation/installation.md)** - Detailed installation instructions
 - **[Configuration](docs/installation/configuration.md)** - All configuration options
-- **[Upgrading to v1.1](docs/upgrading.md)** - Migration guide from v1.0.x
+- **[Upgrading](docs/upgrading.md)** - Migration guides between versions
 
 ### Usage
 - **[Helper Functions](docs/usage/helper-functions.md)** - Common usage patterns
@@ -213,6 +213,8 @@ protected $listen = [
 - **[Streaming Uploads](docs/usage/streaming-uploads.md)** - Livewire 4 real-time upload progress
 - **[Table Export](docs/usage/table-export.md)** - Export media data to CSV/XLSX/PDF
 - **[AI Features](docs/usage/ai-features.md)** - Alt text, tag suggestions, image descriptions (v1.3)
+- **[Optimization Status](docs/usage/optimization-status.md)** - Per-item pipeline state (v1.5)
+- **[Thumbnails](docs/usage/thumbnails.md)** - Output formats and regenerating existing thumbnails (v1.7)
 
 ### Visual Editor Integration
 - **[MediaPicker Component](docs/visual-editor/media-picker.md)** - Visual editor media selection

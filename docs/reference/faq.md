@@ -131,6 +131,10 @@ Yes, in `.env`:
 MEDIA_ENABLE_THUMBNAILS=false
 ```
 
+### Why are my PNG thumbnails larger after upgrading to v1.7?
+
+Thumbnails now keep the source format, and PNG is lossless. Earlier versions saved JPEG data under the `.png` name. See [Thumbnails](Usage-Thumbnails).
+
 ### How do I change the upload directory structure?
 
 In `.env`:

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-30
+
+### Added
+
+- **`media:regenerate-thumbnails` command** — rebuilds existing thumbnails in place, replacing JPEG data saved under PNG, GIF, WebP and AVIF extensions. Rows are selected by the extension in `file_path`, and JPEG and SVG files are skipped. A row counts as failed if any configured size is missing or an exception is thrown; the run continues and exits with a failure code. Thumbnail URLs don't change, so purge any CDN or browser caches that hold the old files. (#69)
+- New [Thumbnails](docs/usage/thumbnails.md) documentation page. (#69)
+
+### Changed
+
+- `MediaProcessingService::getImageSizes()` is now public. A subclass that overrides it as `protected` must make its override public. (#69)
+
+### Fixed
+
+- **Thumbnails now keep the source image's format** — `MediaProcessingService` always encoded thumbnails as JPEG while keeping the original extension, so PNG, GIF, WebP and AVIF uploads got mislabeled thumbnails that had lost their transparency. SVGs and other formats with no thumbnail encoder are no longer decoded, so Imagick hosts stop saving broken `-thumbnail.svg` files and `imageUrl()` returns the original instead. (#69)
+
 ## [1.6.0] - 2026-10-22
 
 ### Added
