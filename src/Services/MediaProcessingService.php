@@ -35,6 +35,15 @@ use Throwable;
 class MediaProcessingService
 {
     /**
+     * Source file extensions that thumbnails can be generated for.
+     *
+     * @since 1.7.0
+     *
+     * @var array<int, string>
+     */
+    protected const THUMBNAIL_EXTENSIONS = [ 'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif' ];
+
+    /**
      * Media storage service instance.
      *
      * @since 1.0.0
@@ -354,6 +363,39 @@ class MediaProcessingService
     }
 
     /**
+     * Gets all configured image sizes (built-in + custom).
+     *
+     * @since 1.0.0
+     *
+     * @param  Media|null  $media  Optional media context for the filter.
+     *
+     * @return array<string, array<string, mixed>> The image sizes configuration.
+     */
+    public function getImageSizes( ?Media $media = null ): array
+    {
+        $builtInSizes = config( 'artisanpack.media.image_sizes', [] );
+        $customSizes  = config( 'artisanpack.media.custom_image_sizes', [] );
+        $sizes        = array_merge( $builtInSizes, $customSizes );
+
+        /**
+         * Filters the set of image sizes that will be generated for a media
+         * item.
+         *
+         * Runs immediately before the optimization/thumbnail loop, allowing
+         * applications to add per-image sizes, drop unnecessary ones, or
+         * swap crop settings on a per-media basis.
+         *
+         * @since 1.4.0
+         *
+         * @param array<string, array<string, mixed>> $sizes The resolved image sizes.
+         * @param Media|null                          $media The media instance being processed, when known.
+         *
+         * @return array<string, array<string, mixed>> The (possibly modified) size definitions.
+         */
+        return (array) applyFilters( 'ap.mediaLibrary.imageSizes', $sizes, $media );
+    }
+
+    /**
      * Read the current on-disk size for a media item, tolerating missing
      * files by returning null so the optimization delta stays honest.
      *
@@ -419,40 +461,11 @@ class MediaProcessingService
     }
 
     /**
-     * Gets all configured image sizes (built-in + custom).
-     *
-     * @since 1.0.0
-     *
-     * @param  Media|null  $media  Optional media context for the filter.
-     *
-     * @return array<string, array<string, mixed>> The image sizes configuration.
-     */
-    protected function getImageSizes( ?Media $media = null ): array
-    {
-        $builtInSizes = config( 'artisanpack.media.image_sizes', [] );
-        $customSizes  = config( 'artisanpack.media.custom_image_sizes', [] );
-        $sizes        = array_merge( $builtInSizes, $customSizes );
-
-        /**
-         * Filters the set of image sizes that will be generated for a media
-         * item.
-         *
-         * Runs immediately before the optimization/thumbnail loop, allowing
-         * applications to add per-image sizes, drop unnecessary ones, or
-         * swap crop settings on a per-media basis.
-         *
-         * @since 1.4.0
-         *
-         * @param array<string, array<string, mixed>> $sizes The resolved image sizes.
-         * @param Media|null                          $media The media instance being processed, when known.
-         *
-         * @return array<string, array<string, mixed>> The (possibly modified) size definitions.
-         */
-        return (array) applyFilters( 'ap.mediaLibrary.imageSizes', $sizes, $media );
-    }
-
-    /**
      * Generates a single thumbnail for a specific size.
+     *
+     * The thumbnail keeps the source file's format and extension. Other
+     * formats (such as SVG) are not decoded and produce no thumbnail, so
+     * `Media::imageUrl()` falls back to the original file.
      *
      * @since 1.0.0
      *
@@ -473,6 +486,15 @@ class MediaProcessingService
         array $sizeConfig,
         ?Media $media = null,
     ): ?string {
+        $pathInfo  = pathinfo( $relativeSource );
+        $extension = strtolower( $pathInfo['extension'] ?? '' );
+
+        // Skip before decoding: there is nothing to encode these formats to,
+        // and Imagick would otherwise parse untrusted SVG markup
+        if ( ! in_array( $extension, self::THUMBNAIL_EXTENSIONS, true ) ) {
+            return null;
+        }
+
         try {
             // Load the image
             $image = $this->imageManager->read( $sourcePath );
@@ -491,13 +513,19 @@ class MediaProcessingService
             }
 
             // Generate thumbnail filename
-            $pathInfo      = pathinfo( $relativeSource );
             $thumbnailName = $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
             $thumbnailPath = $pathInfo['dirname'] . '/' . $thumbnailName;
 
-            // Encode with quality setting
+            // Encode in the source format so the bytes match the extension
+            // and transparency survives
             $quality = config( 'artisanpack.media.image_quality', 85 );
-            $encoded = $image->toJpeg( $quality );
+            $encoded = match ( $extension ) {
+                'jpg', 'jpeg' => $image->toJpeg( $quality ),
+                'png'         => $image->toPng(),
+                'gif'         => $image->toGif(),
+                'webp'        => $image->toWebp( $quality ),
+                'avif'        => $image->toAvif( $quality ),
+            };
 
             // Store the thumbnail
             $this->storageService->put( $thumbnailPath, (string)$encoded, $disk, $media );

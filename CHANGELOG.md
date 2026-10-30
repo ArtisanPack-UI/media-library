@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`media:regenerate-thumbnails` command** — rebuilds the thumbnails of existing PNG, GIF, WebP and AVIF images in place, replacing JPEG data saved under those extensions. Thumbnail URLs don't change, so purge any CDN or browser caches that hold the old files. (#69)
+
+### Fixed
+
+- **Thumbnails now keep the source image's format** — `MediaProcessingService` always encoded thumbnails as JPEG while keeping the original extension, so PNG, GIF and WebP uploads got mislabeled thumbnails that had lost their transparency. SVGs are no longer decoded for thumbnails, so Imagick hosts stop saving broken `-thumbnail.svg` files and `imageUrl()` returns the original instead. (#69)
+
 ## [1.6.0] - 2026-10-22
 
 ### Added
