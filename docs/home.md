@@ -29,6 +29,7 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
   - [Table Export](Usage-Table-Export) *(v1.1)*
   - [AI Features](Usage-AI-Features) *(v1.3)*
   - [Optimization Status](Usage-Optimization-Status) *(v1.5)*
+  - [Thumbnails](Usage-Thumbnails) *(v1.7)*
 
 - **Frontend Components** *(v1.2)*
   - [Overview](Frontend-Components)
@@ -77,6 +78,10 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - 🖱️ **Media Modal Component** - Single/multi-select modal with context support
 - 🔐 **Permission-based Access Control** - Granular capability-based permissions
 
+### New in v1.7
+- 🖼️ **Format-preserving thumbnails** — thumbnails keep the source image's format and transparency
+- 🧰 `media:regenerate-thumbnails` artisan command to repair existing thumbnails
+
 ### New in v1.5
 - 📨 **Queueable `MediaUploaded` event** — companion to the synchronous `ap.mediaLibrary.uploaded` hook so `ShouldQueue` listeners run outside the upload request
 - 📊 **Optimization status tracking** — per-item `optimized` / `pending` / `failed` state plus bytes saved, generated formats, and truncated error, all persisted on the `Media` row
@@ -113,6 +118,9 @@ Use the sidebar or the links below to navigate. Each page begins with a header a
 - [Helper Functions](Usage-Helper-Functions) - Common usage patterns
 - [API Endpoints](Api-Endpoints) - Complete API reference
 - [Troubleshooting](Reference-Troubleshooting) - Common issues and solutions
+
+### v1.7 Features
+- [Thumbnails](Usage-Thumbnails) - Output formats and the `media:regenerate-thumbnails` command
 
 ### v1.5 Features
 - [Optimization Status](Usage-Optimization-Status) - Per-item pipeline state, bytes saved, generated formats

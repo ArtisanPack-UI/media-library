@@ -6,11 +6,56 @@ title: Upgrading
 
 This guide covers upgrading between versions of the ArtisanPack UI Media Library.
 
+- [Upgrading from v1.6 to v1.7](#upgrading-from-v16-to-v17)
 - [Upgrading from v1.5 to v1.6](#upgrading-from-v15-to-v16)
 - [Upgrading from v1.4 to v1.5](#upgrading-from-v14-to-v15)
 - [Upgrading from v1.3 to v1.4](#upgrading-from-v13-to-v14)
 - [Upgrading from v1.1 to v1.2](#upgrading-from-v11-to-v12)
 - [Upgrading from v1.0 to v1.1](#upgrading-from-v10-to-v11)
+
+---
+
+## Upgrading from v1.6 to v1.7
+
+The v1.7 release has no new migrations or configuration. It fixes thumbnails so they keep the source image's format and transparency, and adds a command to repair existing ones.
+
+### Upgrade Steps
+
+#### 1. Update Dependencies
+
+```bash
+composer update artisanpack-ui/media-library
+```
+
+#### 2. Regenerate Existing Thumbnails
+
+Thumbnails already on disk stay as they are until you repair them:
+
+```bash
+php artisan media:regenerate-thumbnails
+```
+
+Check the summary line. The command exits with a failure code if any row failed, and it prints a warning for each one. See [Thumbnails](Usage-Thumbnails).
+
+#### 3. Purge Caches
+
+Thumbnail URLs don't change, so purge any CDN that caches your media.
+
+### Breaking Changes
+
+None in normal use. `MediaProcessingService::getImageSizes()` is now public, so a subclass that overrides it as `protected` must make its override public, or PHP will raise a fatal error.
+
+### New Features Available
+
+#### `media:regenerate-thumbnails` command
+
+Rebuilds thumbnails for existing images in place. See [Thumbnails](Usage-Thumbnails).
+
+### Behavior Changes
+
+- PNG, GIF, WebP and AVIF thumbnails are now encoded in their source format instead of JPEG. PNG thumbnails are usually larger as a result.
+- `image_quality` applies to JPEG, WebP and AVIF thumbnails only.
+- SVGs and other formats with no thumbnail encoder are no longer decoded for thumbnails. `imageUrl()` returns the original file for them. Any `-thumbnail.svg` files left on Imagick hosts aren't removed by the command and can be deleted by hand.
 
 ---
 

@@ -141,6 +141,8 @@ $large = $media->imageUrl('large');
 $custom = $media->imageUrl('hero-banner');
 ```
 
+Returns the original file's URL when that size doesn't exist, such as for SVGs. The sized file keeps the original's format. See [Thumbnails](Usage-Thumbnails).
+
 ### Display Methods
 
 #### displayImage()

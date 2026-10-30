@@ -130,9 +130,11 @@ MEDIA_IMAGE_QUALITY=85
 - `85` - Recommended balance (default)
 - `60-70` - Lower quality, smaller files
 
+Applies to JPEG, WebP and AVIF output. PNG and GIF thumbnails ignore it.
+
 #### `enable_thumbnails`
 
-Enable automatic thumbnail generation.
+Enable automatic thumbnail generation. Thumbnails keep the source image's format; see [Thumbnails](Usage-Thumbnails).
 
 ```php
 'enable_thumbnails' => env('MEDIA_ENABLE_THUMBNAILS', true),

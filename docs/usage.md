@@ -45,6 +45,13 @@ Advanced usage with Eloquent models:
 - `MediaResource` returns a stable `optimization` block on every media item (non-image rows carry `null` values)
 - `media:backfill-optimization-status` artisan command for legacy image rows
 
+### [Thumbnails](Usage-Thumbnails)
+
+How thumbnails are generated and repaired:
+- Thumbnails keep the source image's format and transparency *(v1.7.0)*
+- SVGs and other unsupported formats fall back to the original file
+- `media:regenerate-thumbnails` artisan command for thumbnails created before v1.7.0
+
 ### [Livewire Components](Usage-Livewire-Components)
 
 UI components for media management:
