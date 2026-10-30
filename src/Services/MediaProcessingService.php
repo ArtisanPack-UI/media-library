@@ -35,6 +35,15 @@ use Throwable;
 class MediaProcessingService
 {
     /**
+     * Source file extensions that thumbnails can be generated for.
+     *
+     * @since 1.7.0
+     *
+     * @var array<int, string>
+     */
+    protected const THUMBNAIL_EXTENSIONS = [ 'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif' ];
+
+    /**
      * Media storage service instance.
      *
      * @since 1.0.0
@@ -454,6 +463,10 @@ class MediaProcessingService
     /**
      * Generates a single thumbnail for a specific size.
      *
+     * The thumbnail keeps the source file's format and extension. Other
+     * formats (such as SVG) are not decoded and produce no thumbnail, so
+     * `Media::imageUrl()` falls back to the original file.
+     *
      * @since 1.0.0
      *
      * @param string               $sourcePath     The source image path.
@@ -473,6 +486,15 @@ class MediaProcessingService
         array $sizeConfig,
         ?Media $media = null,
     ): ?string {
+        $pathInfo  = pathinfo( $relativeSource );
+        $extension = strtolower( $pathInfo['extension'] ?? '' );
+
+        // Skip before decoding: there is nothing to encode these formats to,
+        // and Imagick would otherwise parse untrusted SVG markup
+        if ( ! in_array( $extension, self::THUMBNAIL_EXTENSIONS, true ) ) {
+            return null;
+        }
+
         try {
             // Load the image
             $image = $this->imageManager->read( $sourcePath );
@@ -491,13 +513,19 @@ class MediaProcessingService
             }
 
             // Generate thumbnail filename
-            $pathInfo      = pathinfo( $relativeSource );
             $thumbnailName = $pathInfo['filename'] . '-' . $sizeName . '.' . $pathInfo['extension'];
             $thumbnailPath = $pathInfo['dirname'] . '/' . $thumbnailName;
 
-            // Encode with quality setting
+            // Encode in the source format so the bytes match the extension
+            // and transparency survives
             $quality = config( 'artisanpack.media.image_quality', 85 );
-            $encoded = $image->toJpeg( $quality );
+            $encoded = match ( $extension ) {
+                'jpg', 'jpeg' => $image->toJpeg( $quality ),
+                'png'         => $image->toPng(),
+                'gif'         => $image->toGif(),
+                'webp'        => $image->toWebp( $quality ),
+                'avif'        => $image->toAvif( $quality ),
+            };
 
             // Store the thumbnail
             $this->storageService->put( $thumbnailPath, (string)$encoded, $disk, $media );
