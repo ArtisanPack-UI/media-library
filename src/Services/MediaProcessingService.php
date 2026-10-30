@@ -363,6 +363,39 @@ class MediaProcessingService
     }
 
     /**
+     * Gets all configured image sizes (built-in + custom).
+     *
+     * @since 1.0.0
+     *
+     * @param  Media|null  $media  Optional media context for the filter.
+     *
+     * @return array<string, array<string, mixed>> The image sizes configuration.
+     */
+    public function getImageSizes( ?Media $media = null ): array
+    {
+        $builtInSizes = config( 'artisanpack.media.image_sizes', [] );
+        $customSizes  = config( 'artisanpack.media.custom_image_sizes', [] );
+        $sizes        = array_merge( $builtInSizes, $customSizes );
+
+        /**
+         * Filters the set of image sizes that will be generated for a media
+         * item.
+         *
+         * Runs immediately before the optimization/thumbnail loop, allowing
+         * applications to add per-image sizes, drop unnecessary ones, or
+         * swap crop settings on a per-media basis.
+         *
+         * @since 1.4.0
+         *
+         * @param array<string, array<string, mixed>> $sizes The resolved image sizes.
+         * @param Media|null                          $media The media instance being processed, when known.
+         *
+         * @return array<string, array<string, mixed>> The (possibly modified) size definitions.
+         */
+        return (array) applyFilters( 'ap.mediaLibrary.imageSizes', $sizes, $media );
+    }
+
+    /**
      * Read the current on-disk size for a media item, tolerating missing
      * files by returning null so the optimization delta stays honest.
      *
@@ -425,39 +458,6 @@ class MediaProcessingService
         }
 
         return new ImageManager( new GdDriver );
-    }
-
-    /**
-     * Gets all configured image sizes (built-in + custom).
-     *
-     * @since 1.0.0
-     *
-     * @param  Media|null  $media  Optional media context for the filter.
-     *
-     * @return array<string, array<string, mixed>> The image sizes configuration.
-     */
-    protected function getImageSizes( ?Media $media = null ): array
-    {
-        $builtInSizes = config( 'artisanpack.media.image_sizes', [] );
-        $customSizes  = config( 'artisanpack.media.custom_image_sizes', [] );
-        $sizes        = array_merge( $builtInSizes, $customSizes );
-
-        /**
-         * Filters the set of image sizes that will be generated for a media
-         * item.
-         *
-         * Runs immediately before the optimization/thumbnail loop, allowing
-         * applications to add per-image sizes, drop unnecessary ones, or
-         * swap crop settings on a per-media basis.
-         *
-         * @since 1.4.0
-         *
-         * @param array<string, array<string, mixed>> $sizes The resolved image sizes.
-         * @param Media|null                          $media The media instance being processed, when known.
-         *
-         * @return array<string, array<string, mixed>> The (possibly modified) size definitions.
-         */
-        return (array) applyFilters( 'ap.mediaLibrary.imageSizes', $sizes, $media );
     }
 
     /**

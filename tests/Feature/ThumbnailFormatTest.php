@@ -20,6 +20,7 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\DriverInterface;
 use Mockery;
 use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
 use Tests\TestCase;
 
 /**
@@ -258,6 +259,78 @@ class ThumbnailFormatTest extends TestCase
             ->assertFailed();
 
         Storage::disk( 'test-disk' )->assertExists( 'uploads/logo-thumbnail.png' );
+    }
+
+    public function test_command_selects_rows_by_file_extension_not_mime_type(): void
+    {
+        $media = $this->createImageMedia( 'logo.png', 'image/png' );
+        $media->update( [ 'mime_type' => 'image/jpeg' ] );
+
+        $this->createImageMedia( 'photo.jpg', 'image/jpeg' )->update( [ 'mime_type' => 'image/png' ] );
+
+        $this->artisan( 'media:regenerate-thumbnails' )
+            ->expectsOutput( 'Regenerated thumbnails for 1 image(s); 0 failed.' )
+            ->assertSuccessful();
+
+        Storage::disk( 'test-disk' )->assertExists( 'uploads/logo-thumbnail.png' );
+        Storage::disk( 'test-disk' )->assertMissing( 'uploads/photo-thumbnail.jpg' );
+    }
+
+    public function test_command_never_selects_svg_rows_with_a_raster_extension(): void
+    {
+        $this->createImageMedia( 'logo.png', 'image/svg+xml' );
+
+        $this->artisan( 'media:regenerate-thumbnails' )
+            ->expectsOutput( 'Regenerated thumbnails for 0 image(s); 0 failed.' )
+            ->assertSuccessful();
+    }
+
+    public function test_command_keeps_going_when_a_row_throws(): void
+    {
+        $broken = $this->createImageMedia( 'broken.png', 'image/png' );
+        $this->createImageMedia( 'logo.png', 'image/png' );
+
+        $listener = function ( Media $media ) use ( $broken ): void {
+            if ( $media->is( $broken ) ) {
+                throw new RuntimeException( 'CDN push failed' );
+            }
+        };
+
+        addAction( 'ap.mediaLibrary.thumbnailsGenerated', $listener );
+
+        $this->artisan( 'media:regenerate-thumbnails' )
+            ->expectsOutput( 'Regenerated thumbnails for 1 image(s); 1 failed.' )
+            ->assertFailed();
+
+        removeAction( 'ap.mediaLibrary.thumbnailsGenerated', $listener );
+
+        Storage::disk( 'test-disk' )->assertExists( 'uploads/logo-thumbnail.png' );
+    }
+
+    public function test_command_fails_a_row_with_only_some_sizes_generated(): void
+    {
+        $media = $this->createImageMedia( 'logo.png', 'image/png' );
+
+        $this->mock( MediaProcessingService::class, function ( $mock ): void {
+            $mock->shouldReceive( 'generateThumbnails' )->andReturn( [ 'thumbnail' => 'uploads/logo-thumbnail.png' ] );
+            $mock->shouldReceive( 'getImageSizes' )->andReturn( [ 'thumbnail' => [], 'medium' => [] ] );
+        } );
+
+        $this->artisan( 'media:regenerate-thumbnails' )
+            ->expectsOutput( "Missing sizes for media {$media->getKey()} (uploads/logo.png): medium." )
+            ->expectsOutput( 'Regenerated thumbnails for 0 image(s); 1 failed.' )
+            ->assertFailed();
+    }
+
+    public function test_command_succeeds_when_no_sizes_are_configured(): void
+    {
+        config( [ 'artisanpack.media.image_sizes' => [] ] );
+
+        $this->createImageMedia( 'logo.png', 'image/png' );
+
+        $this->artisan( 'media:regenerate-thumbnails' )
+            ->expectsOutput( 'Regenerated thumbnails for 1 image(s); 0 failed.' )
+            ->assertSuccessful();
     }
 
     /**

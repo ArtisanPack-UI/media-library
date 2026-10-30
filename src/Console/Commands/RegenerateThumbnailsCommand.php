@@ -3,7 +3,7 @@
 /**
  * Regenerate Thumbnails Command
  *
- * Rebuilds thumbnails for existing images whose source format isn't JPEG.
+ * Rebuilds thumbnails for existing images whose file isn't a JPEG or SVG.
  * Before 1.7.0 those thumbnails were JPEG data saved under the source
  * file's extension. Idempotent — thumbnails are overwritten in place, and
  * the optimization tracking columns are left untouched.
@@ -21,6 +21,7 @@ namespace ArtisanPackUI\MediaLibrary\Console\Commands;
 use ArtisanPackUI\MediaLibrary\Models\Media;
 use ArtisanPackUI\MediaLibrary\Services\MediaProcessingService;
 use Illuminate\Console\Command;
+use Throwable;
 
 /**
  * Artisan command to regenerate thumbnails for existing non-JPEG images.
@@ -61,14 +62,31 @@ class RegenerateThumbnailsCommand extends Command
         $regenerated = 0;
         $failed      = 0;
 
+        // Thumbnails take their extension from file_path, which can disagree
+        // with mime_type because uploads keep the client's extension
         Media::query()
             ->where( 'mime_type', 'like', 'image/%' )
-            ->whereNotIn( 'mime_type', [ 'image/jpeg', 'image/jpg', 'image/svg+xml' ] )
+            ->where( 'mime_type', '!=', 'image/svg+xml' )
+            ->where( 'file_path', 'not like', '%.jpg' )
+            ->where( 'file_path', 'not like', '%.jpeg' )
+            ->where( 'file_path', 'not like', '%.svg' )
             ->chunkById( $chunkSize, function ( $rows ) use ( $processingService, &$regenerated, &$failed ): void {
                 foreach ( $rows as $media ) {
-                    if ( [] === $processingService->generateThumbnails( $media ) ) {
+                    try {
+                        $thumbnails = $processingService->generateThumbnails( $media );
+                        $missing    = array_diff_key( $processingService->getImageSizes( $media ), $thumbnails );
+                    } catch ( Throwable $e ) {
                         $failed++;
-                        $this->warn( "No thumbnails generated for media {$media->getKey()} ({$media->file_path})." );
+                        $this->warn( "Failed to regenerate media {$media->getKey()} ({$media->file_path}): {$e->getMessage()}" );
+
+                        continue;
+                    }
+
+                    // A size that failed still has its old file on disk
+                    if ( [] !== $missing ) {
+                        $failed++;
+                        $sizes = implode( ', ', array_keys( $missing ) );
+                        $this->warn( "Missing sizes for media {$media->getKey()} ({$media->file_path}): {$sizes}." );
 
                         continue;
                     }
